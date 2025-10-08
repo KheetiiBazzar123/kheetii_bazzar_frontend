@@ -110,7 +110,7 @@ function RegisterForm() {
   ];
 
   return (
-    <div className="min-h-screen hero-gradient flex items-center justify-center p-4">
+    <div className="flex justify-center items-center p-4 min-h-screen hero-gradient">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -118,26 +118,26 @@ function RegisterForm() {
         className="w-full max-w-4xl"
       >
         {/* Back Button */}
-        <Link href="/" className="inline-flex items-center text-gray-600 hover:text-emerald-600 mb-8 transition-colors">
-          <ArrowLeftIcon className="h-5 w-5 mr-2" />
+        <Link href="/" className="inline-flex items-center mb-8 text-gray-600 transition-colors dark:text-white hover:text-emerald-600">
+          <ArrowLeftIcon className="mr-2 w-5 h-5" />
           Back to Home
         </Link>
 
         {/* Registration Card */}
-        <div className="glass p-8 rounded-3xl shadow-2xl">
+        <div className="p-8 rounded-3xl shadow-2xl glass">
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <SparklesIcon className="h-8 w-8 text-white" />
+          <div className="mb-8 text-center">
+            <div className="flex justify-center items-center mx-auto mb-4 w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl">
+              <SparklesIcon className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Join KheetiiBazaar</h1>
-            <p className="text-gray-600">Create your account and start your agricultural journey</p>
+            <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">Join KheetiiBazaar</h1>
+            <p className="text-gray-600 dark:text-white">Create your account and start your agricultural journey</p>
           </div>
 
           {/* Role Selection */}
           <div className="mb-8">
-            <label className="label text-center block">Choose your role</label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <label className="block text-center label dark:text-white">Choose your role</label>
+            <div className="grid grid-cols-1 gap-4 mt-4 md:grid-cols-2">
               {roleOptions.map((option) => (
                 <motion.button
                   key={option.value}
@@ -153,7 +153,7 @@ function RegisterForm() {
                 >
                   <div className="flex items-center space-x-4">
                     <div className={`w-12 h-12 bg-gradient-to-br ${option.color} rounded-xl flex items-center justify-center`}>
-                      <option.icon className="h-6 w-6 text-white" />
+                      <option.icon className="w-6 h-6 text-white" />
                     </div>
                     <div className="text-left">
                       <h3 className="font-semibold text-gray-900">{option.label}</h3>
@@ -171,16 +171,16 @@ function RegisterForm() {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm"
+                className="px-4 py-3 text-sm text-red-600 bg-red-50 rounded-xl border border-red-200"
               >
                 {error}
               </motion.div>
             )}
 
             {/* Personal Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="form-group">
-                <label htmlFor="firstName" className="label">
+                <label htmlFor="firstName" className="label dark:text-white">
                   First Name
                 </label>
                 <input
@@ -189,14 +189,14 @@ function RegisterForm() {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="input"
+                  className="input dark:text-black"
                   placeholder="Enter your first name"
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="lastName" className="label">
+                <label htmlFor="lastName" className="label dark:text-white">
                   Last Name
                 </label>
                 <input
@@ -205,7 +205,7 @@ function RegisterForm() {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="input"
+                  className="input dark:text-black"
                   placeholder="Enter your last name"
                   required
                 />
@@ -213,7 +213,7 @@ function RegisterForm() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="email" className="label">
+              <label htmlFor="email" className="label dark:text-white">
                 Email Address
               </label>
               <input
@@ -222,14 +222,14 @@ function RegisterForm() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="input"
+                className="input dark:text-black"
                 placeholder="Enter your email"
                 required
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="phone" className="label">
+              <label htmlFor="phone" className="label dark:text-white">
                 Phone Number
               </label>
               <input
@@ -238,7 +238,7 @@ function RegisterForm() {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className="input"
+                className="input dark:text-black"
                 placeholder="Enter your phone number"
                 required
               />
@@ -246,10 +246,10 @@ function RegisterForm() {
 
             {/* Address */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Address Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Address Information</h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="form-group">
-                  <label htmlFor="address.street" className="label">
+                  <label htmlFor="address.street" className="label dark:text-white">
                     Street Address
                   </label>
                   <input
@@ -258,14 +258,14 @@ function RegisterForm() {
                     name="address.street"
                     value={formData.address.street}
                     onChange={handleChange}
-                    className="input"
+                    className="input dark:text-black"
                     placeholder="Enter street address"
                     required
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="address.city" className="label">
+                  <label htmlFor="address.city" className="label dark:text-white">
                     City
                   </label>
                   <input
@@ -274,14 +274,14 @@ function RegisterForm() {
                     name="address.city"
                     value={formData.address.city}
                     onChange={handleChange}
-                    className="input"
+                    className="input dark:text-black"
                     placeholder="Enter city"
                     required
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="address.state" className="label">
+                  <label htmlFor="address.state" className="label dark:text-white">
                     State
                   </label>
                   <input
@@ -290,14 +290,14 @@ function RegisterForm() {
                     name="address.state"
                     value={formData.address.state}
                     onChange={handleChange}
-                    className="input"
+                    className="input dark:text-black"
                     placeholder="Enter state"
                     required
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="address.zip" className="label">
+                  <label htmlFor="address.zip" className="label dark:text-white">
                     ZIP Code
                   </label>
                   <input
@@ -306,7 +306,7 @@ function RegisterForm() {
                     name="address.zip"
                     value={formData.address.zip}
                     onChange={handleChange}
-                    className="input"
+                    className="input dark:text-black"
                     placeholder="Enter ZIP code"
                     required
                   />
@@ -315,9 +315,9 @@ function RegisterForm() {
             </div>
 
             {/* Password */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="form-group">
-                <label htmlFor="password" className="label">
+                <label htmlFor="password" className="label dark:text-white">
                   Password
                 </label>
                 <div className="relative">
@@ -327,7 +327,7 @@ function RegisterForm() {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="input pr-12"
+                    className="pr-12 input dark:text-black"
                     placeholder="Create a password"
                     required
                     minLength={6}
@@ -335,19 +335,19 @@ function RegisterForm() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 text-gray-400 transform -translate-y-1/2 hover:text-gray-600"
                   >
                     {showPassword ? (
-                      <EyeSlashIcon className="h-5 w-5" />
+                      <EyeSlashIcon className="w-5 h-5" />
                     ) : (
-                      <EyeIcon className="h-5 w-5" />
+                      <EyeIcon className="w-5 h-5" />
                     )}
                   </button>
                 </div>
               </div>
 
               <div className="form-group">
-                <label htmlFor="confirmPassword" className="label">
+                <label htmlFor="confirmPassword" className="label dark:text-white">
                   Confirm Password
                 </label>
                 <div className="relative">
@@ -357,19 +357,19 @@ function RegisterForm() {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="input pr-12"
+                    className="pr-12 input dark:text-black"
                     placeholder="Confirm your password"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 text-gray-400 transform -translate-y-1/2 hover:text-gray-600"
                   >
                     {showConfirmPassword ? (
-                      <EyeSlashIcon className="h-5 w-5" />
+                      <EyeSlashIcon className="w-5 h-5" />
                     ) : (
-                      <EyeIcon className="h-5 w-5" />
+                      <EyeIcon className="w-5 h-5" />
                     )}
                   </button>
                 </div>
@@ -380,10 +380,10 @@ function RegisterForm() {
               <input 
                 type="checkbox" 
                 id="terms" 
-                className="mt-1 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" 
+                className="mt-1 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500" 
                 required
               />
-              <label htmlFor="terms" className="ml-2 text-sm text-gray-600">
+              <label htmlFor="terms" className="ml-2 text-sm text-gray-600 dark:text-white">
                 I agree to the{' '}
                 <Link href="/terms" className="text-emerald-600 hover:text-emerald-700">
                   Terms of Service
@@ -401,8 +401,8 @@ function RegisterForm() {
               disabled={loading}
             >
               {loading ? (
-                <div className="flex items-center justify-center">
-                  <div className="spinner h-5 w-5 mr-2"></div>
+                <div className="flex justify-center items-center">
+                  <div className="mr-2 w-5 h-5 spinner"></div>
                   Creating account...
                 </div>
               ) : (
@@ -412,10 +412,10 @@ function RegisterForm() {
           </form>
 
           {/* Sign In Link */}
-          <div className="text-center mt-8">
-            <p className="text-gray-600">
+          <div className="mt-8 text-center">
+            <p className="text-gray-600 dark:text-white">
               Already have an account?{' '}
-              <Link href="/auth/login" className="text-emerald-600 hover:text-emerald-700 font-semibold">
+              <Link href="/auth/login" className="font-semibold text-emerald-600 hover:text-emerald-700">
                 Sign in here
               </Link>
             </p>
