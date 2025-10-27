@@ -96,10 +96,14 @@ class ApiClient {
     return response.data;
   }
 
-  async getCategories(): Promise<ApiResponse<string[]>> {
-    const response = await this.client.get('/api/v1/products/categories');
-    return response.data;
-  }
+  // async getCategories(): Promise<ApiResponse<string[]>> {
+  //   const response = await this.client.get('/api/v1/products/categories');
+  //   return response.data;
+  // }
+async getCategories(): Promise<ApiResponse<{ categories: string[], categoryCounts: { category: string, count: number }[] }>> {
+  const response = await this.client.get('/api/v1/categories');
+  return response.data;
+}
 
   async createProduct(data: FormData): Promise<ApiResponse<Product>> {
     const response = await this.client.post('/api/v1/products', data, {
@@ -154,12 +158,19 @@ class ApiClient {
     return response.data;
   }
 
-  async getFarmerOrders(page = 1, limit = 10, status?: string): Promise<PaginatedResponse<Order>> {
-    const response = await this.client.get('/api/v1/orders/farmer/my-orders', {
+  // async getFarmerOrders(page = 1, limit = 10, status?: string): Promise<PaginatedResponse<Order>> {
+  //   const response = await this.client.get('/api/v1/orders/farmer/my-orders', {
+  //     params: { page, limit, status },
+  //   });
+  //   return response.data;
+  // }
+   async getFarmerOrders(page = 1, limit = 10, status?: string): Promise<PaginatedResponse<Order>> {
+    const response = await this.client.get('/api/v1/farmer/orders', {
       params: { page, limit, status },
     });
     return response.data;
   }
+  
 
   async getOrder(id: string): Promise<ApiResponse<Order>> {
     const response = await this.client.get(`/api/v1/orders/${id}`);
@@ -180,6 +191,42 @@ class ApiClient {
     const response = await this.client.get('/api/v1/orders/farmer/stats');
     return response.data;
   }
+async getNotifications({ page = 1, limit = 10 } = {}) {
+  const query = `?page=${page}&limit=${limit}`;
+  return this.client(`/api/v1/notifications${query}`, {
+    method: 'GET',
+  });
+}
+async getUnreadNotificationCount(): Promise<ApiResponse<{ unreadCount: number }>> {
+  const response = await this.client.get('/api/v1/notifications/count');
+  return response.data;
+}
+
+async markNotificationAsRead(notificationId: string) {
+  return this.client(`/api/v1/notifications/${notificationId}/read`, {
+    method: "PATCH",
+  });
+}
+async markAllNotificationsAsRead() {
+  return this.client('/api/v1/notifications/read-all', {
+    method: "PATCH",
+  });
+}
+
+  // ApiClient.ts
+async uploadImage(file: File, folder = 'products'): Promise<string> {
+  const formData = new FormData();
+  formData.append('image', file); 
+
+  const response = await this.client.post('/api/v1/upload/image', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return response.data.url; 
+}
+
 
   // File upload helper
   async uploadFile(file: File, folder = 'products'): Promise<string> {
@@ -195,6 +242,7 @@ class ApiClient {
     return response.data.url;
   }
 }
+
 
 export const apiClient = new ApiClient();
 export default apiClient;

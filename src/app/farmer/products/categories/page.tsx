@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import {apiClient} from '@/lib/api'
 import { 
   TagIcon,
   PlusIcon,
@@ -26,40 +27,45 @@ interface Category {
 
 function CategoriesPage() {
   const { user } = useAuth();
-  const [categories, setCategories] = useState<Category[]>([
-    {
-      id: '1',
-      name: 'Vegetables',
-      description: 'Fresh vegetables from the farm',
-      productCount: 12,
-      isActive: true,
-      createdAt: '2024-01-15'
-    },
-    {
-      id: '2',
-      name: 'Fruits',
-      description: 'Seasonal fruits and berries',
-      productCount: 8,
-      isActive: true,
-      createdAt: '2024-01-15'
-    },
-    {
-      id: '3',
-      name: 'Grains',
-      description: 'Whole grains and cereals',
-      productCount: 5,
-      isActive: true,
-      createdAt: '2024-01-15'
-    },
-    {
-      id: '4',
-      name: 'Spices',
-      description: 'Aromatic spices and herbs',
-      productCount: 3,
-      isActive: false,
-      createdAt: '2024-01-15'
-    }
-  ]);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+
+  // const [categories, setCategories] = useState<Category[]>([
+  //   {
+  //     id: '1',
+  //     name: 'Vegetables',
+  //     description: 'Fresh vegetables from the farm',
+  //     productCount: 12,
+  //     isActive: true,
+  //     createdAt: '2024-01-15'
+  //   },
+  //   {
+  //     id: '2',
+  //     name: 'Fruits',
+  //     description: 'Seasonal fruits and berries',
+  //     productCount: 8,
+  //     isActive: true,
+  //     createdAt: '2024-01-15'
+  //   },
+  //   {
+  //     id: '3',
+  //     name: 'Grains',
+  //     description: 'Whole grains and cereals',
+  //     productCount: 5,
+  //     isActive: true,
+  //     createdAt: '2024-01-15'
+  //   },
+  //   {
+  //     id: '4',
+  //     name: 'Spices',
+  //     description: 'Aromatic spices and herbs',
+  //     productCount: 3,
+  //     isActive: false,
+  //     createdAt: '2024-01-15'
+  //   }
+  // ]);
+  const [loading, setLoading] = useState(true);
+
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -123,10 +129,57 @@ function CategoriesPage() {
     ));
   };
 
+  const fetchCategories = async () => {
+  setLoading(true);
+  try {
+    const response = await apiClient.getCategories();
+    if (response.success && response.data) {
+const apiCategories: Category[] = response.data.categories.map((catName, index) => {
+  const countObj = response.data.categoryCounts.find(c => c.category === catName);
+  return {
+    id: index.toString(),
+    name: catName,
+    description: '', // agar API description nahi deti
+    productCount: countObj ? countObj.count : 0,
+    isActive: true,
+    createdAt: new Date().toISOString().split('T')[0]
+  };
+});
+
+      setCategories(apiCategories);
+    } else {
+      setCategories([]);
+    }
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    setCategories([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  fetchCategories();
+}, []);
+
+
   const totalProducts = categories.reduce((sum, cat) => sum + cat.productCount, 0);
   const activeCategories = categories.filter(cat => cat.isActive).length;
 
+  
+  
+if (loading) {
   return (
+    <DashboardLayout title="Categories" subtitle="Loading categories...">
+      <div className="flex items-center justify-center min-h-96">
+        <div className="spinner h-16 w-16"></div>
+      </div>
+    </DashboardLayout>
+  );
+}
+
+  return (
+    
     <DashboardLayout
       title="Product Categories"
       subtitle="Manage your product categories and organization"

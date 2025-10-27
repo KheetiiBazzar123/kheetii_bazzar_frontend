@@ -13,6 +13,7 @@ import {
   ArrowDownTrayIcon,
   BanknotesIcon
 } from '@heroicons/react/24/outline';
+import { apiService } from '@/services/api';
 
 interface EarningsData {
   totalEarnings: number;
@@ -42,66 +43,113 @@ function EarningsPage() {
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
 
-  useEffect(() => {
-    fetchEarningsData();
-  }, [timeRange]);
+ useEffect(() => {
+  fetchEarningsData();
+}, []);
 
   const fetchEarningsData = async () => {
-    setLoading(true);
-    try {
-      // TODO: Implement API call to fetch earnings data
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockData: EarningsData = {
-        totalEarnings: 15420.50,
-        thisMonth: 2850.75,
-        lastMonth: 2420.30,
-        growth: 17.8,
-        pendingPayouts: 450.25,
-        availableBalance: 2400.50,
-        monthlyBreakdown: [
-          { month: 'Jan', earnings: 1200, orders: 8 },
-          { month: 'Feb', earnings: 1350, orders: 9 },
-          { month: 'Mar', earnings: 1420, orders: 10 },
-          { month: 'Apr', earnings: 1580, orders: 11 },
-          { month: 'May', earnings: 1650, orders: 12 },
-          { month: 'Jun', earnings: 1720, orders: 13 }
-        ],
-        recentTransactions: [
-          {
-            id: '1',
-            amount: 125.50,
-            type: 'sale',
-            description: 'Order #ORD-2024-001 - Organic Tomatoes',
-            date: '2024-01-15T10:30:00Z',
-            status: 'completed'
-          },
-          {
-            id: '2',
-            amount: 89.75,
-            type: 'sale',
-            description: 'Order #ORD-2024-002 - Fresh Carrots',
-            date: '2024-01-14T14:20:00Z',
-            status: 'completed'
-          },
-          {
-            id: '3',
-            amount: 2400.50,
-            type: 'payout',
-            description: 'Monthly payout to bank account',
-            date: '2024-01-01T09:00:00Z',
-            status: 'completed'
-          }
-        ]
+  setLoading(true);
+  try {
+    const response = await apiService.getFarmerEarnings();
+
+    if (response.success && response.data) {
+      const apiData = response.data;
+
+      const mappedData: EarningsData = {
+        totalEarnings: apiData.orders.totalRevenue,
+        thisMonth: apiData.monthlyEarnings.length
+          ? apiData.monthlyEarnings[apiData.monthlyEarnings.length - 1].earnings
+          : 0,
+        lastMonth: apiData.monthlyEarnings.length > 1
+          ? apiData.monthlyEarnings[apiData.monthlyEarnings.length - 2].earnings
+          : 0,
+        growth:
+          apiData.monthlyEarnings.length > 1
+            ? (
+                ((apiData.monthlyEarnings[apiData.monthlyEarnings.length - 1].earnings -
+                  apiData.monthlyEarnings[apiData.monthlyEarnings.length - 2].earnings) /
+                  apiData.monthlyEarnings[apiData.monthlyEarnings.length - 2].earnings) *
+                100
+              ).toFixed(2)
+            : 0,
+        pendingPayouts: apiData.orders.pendingOrders,
+        availableBalance: apiData.orders.totalRevenue,
+        monthlyBreakdown: apiData.monthlyEarnings.map(item => ({
+          month: `${item._id.month}/${item._id.year}`,
+          earnings: item.earnings,
+          orders: 0, // backend doesn’t send order count per month
+        })),
+        recentTransactions: [], // if backend adds this later
       };
-      
-      setEarnings(mockData);
-    } catch (error) {
-      console.error('Error fetching earnings data:', error);
-    } finally {
-      setLoading(false);
+
+      setEarnings(mappedData);
+    } else {
+      console.error('API Error:', response.message);
     }
-  };
+  } catch (error) {
+    console.error('Error fetching earnings:', error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  // const fetchEarningsData = async () => {
+  //   setLoading(true);
+  //   try {
+  //     // TODO: Implement API call to fetch earnings data
+  //     await new Promise(resolve => setTimeout(resolve, 1000));
+      
+  //     const mockData: EarningsData = {
+  //       totalEarnings: 15420.50,
+  //       thisMonth: 2850.75,
+  //       lastMonth: 2420.30,
+  //       growth: 17.8,
+  //       pendingPayouts: 450.25,
+  //       availableBalance: 2400.50,
+  //       monthlyBreakdown: [
+  //         { month: 'Jan', earnings: 1200, orders: 8 },
+  //         { month: 'Feb', earnings: 1350, orders: 9 },
+  //         { month: 'Mar', earnings: 1420, orders: 10 },
+  //         { month: 'Apr', earnings: 1580, orders: 11 },
+  //         { month: 'May', earnings: 1650, orders: 12 },
+  //         { month: 'Jun', earnings: 1720, orders: 13 }
+  //       ],
+  //       recentTransactions: [
+  //         {
+  //           id: '1',
+  //           amount: 125.50,
+  //           type: 'sale',
+  //           description: 'Order #ORD-2024-001 - Organic Tomatoes',
+  //           date: '2024-01-15T10:30:00Z',
+  //           status: 'completed'
+  //         },
+  //         {
+  //           id: '2',
+  //           amount: 89.75,
+  //           type: 'sale',
+  //           description: 'Order #ORD-2024-002 - Fresh Carrots',
+  //           date: '2024-01-14T14:20:00Z',
+  //           status: 'completed'
+  //         },
+  //         {
+  //           id: '3',
+  //           amount: 2400.50,
+  //           type: 'payout',
+  //           description: 'Monthly payout to bank account',
+  //           date: '2024-01-01T09:00:00Z',
+  //           status: 'completed'
+  //         }
+  //       ]
+  //     };
+      
+  //     setEarnings(mockData);
+  //   } catch (error) {
+  //     console.error('Error fetching earnings data:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const getTransactionIcon = (type: string) => {
     switch (type) {

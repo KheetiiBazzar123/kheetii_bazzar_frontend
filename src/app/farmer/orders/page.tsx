@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { apiService } from '@/services/api';
+import {apiClient} from '@/lib/api'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { 
@@ -20,6 +21,8 @@ import {
   EnvelopeIcon
 } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
+
 
 interface Order {
   _id: string;
@@ -60,30 +63,34 @@ function FarmerOrders() {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>('all');
+const searchParams = useSearchParams();
+const [filter, setFilter] = useState<string>('all');useEffect(() => {
+  const statusParam = searchParams.get('status');
+  setFilter(statusParam || 'all');
+}, [searchParams]);
 
-  useEffect(() => {
-    fetchOrders();
-  }, [filter]);
+useEffect(() => {
+  fetchOrders();
+}, [filter]);
+ const fetchOrders = async () => {
+  try {
+    const response = await apiClient.getFarmerOrders(
+      1,
+      50,
+      filter === 'all' ? undefined : filter
+    );
 
-  const fetchOrders = async () => {
-    try {
-      const response = await apiService.getFarmerOrders({
-        page: 1,
-        limit: 50,
-        status: filter === 'all' ? undefined : filter,
-      });
-      
-      if (response.success && response.data) {
-        setOrders(response.data.orders);
-      }
-      
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      setLoading(false);
+   
+    if (response && response.data) {
+      setOrders(response.data); 
     }
-  };
+
+    setLoading(false);
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    setLoading(false);
+  }
+};
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     try {

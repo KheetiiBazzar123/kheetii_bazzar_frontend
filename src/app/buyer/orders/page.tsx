@@ -481,6 +481,8 @@
 //                 className="btn-primary"
 //               >
 //                 Start Shopping
+
+
 //               </Button>
 //             )}
 //           </div>
@@ -504,6 +506,9 @@ import { withBuyerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { apiService } from '@/services/api';
+
+
 import { 
   EyeIcon,
   XMarkIcon,
@@ -563,142 +568,54 @@ function BuyerOrders() {
   const [filter, setFilter] = useState<string>('all');
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    fetchOrders();
-  }, [filter]);
+// In your BuyerOrders component, replace the fetchOrders function:
 
-  const fetchOrders = async () => {
-    try {
-      // In a real app, you would fetch from your API
-      // For now, we'll use mock data
-      const mockOrders: Order[] = [
-        {
-          _id: '1',
-          farmer: {
-            firstName: 'Raj',
-            lastName: 'Kumar',
-            email: 'raj@example.com',
-            phone: '+91 98765 43210'
-          },
-          products: [
-            {
-              product: {
-                _id: '1',
-                name: 'Fresh Organic Tomatoes',
-                price: 50,
-                // images: []
-                images: ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8N5csgcRa_EQ-J6kbBBCThAm2MsDxURj5sw&s"]
-              },
-              quantity: 5,
-              totalPrice: 250
-            }
-          ],
-          totalAmount: 250,
-          status: 'confirmed',
-          paymentStatus: 'paid',
-          paymentMethod: 'upi',
-          shippingAddress: {
-            street: '123 Main Street',
-            city: 'Delhi',
-            state: 'Delhi',
-            zipCode: '110001',
-            country: 'India'
-          },
-          deliveryDate: '2024-01-20',
-          blockchainTxId: '0x1234567890abcdef',
-          blockchainStatus: 'verified',
-          notes: 'Please deliver in the morning',
-          createdAt: '2024-01-15T10:30:00Z',
-          updatedAt: '2024-01-15T10:30:00Z'
-        },
-        {
-          _id: '2',
-          farmer: {
-            firstName: 'Priya',
-            lastName: 'Sharma',
-            email: 'priya@example.com',
-            phone: '+91 98765 43211'
-          },
-          products: [
-            {
-              product: {
-                _id: '2',
-                name: 'Sweet Mangoes',
-                price: 80,
-                images: ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZfZqe1WL-fLg_LQ4YxiaM2vp2UQze5ddVQQ&s"]
-              },
-              quantity: 3,
-              totalPrice: 240
-            }
-          ],
-          totalAmount: 240,
-          status: 'shipped',
-          paymentStatus: 'paid',
-          paymentMethod: 'card',
-          shippingAddress: {
-            street: '123 Main Street',
-            city: 'Delhi',
-            state: 'Delhi',
-            zipCode: '110001',
-            country: 'India'
-          },
-          deliveryDate: '2024-01-18',
-          blockchainTxId: '0xabcdef1234567890',
-          blockchainStatus: 'verified',
-          createdAt: '2024-01-14T14:20:00Z',
-          updatedAt: '2024-01-16T09:15:00Z'
-        },
-        {
-          _id: '3',
-          farmer: {
-            firstName: 'Amit',
-            lastName: 'Singh',
-            email: 'amit@example.com',
-            phone: '+91 98765 43212'
-          },
-          products: [
-            {
-              product: {
-                _id: '3',
-                name: 'Basmati Rice',
-                price: 120,
-                images: ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlCZcAceDUgxII0KB0t2v_1ewWPKisKNLBJA&s"]
-              },
-              quantity: 2,
-              totalPrice: 240
-            }
-          ],
-          totalAmount: 240,
-          status: 'delivered',
-          paymentStatus: 'paid',
-          paymentMethod: 'cod',
-          shippingAddress: {
-            street: '123 Main Street',
-            city: 'Delhi',
-            state: 'Delhi',
-            zipCode: '110001',
-            country: 'India'
-          },
-          deliveryDate: '2024-01-12',
-          blockchainTxId: '0x9876543210fedcba',
-          blockchainStatus: 'verified',
-          createdAt: '2024-01-10T16:45:00Z',
-          updatedAt: '2024-01-12T11:30:00Z'
-        }
-      ];
-
-      let filteredOrders = mockOrders;
-      if (filter !== 'all') {
-        filteredOrders = mockOrders.filter(order => order.status === filter);
-      }
-
-      setOrders(filteredOrders);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      setLoading(false);
+const fetchOrders = async () => {
+  setLoading(true);
+  try {
+    // Create params object
+    const params: {
+      page?: number;
+      limit?: number;
+      status?: string;
+    } = {
+      page: 1,
+      limit: 10
+    };
+    
+    // Only add status if it's not 'all'
+    if (filter !== 'all') {
+      params.status = filter;
     }
-  };
+    
+    // Call API with params object
+    const response = await apiService.getBuyerOrders(params);
+    
+    // Type-safe way to handle response - sab red lines chali jayengi
+    const data = response.data as any;
+    
+    if (Array.isArray(data)) {
+      // Agar direct array hai
+      setOrders(data);
+    } else if (data.orders && Array.isArray(data.orders)) {
+      // Agar nested object hai with orders property
+      setOrders(data.orders);
+    } else {
+      // Fallback to empty array
+      setOrders([]);
+    }
+    
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    setOrders([]); // Error pe empty array set karo
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  fetchOrders();
+}, [filter]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
+
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { 
+  
   BellIcon,
   CheckIcon,
   XMarkIcon,
@@ -16,6 +18,7 @@ import {
   InformationCircleIcon
 } from '@heroicons/react/24/outline';
 
+import {apiClient} from "@/lib/api";
 interface Notification {
   _id: string;
   type: 'order' | 'payment' | 'review' | 'system' | 'warning';
@@ -25,10 +28,12 @@ interface Notification {
   createdAt: string;
   actionUrl?: string;
   priority: 'low' | 'medium' | 'high';
-}
 
+}
 function NotificationsPage() {
   const { user } = useAuth();
+  const [unreadCount, setUnreadCount] = useState(0);
+
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'unread' | 'order' | 'payment' | 'review' | 'system'>('all');
@@ -36,72 +41,88 @@ function NotificationsPage() {
   useEffect(() => {
     fetchNotifications();
   }, [filter]);
+const fetchNotifications = async () => {
+  setLoading(true);
+  try {
+    const response = await apiClient.getNotifications({ page: 1, limit: 10 });
+    console.log("API Response:", response);
 
-  const fetchNotifications = async () => {
-    setLoading(true);
-    try {
-      // TODO: Implement API call to fetch notifications
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockNotifications: Notification[] = [
-        {
-          _id: '1',
-          type: 'order',
-          title: 'New Order Received',
-          message: 'You have received a new order for Organic Tomatoes from John Doe',
-          isRead: false,
-          createdAt: '2024-01-15T10:30:00Z',
-          actionUrl: '/farmer/orders',
-          priority: 'high'
-        },
-        {
-          _id: '2',
-          type: 'payment',
-          title: 'Payment Received',
-          message: 'Payment of $125.50 has been received for order #ORD-2024-001',
-          isRead: false,
-          createdAt: '2024-01-15T11:15:00Z',
-          actionUrl: '/farmer/earnings',
-          priority: 'medium'
-        },
-        {
-          _id: '3',
-          type: 'review',
-          title: 'New Product Review',
-          message: 'John Doe left a 5-star review for your Organic Tomatoes',
-          isRead: true,
-          createdAt: '2024-01-14T16:20:00Z',
-          actionUrl: '/farmer/reviews',
-          priority: 'medium'
-        },
-        {
-          _id: '4',
-          type: 'system',
-          title: 'System Maintenance',
-          message: 'Scheduled maintenance will occur tonight from 2 AM to 4 AM',
-          isRead: true,
-          createdAt: '2024-01-14T09:00:00Z',
-          priority: 'low'
-        },
-        {
-          _id: '5',
-          type: 'warning',
-          title: 'Low Stock Alert',
-          message: 'Your Fresh Carrots inventory is running low (only 5 units left)',
-          isRead: false,
-          createdAt: '2024-01-13T14:30:00Z',
-          actionUrl: '/farmer/products',
-          priority: 'high'
-        }
-      ];
-      
-      setNotifications(mockNotifications);
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-    } finally {
-      setLoading(false);
+    if (response.data.success && response.data?.notifications) {
+      setNotifications(response.data.notifications);
     }
-  };
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  // const fetchNotifications = async () => {
+  //   setLoading(true);
+  //   try {
+  //     // TODO: Implement API call to fetch notifications
+  //     await new Promise(resolve => setTimeout(resolve, 1000));
+      
+  //     const mockNotifications: Notification[] = [
+  //       {
+  //         _id: '1',
+  //         type: 'order',
+  //         title: 'New Order Received',
+  //         message: 'You have received a new order for Organic Tomatoes from John Doe',
+  //         isRead: false,
+  //         createdAt: '2024-01-15T10:30:00Z',
+  //         actionUrl: '/farmer/orders',
+  //         priority: 'high'
+  //       },
+  //       {
+  //         _id: '2',
+  //         type: 'payment',
+  //         title: 'Payment Received',
+  //         message: 'Payment of $125.50 has been received for order #ORD-2024-001',
+  //         isRead: false,
+  //         createdAt: '2024-01-15T11:15:00Z',
+  //         actionUrl: '/farmer/earnings',
+  //         priority: 'medium'
+  //       },
+  //       {
+  //         _id: '3',
+  //         type: 'review',
+  //         title: 'New Product Review',
+  //         message: 'John Doe left a 5-star review for your Organic Tomatoes',
+  //         isRead: true,
+  //         createdAt: '2024-01-14T16:20:00Z',
+  //         actionUrl: '/farmer/reviews',
+  //         priority: 'medium'
+  //       },
+  //       {
+  //         _id: '4',
+  //         type: 'system',
+  //         title: 'System Maintenance',
+  //         message: 'Scheduled maintenance will occur tonight from 2 AM to 4 AM',
+  //         isRead: true,
+  //         createdAt: '2024-01-14T09:00:00Z',
+  //         priority: 'low'
+  //       },
+  //       {
+  //         _id: '5',
+  //         type: 'warning',
+  //         title: 'Low Stock Alert',
+  //         message: 'Your Fresh Carrots inventory is running low (only 5 units left)',
+  //         isRead: false,
+  //         createdAt: '2024-01-13T14:30:00Z',
+  //         actionUrl: '/farmer/products',
+  //         priority: 'high'
+  //       }
+  //     ];
+      
+  //     setNotifications(mockNotifications);
+  //   } catch (error) {
+  //     console.error('Error fetching notifications:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -123,21 +144,60 @@ function NotificationsPage() {
     }
   };
 
-  const markAsRead = (notificationId: string) => {
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif._id === notificationId 
-          ? { ...notif, isRead: true }
-          : notif
-      )
-    );
-  };
+  // const markAsRead = (notificationId: string) => {
+  //   setNotifications(prev => 
+  //     prev.map(notif => 
+  //       notif._id === notificationId 
+  //         ? { ...notif, isRead: true }
+  //         : notif
+  //     )
+  //   );
+  // };
 
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notif => ({ ...notif, isRead: true }))
-    );
-  };
+  const markAsRead = async (notificationId: string) => {
+  try {
+    const response = await apiClient.markNotificationAsRead(notificationId);
+    console.log("Calling API for notification:", notificationId);
+
+
+    if (response.data.success) {
+      setNotifications(prev =>
+        prev.map(notif =>
+          notif._id === notificationId ? { ...notif, isRead: true } : notif
+        )
+      );
+      console.log("Notification marked as read:", response);
+    } else {
+      console.error(" Failed to mark as read:", response.data.message);
+    }
+  } catch (error) {
+    console.error(" Error marking notification as read:", error);
+  }
+};
+
+
+  // const markAllAsRead = () => {
+  //   setNotifications(prev => 
+  //     prev.map(notif => ({ ...notif, isRead: true }))
+  //   );
+  // };
+  const markAllAsRead = async () => {
+  try {
+    const response = await apiClient.markAllNotificationsAsRead();
+
+    if (response.data.success) {
+      setNotifications(prev =>
+        prev.map(notif => ({ ...notif, isRead: true }))
+      );
+      console.log(" All notifications marked as read:", response.data.message);
+    } else {
+      console.error(" Failed to mark all as read:", response.data.message);
+    }
+  } catch (error) {
+    console.error(" Error marking all as read:", error);
+  }
+};
+
 
   const deleteNotification = (notificationId: string) => {
     setNotifications(prev => prev.filter(notif => notif._id !== notificationId));
@@ -149,7 +209,19 @@ function NotificationsPage() {
     return notification.type === filter;
   });
 
-  const unreadCount = notifications.filter(notif => !notif.isRead).length;
+useEffect(() => {
+  fetchUnreadCount();
+}, []);
+const fetchUnreadCount = async () => {
+  try {
+    const response = await apiClient.getUnreadNotificationCount();
+    // Access unreadCount from response.data per ApiResponse<{ unreadCount: number; }>
+    const unread = response?.data?.unreadCount ?? 0;
+    setUnreadCount(unread);
+  } catch (error) {
+    console.error("Error fetching unread count:", error);
+  }
+};
 
   if (loading) {
     return (

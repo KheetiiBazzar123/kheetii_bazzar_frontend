@@ -372,7 +372,7 @@ function OrderHistoryPage() {
                       <div>
                         <h4 className="font-medium text-gray-900 mb-2">Order Details</h4>
                         <div className="space-y-1">
-                          {order.(products??[]).map((item, index) => (
+                          {(order.products ?? []).map((item, index) => (
                             <div key={index} className="flex justify-between text-sm">
                               <span className="text-gray-600">
                                 {item.product.name} x {item.quantity}
