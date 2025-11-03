@@ -503,6 +503,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { withBuyerProtection } from '@/components/RouteProtection';
+import { useSearchParams } from 'next/navigation';
+
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -523,6 +525,7 @@ import {
   ChevronUpIcon
 } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
+
 
 interface Order {
   _id: string;
@@ -561,14 +564,29 @@ interface Order {
   updatedAt: string;
 }
 
+
+
 function BuyerOrders() {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
+  const searchParams = useSearchParams();
+
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
 
 // In your BuyerOrders component, replace the fetchOrders function:
+useEffect(() => {
+  if (typeof window !== 'undefined') {
+    const status = searchParams.get('status');
+    if (status) {
+      setFilter(status);
+    } else {
+      setFilter('all'); // 👈 Default “My Orders” tab
+    }
+  }
+}, [searchParams]);
+
 
 const fetchOrders = async () => {
   setLoading(true);
@@ -664,18 +682,51 @@ useEffect(() => {
     return order.status === 'pending' || order.status === 'confirmed';
   };
 
+  // const handleCancelOrder = async (orderId: string) => {
+  //   if (confirm('Are you sure you want to cancel this order?')) {
+  //     // In a real app, you would call the API to cancel the order
+  //     console.log('Cancelling order:', orderId);
+  //     // Update the order status in the local state
+  //     setOrders(prev => prev.map(order => 
+  //       order._id === orderId 
+  //         ? { ...order, status: 'cancelled' as const }
+  //         : order
+  //     ));
+  //   }
+  // };
+
   const handleCancelOrder = async (orderId: string) => {
-    if (confirm('Are you sure you want to cancel this order?')) {
-      // In a real app, you would call the API to cancel the order
-      console.log('Cancelling order:', orderId);
-      // Update the order status in the local state
-      setOrders(prev => prev.map(order => 
-        order._id === orderId 
-          ? { ...order, status: 'cancelled' as const }
-          : order
-      ));
+  if (!confirm("Are you sure you want to cancel this order?")) return;
+  const reason = prompt("Please enter a reason for cancellation:", "");
+   if (!reason || reason.trim() === "") {
+    alert("Cancellation reason is required!");
+    return;
+  }
+  try {
+  
+
+    // API call to cancel order
+    const response = await apiService.cancelOrder(orderId, reason);
+
+    if (response.success) {
+      alert(" Order cancelled successfully!");
+
+      
+      setOrders((prev) =>
+        prev.map((order) =>
+          order._id === orderId
+            ? { ...order, status: "cancelled" as const }
+            : order
+        )
+      );
+    } else {
+      alert(response.message || " Failed to cancel order.");
     }
-  };
+  } catch (error) {
+    console.error("Cancel order error:", error);
+    alert("Something went wrong. Please try again ");
+  }
+};
 
   const toggleOrderDetails = (orderId: string) => {
     setExpandedOrders(prev => {
