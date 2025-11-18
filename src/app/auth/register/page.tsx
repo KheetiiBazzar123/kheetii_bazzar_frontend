@@ -15,6 +15,7 @@ import {
   CheckCircleIcon,
   UserIcon,
   ShoppingCartIcon,
+  Cog6ToothIcon,
   TruckIcon
 } from '@heroicons/react/24/outline';
 
@@ -73,6 +74,9 @@ function RegisterForm() {
     }
   };
 
+
+
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (name.startsWith('address.')) {
@@ -105,6 +109,13 @@ function RegisterForm() {
       label: 'Buyer',
       description: 'Purchase fresh produce from local farmers',
       icon: ShoppingCartIcon,
+      color: 'from-blue-500 to-cyan-600'
+    },
+        {
+      value: 'admin',
+      label: 'Admin',
+      description: 'Purchase fresh produce from local farmers',
+      icon: Cog6ToothIcon,
       color: 'from-blue-500 to-cyan-600'
     }
   ];

@@ -515,7 +515,7 @@ import {
   EyeIcon,
   XMarkIcon,
   CheckCircleIcon,
-  ClockIcon,
+  ClockIcon,      
   TruckIcon,
   MapPinIcon,
   CurrencyDollarIcon,
