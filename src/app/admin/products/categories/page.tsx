@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { withFarmerProtection } from '@/components/RouteProtection';
+import { withAdminProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import {apiClient} from '@/lib/api'
-import { 
+import { apiClient } from '@/lib/api';
+import {
   TagIcon,
   PlusIcon,
   PencilIcon,
@@ -25,47 +25,10 @@ interface Category {
   createdAt: string;
 }
 
-function CategoriesPage() {
+function AdminCategoriesPage() {
   const { user } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
-
-
-  // const [categories, setCategories] = useState<Category[]>([
-  //   {
-  //     id: '1',
-  //     name: 'Vegetables',
-  //     description: 'Fresh vegetables from the farm',
-  //     productCount: 12,
-  //     isActive: true,
-  //     createdAt: '2024-01-15'
-  //   },
-  //   {
-  //     id: '2',
-  //     name: 'Fruits',
-  //     description: 'Seasonal fruits and berries',
-  //     productCount: 8,
-  //     isActive: true,
-  //     createdAt: '2024-01-15'
-  //   },
-  //   {
-  //     id: '3',
-  //     name: 'Grains',
-  //     description: 'Whole grains and cereals',
-  //     productCount: 5,
-  //     isActive: true,
-  //     createdAt: '2024-01-15'
-  //   },
-  //   {
-  //     id: '4',
-  //     name: 'Spices',
-  //     description: 'Aromatic spices and herbs',
-  //     productCount: 3,
-  //     isActive: false,
-  //     createdAt: '2024-01-15'
-  //   }
-  // ]);
   const [loading, setLoading] = useState(true);
-
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -92,11 +55,13 @@ function CategoriesPage() {
   const handleSaveCategory = () => {
     if (editingCategory) {
       // Update existing category
-      setCategories(prev => prev.map(cat => 
-        cat.id === editingCategory.id 
-          ? { ...cat, name: formData.name, description: formData.description }
-          : cat
-      ));
+      setCategories(prev =>
+        prev.map(cat =>
+          cat.id === editingCategory.id
+            ? { ...cat, name: formData.name, description: formData.description }
+            : cat
+        )
+      );
     } else {
       // Add new category
       const newCategory: Category = {
@@ -109,7 +74,7 @@ function CategoriesPage() {
       };
       setCategories(prev => [...prev, newCategory]);
     }
-    
+
     setShowAddForm(false);
     setEditingCategory(null);
     setFormData({ name: '', description: '' });
@@ -122,74 +87,71 @@ function CategoriesPage() {
   };
 
   const toggleCategoryStatus = (categoryId: string) => {
-    setCategories(prev => prev.map(cat => 
-      cat.id === categoryId 
-        ? { ...cat, isActive: !cat.isActive }
-        : cat
-    ));
+    setCategories(prev =>
+      prev.map(cat =>
+        cat.id === categoryId
+          ? { ...cat, isActive: !cat.isActive }
+          : cat
+      )
+    );
   };
 
   const fetchCategories = async () => {
-  setLoading(true);
-  try {
-    const response = await apiClient.getCategories();
-    if (response.success && response.data) {
-const apiCategories: Category[] = response.data.categories.map((catName, index) => {
-  const countObj = response.data.categoryCounts.find(c => c.category === catName);
-  return {
-    id: index.toString(),
-    name: catName,
-    description: '', // agar API description nahi deti
-    productCount: countObj ? countObj.count : 0,
-    isActive: true,
-    createdAt: new Date().toISOString().split('T')[0]
-  };
-});
-
-      setCategories(apiCategories);
-    } else {
+    setLoading(true);
+    try {
+      const response = await apiClient.getCategories();
+      if (response.success && response.data) {
+        const apiCategories: Category[] = response.data.categories.map((catName, index) => {
+          const countObj = response.data.categoryCounts.find(c => c.category === catName);
+          return {
+            id: index.toString(),
+            name: catName,
+            description: '',
+            productCount: countObj ? countObj.count : 0,
+            isActive: true,
+            createdAt: new Date().toISOString().split('T')[0]
+          };
+        });
+        setCategories(apiCategories);
+      } else {
+        setCategories([]);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
       setCategories([]);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    setCategories([]);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
-useEffect(() => {
-  fetchCategories();
-}, []);
-
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const totalProducts = categories.reduce((sum, cat) => sum + cat.productCount, 0);
   const activeCategories = categories.filter(cat => cat.isActive).length;
 
-  
-  
-if (loading) {
-  return (
-    <DashboardLayout title="Categories" subtitle="Loading categories...">
-      <div className="flex items-center justify-center min-h-96">
-        <div className="spinner h-16 w-16"></div>
-      </div>
-    </DashboardLayout>
-  );
-}
+  if (loading) {
+    return (
+      <DashboardLayout title="Admin Categories" subtitle="Loading categories...">
+        <div className="flex items-center justify-center min-h-96">
+          <div className="spinner h-16 w-16"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
-    
     <DashboardLayout
-      title="Product Categories"
-      subtitle="Manage your product categories and organization"
+      title="Admin Product Categories"
+      subtitle="Manage all categories across the platform"
       actions={
         <div className="flex space-x-3">
           <Button
             onClick={() => window.history.back()}
             variant="outline"
           >
-            Back to Products
+            Back
           </Button>
           <Button
             onClick={handleAddCategory}
@@ -251,11 +213,11 @@ if (loading) {
         {showAddForm && (
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>
-                {editingCategory ? 'Edit Category' : 'Add New Category'}
-              </CardTitle>
+              <CardTitle>{editingCategory ? 'Edit Category' : 'Add New Category'}</CardTitle>
               <CardDescription>
-                {editingCategory ? 'Update category information' : 'Create a new product category'}
+                {editingCategory
+                  ? 'Update category information'
+                  : 'Create a new product category for the platform'}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -285,10 +247,7 @@ if (loading) {
                   />
                 </div>
                 <div className="flex justify-end space-x-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowAddForm(false)}
-                  >
+                  <Button variant="outline" onClick={() => setShowAddForm(false)}>
                     Cancel
                   </Button>
                   <Button
@@ -308,9 +267,7 @@ if (loading) {
         <Card>
           <CardHeader>
             <CardTitle>All Categories</CardTitle>
-            <CardDescription>
-              Manage your product categories and their settings
-            </CardDescription>
+            <CardDescription>Manage and organize all product categories</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -321,9 +278,7 @@ if (loading) {
                 >
                   <div className="flex-1">
                     <div className="flex items-center space-x-3">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {category.name}
-                      </h3>
+                      <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
                       <span
                         className={`px-2 py-1 text-xs font-medium rounded-full ${
                           category.isActive
@@ -334,27 +289,17 @@ if (loading) {
                         {category.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {category.description}
-                    </p>
+                    <p className="text-sm text-gray-600 mt-1">{category.description}</p>
                     <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
                       <span>{category.productCount} products</span>
                       <span>Created: {category.createdAt}</span>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleCategoryStatus(category.id)}
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => toggleCategoryStatus(category.id)}>
                       {category.isActive ? 'Deactivate' : 'Activate'}
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleEditCategory(category)}
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => handleEditCategory(category)}>
                       <PencilIcon className="h-4 w-4" />
                     </Button>
                     <Button
@@ -376,4 +321,4 @@ if (loading) {
   );
 }
 
-export default withFarmerProtection(CategoriesPage);
+export default withAdminProtection(AdminCategoriesPage);

@@ -15,6 +15,9 @@ import {
   DocumentTextIcon,
   ScaleIcon
 } from '@heroicons/react/24/outline';
+// import { apiService } from '@/services/api';
+import apiClient from '@/lib/api';
+import { apiService } from '@/services/api';
 
 interface ProductFormData {
   name: string;
@@ -88,37 +91,85 @@ function AddProductPage() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    try {
-      // TODO: Implement API call to create product
-      console.log('Creating product:', formData);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Reset form
-      setFormData({
-        name: '',
-        description: '',
-        price: 0,
-        category: '',
-        quantity: 0,
-        unit: 'kg',
-        tags: [],
-        images: []
-      });
-      
-      alert('Product created successfully!');
-    } catch (error) {
-      console.error('Error creating product:', error);
-      alert('Error creating product. Please try again.');
-    } finally {
-      setLoading(false);
+  const uploadImages = async (files: File[]) => {
+  if (!files.length) return [];
+
+  if (files.length === 1) {
+    const res = await apiClient.uploadImage(files[0]);
+    return [res.data.url]; // single image URL
+  } else {
+    // Multiple files (max 5)
+    const urls: string[] = [];
+    for (const file of files.slice(0, 5)) {
+      const res = await apiClient.uploadImage(file);
+      urls.push(res.data.url);
     }
-  };
+    return urls;
+  }
+};
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+
+  try {
+  
+    const uploadedImageUrls: string[] = [];
+    for (const file of formData.images) {
+      const url = await apiClient.uploadImage(file);
+      uploadedImageUrls.push(url);
+    }
+
+   
+    const data = new FormData();
+    data.append('name', formData.name);
+    data.append('description', formData.description);
+    data.append('price', formData.price.toString());
+    data.append('category', formData.category.toLowerCase());
+    data.append('quantity', formData.quantity.toString());
+    data.append('unit', formData.unit);
+
+    // Add tags
+    formData.tags.forEach(tag => data.append('tags[]', tag));
+
+  
+    uploadedImageUrls.forEach(url => data.append('images', url));
+
+    // Other required fields
+    data.append('freshness', 'fresh');
+    data.append('harvestDate', new Date().toISOString());
+    data.append('expiryDate', new Date(Date.now() + 7*24*60*60*1000).toISOString());
+    data.append('location[street]', '123 Farm Road');
+    data.append('location[city]', 'Mumbai');
+    data.append('location[state]', 'Maharashtra');
+    data.append('location[zipCode]', '400001');
+    data.append('location[latitude]', '19.0760');
+    data.append('location[longitude]', '72.8777');
+
+    
+    const response = await apiClient.createProduct(data);
+
+    console.log('Product created:', response);
+
+    alert('Product created successfully!');
+    setFormData({
+      name: '',
+      description: '',
+      price: 0,
+      category: '',
+      quantity: 0,
+      unit: 'kg',
+      tags: [],
+      images: []
+    });
+    window.location.href = '/farmer/products';
+
+  } catch (error: any) {
+    console.error('Error:', error);
+    alert(error?.message || 'Error creating product');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <DashboardLayout

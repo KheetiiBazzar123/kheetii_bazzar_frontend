@@ -21,7 +21,8 @@ import {
   SparklesIcon,
   ArrowRightIcon,
   CheckCircleIcon,
-  StarIcon
+  StarIcon,
+  Cog6ToothIcon
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -216,6 +217,14 @@ export default function HomePage() {
                   <Button size="lg" variant="outline" className="text-lg px-8 py-4">
                     I'm a Buyer
                     <ShoppingCartIcon className="h-5 w-5 ml-2" />
+                  </Button>
+                </Link>
+
+                {/* admin  */}
+                                <Link href="/auth/register?role=admin">
+                  <Button size="lg" variant="outline" className="text-lg px-8 py-4">
+                    I'm a Admin
+    <Cog6ToothIcon className="h-5 w-5 ml-2" />
                   </Button>
                 </Link>
               </motion.div>

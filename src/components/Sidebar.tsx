@@ -52,7 +52,22 @@ interface MenuItem {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const { user, logout } = useAuth();
+  // const { user, logout } = useAuth();
+  const { user: contextUser, logout } = useAuth();
+const [user, setUser] = useState(contextUser);
+
+// Sync with localStorage — ensures admin override is detected
+React.useEffect(() => {
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    const parsedUser = JSON.parse(storedUser);
+    // only update if role changed (like buyer → admin)
+    if (parsedUser.role !== contextUser?.role) {
+      setUser(parsedUser);
+    }
+  }
+}, [contextUser]);
+
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
   const pathname = usePathname();
@@ -171,7 +186,63 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     }
   ];
 
-  // Common menu items
+
+    // admin menu items
+  const adminMenuItems: MenuItem[] = [
+    {
+      name: 'Dashboard',
+      href: '/admin/dashboard',
+      icon: HomeIcon
+    },
+    {
+      name: 'Products',
+      href: '/admin/products',
+      icon: BuildingStorefrontIcon,
+      children: [
+        { name: 'All Products', href: '/admin/products', icon: ClipboardDocumentListIcon },
+        { name: 'Add Product', href: '/admin/products/new', icon: PlusIcon },
+        { name: 'Categories', href: '/admin/products/categories', icon: DocumentTextIcon }
+      ]
+    },
+    {
+      name: 'Orders',
+      href: '/admin/orders',
+      icon: ShoppingCartIcon,
+      children: [
+        { name: 'All Orders', href: '/admin/orders', icon: ClipboardDocumentListIcon },
+        { name: 'Pending Orders', href: '/admin/orders?status=pending', icon: ClockIcon },
+        { name: 'Order History', href: '/admin/orders/history', icon: DocumentTextIcon }
+      ]
+    },
+    // {
+    //   name: 'Analytics',
+    //   href: '/admin/analytics',
+    //   icon: ChartBarIcon,
+    //   children: [
+    //     { name: 'Sales Overview', href: '/admin/analytics/sales', icon: CurrencyDollarIcon },
+    //     { name: 'Product Performance', href: '/admin/analytics/products', icon: BuildingStorefrontIcon },
+    //     { name: 'Customer Insights', href: '/admin/analytics/customers', icon: UserGroupIcon }
+    //   ]
+    // },
+    {
+      name: 'Earnings',
+      href: '/admin/earnings',
+      icon: CurrencyDollarIcon
+    },
+    // {
+    //   name: 'Reviews',
+    //   href: '/admin/reviews',
+    //   icon: StarIcon
+    // },
+    // {
+    //   name: 'Notifications',
+    //   href: '/admin/notifications',
+    //   icon: BellIcon,
+    //   badge: 3
+    // }
+  ];
+
+  // Common menu it ems
   const commonMenuItems: MenuItem[] = [
     {
       name: 'Profile',
@@ -190,7 +261,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     }
   ];
 
-  const menuItems = user?.role === 'farmer' ? farmerMenuItems : buyerMenuItems;
+  // const menuItems = user?.role === 'farmer' ? farmerMenuItems : buyerMenuItems ;
+  // ✅ Role-based Menu Selection
+let menuItems: MenuItem[] = [];
+
+if (user?.role === 'farmer') {
+  menuItems = farmerMenuItems;
+} else if (user?.role === 'buyer') {
+  menuItems = buyerMenuItems;
+} else if (user?.role === 'admin') {
+  menuItems = adminMenuItems;
+}
+
+
 
   const handleItemClick = (item: MenuItem, event?: React.MouseEvent) => {
     if (item.children && item.children.length > 0) {
