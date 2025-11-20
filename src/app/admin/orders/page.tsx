@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { withFarmerProtection } from '@/components/RouteProtection';
+import { withAdminProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { apiService } from '@/services/api';
-import {apiClient} from '@/lib/api'
+import { apiClient } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { 
+import {
   EyeIcon,
   CheckCircleIcon,
   ClockIcon,
@@ -22,7 +22,6 @@ import {
 } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
-
 
 interface Order {
   _id: string;
@@ -59,48 +58,49 @@ interface Order {
   updatedAt: string;
 }
 
-function FarmerOrders() {
+function AdminOrders() {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-const searchParams = useSearchParams();
-const [filter, setFilter] = useState<string>('all');useEffect(() => {
-  const statusParam = searchParams.get('status');
-  setFilter(statusParam || 'all');
-}, [searchParams]);
+  const searchParams = useSearchParams();
+  const [filter, setFilter] = useState<string>('all');
 
-useEffect(() => {
-  fetchOrders();
-}, [filter]);
- const fetchOrders = async () => {
-  try {
-    const response = await apiClient.getFarmerOrders(
-      1,
-      50,
-      filter === 'all' ? undefined : filter
-    );
+  useEffect(() => {
+    const statusParam = searchParams.get('status');
+    setFilter(statusParam || 'all');
+  }, [searchParams]);
 
-   
-    if (response && response.data) {
-      setOrders(response.data); 
+  useEffect(() => {
+    fetchOrders();
+  }, [filter]);
+
+  const fetchOrders = async () => {
+    try {
+      const response = await apiClient.getFarmerOrders(
+        1,
+        50,
+        filter === 'all' ? undefined : filter
+      );
+
+      if (response && response.data) {
+        setOrders(response.data);
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching admin orders:', error);
+      setLoading(false);
     }
-
-    setLoading(false);
-  } catch (error) {
-    console.error('Error fetching orders:', error);
-    setLoading(false);
-  }
-};
+  };
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
       const response = await apiService.updateOrderStatus(orderId, newStatus);
-      
+
       if (response.success) {
-        // Update the local state
-        setOrders(prevOrders => 
-          prevOrders.map(order => 
-            order._id === orderId 
+        setOrders(prevOrders =>
+          prevOrders.map(order =>
+            order._id === orderId
               ? { ...order, status: newStatus as any, updatedAt: new Date().toISOString() }
               : order
           )
@@ -119,7 +119,7 @@ useEffect(() => {
       case 'shipped': return 'text-indigo-600 bg-indigo-100';
       case 'delivered': return 'text-green-600 bg-green-100';
       case 'cancelled': return 'text-red-600 bg-red-100';
-      primary: return 'text-gray-600 bg-gray-100';
+      default: return 'text-gray-600 bg-gray-100';
     }
   };
 
@@ -131,7 +131,7 @@ useEffect(() => {
       case 'shipped': return <TruckIcon className="h-4 w-4" />;
       case 'delivered': return <CheckCircleIcon className="h-4 w-4" />;
       case 'cancelled': return <ClockIcon className="h-4 w-4" />;
-      primary: return <ClockIcon className="h-4 w-4" />;
+      default: return <ClockIcon className="h-4 w-4" />;
     }
   };
 
@@ -141,7 +141,7 @@ useEffect(() => {
       case 'confirmed': return 'preparing';
       case 'preparing': return 'shipped';
       case 'shipped': return 'delivered';
-      primary: return null;
+      default: return null;
     }
   };
 
@@ -165,8 +165,8 @@ useEffect(() => {
 
   return (
     <DashboardLayout
-      title="Orders"
-      subtitle="Manage incoming orders from buyers"
+      title="Admin Orders"
+      subtitle="Manage and monitor all orders placed across the platform"
     >
       <div className="max-w-7xl mx-auto">
         {/* Filter Tabs */}
@@ -190,7 +190,7 @@ useEffect(() => {
 
         {/* Orders List */}
         <div className="space-y-6">
-          {(orders??[]).map((order, index) => (
+          {(orders ?? []).map((order, index) => (
             <motion.div
               key={order._id}
               initial={{ opacity: 0, y: 20 }}
@@ -199,7 +199,7 @@ useEffect(() => {
             >
               <Card>
                 <CardContent className="p-6">
-                  {/* Order Header */}
+                  {/* Header */}
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-4">
                       <div className={`px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-1 ${getStatusColor(order.status)}`}>
@@ -258,7 +258,7 @@ useEffect(() => {
                                 className="w-full h-full object-cover rounded-lg"
                               />
                             ) : (
-                              <span className="text-2xl">🌱</span>
+                              <span className="text-2xl">📦</span>
                             )}
                           </div>
                           <div className="flex-1">
@@ -309,7 +309,7 @@ useEffect(() => {
                           onClick={() => updateOrderStatus(order._id, getNextStatus(order.status)!)}
                           className="btn-primary"
                         >
-                          Mark as {getNextStatus(order.status) ? getNextStatus(order.status)!.charAt(0).toUpperCase() + getNextStatus(order.status)!.slice(1) : 'Next'}
+                          Mark as {getNextStatus(order.status)!.charAt(0).toUpperCase() + getNextStatus(order.status)!.slice(1)}
                         </Button>
                       )}
                     </div>
@@ -324,21 +324,15 @@ useEffect(() => {
         </div>
 
         {/* Empty State */}
-        {orders &&orders.length === 0 && (
+        {orders && orders.length === 0 && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">📦</div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No orders found</h3>
             <p className="text-gray-600 mb-4">
-              {filter === 'all' 
-                ? "You haven't received any orders yet"
-                : `No orders with status "${filter}"`
-              }
+              {filter === 'all'
+                ? "There are no orders yet."
+                : `No orders with status "${filter}".`}
             </p>
-            {filter === 'all' && (
-              <p className="text-gray-500">
-                Orders will appear here when buyers purchase your products
-              </p>
-            )}
           </div>
         )}
       </div>
@@ -346,4 +340,4 @@ useEffect(() => {
   );
 }
 
-export default withFarmerProtection(FarmerOrders);
+export default withAdminProtection(AdminOrders);

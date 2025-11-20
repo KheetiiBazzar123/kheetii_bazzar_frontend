@@ -117,8 +117,8 @@ export default function ProductForm({ product, editingProduct, onSubmit, onCance
 
   const onFormSubmit = async (data: ProductFormData) => {
     try {
-      // Create FormData for file upload
       const formData = new FormData();
+      // Create FormData for file upload
       formData.append('name', data.name);
       formData.append('description', data.description);
       formData.append('price', data.price.toString());

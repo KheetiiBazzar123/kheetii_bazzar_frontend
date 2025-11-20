@@ -89,36 +89,37 @@ class ApiService {
     return this.request('/farmer/dashboard');
   }
 
-  async getFarmerProducts(params?: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    category?: string;
-    isAvailable?: boolean;
-  }): Promise<ApiResponse<{
-    products: Product[];
-    total: number;
-    page: number;
-    pages: number;
-  }>> {
-    const queryParams = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
-          queryParams.append(key, value.toString());
-        }
-      });
-    }
-    return this.request(`/farmer/products?${queryParams.toString()}`);
-  }
+  // async getFarmerProducts(params?: {
+  //   page?: number;
+  //   limit?: number;
+  //   search?: string;
+  //   category?: string;
+  //   isAvailable?: boolean;
+  // }): Promise<ApiResponse<{
+  //   products: Product[];
+  //   total: number;
+  //   page: number;
+  //   pages: number;
+  // }>> {
+  //   const queryParams = new URLSearchParams();
+  //   if (params) {
+  //     Object.entries(params).forEach(([key, value]) => {
+  //       if (value !== undefined) {
+  //         queryParams.append(key, value.toString());
+  //       }
+  //     });
+  //   }
+  //   return this.request(`/farmer/products?${queryParams.toString()}`);
+  // }
 
-  async createProduct(productData: FormData): Promise<ApiResponse<{ product: Product }>> {
-    return this.request('/farmer/products', {
-      method: 'POST',
-      headers: {}, // Let browser set Content-Type for FormData
-      body: productData,
-    });
-  }
+  // async createProduct(productData: FormData): Promise<ApiResponse<{ product: Product }>> {
+  //   return this.request('/farmer/products', {
+  //     method: 'POST',
+  //     headers: {}, // Let browser set Content-Type for FormData
+  //     body: productData,
+  //   });
+  // }
+
 
   async updateProduct(productId: string, productData: FormData): Promise<ApiResponse<{ product: Product }>> {
     return this.request(`/farmer/products/${productId}`, {
@@ -127,36 +128,37 @@ class ApiService {
       body: productData,
     });
   }
+ 
 
   async deleteProduct(productId: string): Promise<ApiResponse<null>> {
     return this.request(`/farmer/products/${productId}`, { method: 'DELETE' });
   }
 
   async toggleProductAvailability(productId: string): Promise<ApiResponse<{ product: Product }>> {
-    return this.request(`/farmer/products/${productId}/toggle`, { method: 'PATCH' });
+    return this.request(`/farmer/products/${productId}/toggle-availability`, { method: 'PATCH' });
   }
 
-  async getFarmerOrders(params?: {
-    page?: number;
-    limit?: number;
-    status?: string;
-    search?: string;
-  }): Promise<ApiResponse<{
-    orders: Order[];
-    total: number;
-    page: number;
-    pages: number;
-  }>> {
-    const queryParams = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
-          queryParams.append(key, value.toString());
-        }
-      });
-    }
-    return this.request(`/farmer/orders?${queryParams.toString()}`);
-  }
+  // async getFarmerOrders(params?: {
+  //   page?: number;
+  //   limit?: number;
+  //   status?: string;
+  //   search?: string;
+  // }): Promise<ApiResponse<{
+  //   orders: Order[];
+  //   total: number;
+  //   page: number;
+  //   pages: number;
+  // }>> {
+  //   const queryParams = new URLSearchParams();
+  //   if (params) {
+  //     Object.entries(params).forEach(([key, value]) => {
+  //       if (value !== undefined) {
+  //         queryParams.append(key, value.toString());
+  //       }
+  //     });
+  //   }
+  //   return this.request(`/farmer/orders?${queryParams.toString()}`);
+  // }
 
   async updateOrderStatus(orderId: string, status: string): Promise<ApiResponse<{ order: Order }>> {
     return this.request(`/farmer/orders/${orderId}/status`, {
@@ -165,31 +167,57 @@ class ApiService {
     });
   }
 
-  async getFarmerEarnings(params?: {
-    period?: 'week' | 'month' | 'year';
-    startDate?: string;
-    endDate?: string;
-  }): Promise<ApiResponse<{
-    earnings: {
-      total: number;
-      period: string;
-      breakdown: Array<{
-        date: string;
-        amount: number;
-        orders: number;
-      }>;
+  // async getFarmerEarnings(params?: {
+  //   period?: 'week' | 'month' | 'year';
+  //   startDate?: string;
+  //   endDate?: string;
+  // }): Promise<ApiResponse<{
+  //   earnings: {
+  //     total: number;
+  //     period: string;
+  //     breakdown: Array<{
+  //       date: string;
+  //       amount: number;
+  //       orders: number;
+  //     }>;
+  //   };
+  // }>> {
+  //   const queryParams = new URLSearchParams();
+  //   if (params) {
+  //     Object.entries(params).forEach(([key, value]) => {
+  //       if (value !== undefined) {
+  //         queryParams.append(key, value.toString());
+  //       }
+  //     });
+  //   }
+  //   return this.request(`/farmer/earnings?${queryParams.toString()}`);
+  // }
+async getFarmerEarnings(): Promise<ApiResponse<{
+  products: {
+    total: number;
+    active: number;
+  };
+  orders: {
+    totalOrders: number;
+    totalRevenue: number;
+    pendingOrders: number;
+    confirmedOrders: number;
+    deliveredOrders: number;
+    cancelledOrders: number;
+  };
+  monthlyEarnings: Array<{
+    _id: {
+      year: number;
+      month: number;
     };
-  }>> {
-    const queryParams = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
-          queryParams.append(key, value.toString());
-        }
-      });
-    }
-    return this.request(`/farmer/earnings?${queryParams.toString()}`);
-  }
+    earnings: number;
+  }>;
+}>> {
+  return this.request(`/farmer/stats`, {
+    method: 'GET',
+  });
+}
+
 
   // Buyer APIs
   async getBuyerDashboard(): Promise<ApiResponse<{

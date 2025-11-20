@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { withBuyerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { apiService } from '@/services/api';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { 
@@ -23,30 +24,67 @@ import {
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
+
+// interface Product {
+//   _id: string;
+//   name: string;
+//   description: string;
+//   price: number;
+//   images: string[];
+//   rating: number;
+//   reviewCount: number;
+//   freshness: 'fresh' | 'good' | 'average';
+//   category: string;
+//   farmer: {
+//     firstName: string;
+//     lastName: string;
+//     location: {
+//       city: string;
+//       state: string;
+//     };
+//   };
+//   isAvailable: boolean;
+//   quantity: number;
+//   unit: string;
+//   harvestDate: string;
+//   tags: string[];
+// }
+
 interface Product {
   _id: string;
   name: string;
   description: string;
-  price: number;
-  images: string[];
-  rating: number;
-  reviewCount: number;
-  freshness: 'fresh' | 'good' | 'average';
   category: string;
-  farmer: {
-    firstName: string;
-    lastName: string;
-    location: {
-      city: string;
-      state: string;
-    };
-  };
-  isAvailable: boolean;
+  price: number;
   quantity: number;
   unit: string;
+  images: string[];
+  freshness: 'fresh' | 'good' | 'average';
+  rating: number;
+  reviewCount: number;
+  isAvailable: boolean;
   harvestDate: string;
+  expiryDate: string;
+  averageRating: number;
   tags: string[];
+  reviews: any[];
+  createdAt: string;
+  updatedAt: string;
+  farmer: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    fullName: string;
+  };
+  location: {
+    city: string;
+    state: string;
+    country: string;
+    street: string;
+    zipCode: string;
+  };
 }
+
 
 interface FilterOptions {
   category: string;
@@ -85,34 +123,118 @@ function BuyerMarketplace() {
   useEffect(() => {
     fetchProducts();
   }, [filters]);
-
   const fetchProducts = async () => {
-    try {
-      const params = {
-        page: 1,
-        limit: 50,
-        ...Object.fromEntries(
-          Object.entries(filters).filter(([key, value]) => 
-            value !== '' && value !== null && value !== undefined
-          )
-        ),
-        minPrice: filters.minPrice ? parseInt(filters.minPrice) : undefined,
-        maxPrice: filters.maxPrice ? parseInt(filters.maxPrice) : undefined,
-        rating: filters.rating ? parseInt(filters.rating) : undefined,
-      };
+  try {
+    const params = {
+      page: 1,
+      limit: 50,
+      ...Object.fromEntries(
+        Object.entries(filters).filter(([key, value]) => 
+          value !== '' && value !== null && value !== undefined
+        )
+      ),
+      minPrice: filters.minPrice ? parseInt(filters.minPrice) : undefined,
+      maxPrice: filters.maxPrice ? parseInt(filters.maxPrice) : undefined,
+      rating: filters.rating ? parseInt(filters.rating) : undefined,
+    };
 
-      const response = await apiService.getMarketplaceProducts(params);
-      
-      if (response.success && response.data) {
-        setProducts(response.data.products);
-      }
-      
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      setLoading(false);
+    const response = await apiService.getMarketplaceProducts(params);
+    
+    console.log("API Raw Response:", response);
+
+    if (response.success && Array.isArray(response.data)) {
+      setProducts(response.data); 
+    } else {
+      console.warn("No product data found in response");
+      setProducts([]);
     }
-  };
+
+    setLoading(false);
+  } catch (error) {
+    console.error(' Error fetching products:', error);
+    setLoading(false);
+  }
+};
+
+
+//   const fetchProducts = async () => {
+  
+
+//     try {
+//       const params = {
+//         page: 1,
+//         limit: 50,
+//         ...Object.fromEntries(
+//           Object.entries(filters).filter(([key, value]) => 
+//             value !== '' && value !== null && value !== undefined
+//           )
+//         ),
+//         minPrice: filters.minPrice ? parseInt(filters.minPrice) : undefined,
+//         maxPrice: filters.maxPrice ? parseInt(filters.maxPrice) : undefined,
+//         rating: filters.rating ? parseInt(filters.rating) : undefined,
+//       };
+
+//       const response = await apiService.getMarketplaceProducts(params);
+//         console.log("API Raw Response:", response);
+// console.log("Response Data:", response.data);
+      
+//       if (response.success && response.data) {
+//         setProducts(response.data.products);
+//       }
+      
+//       setLoading(false);
+//     } catch (error) {
+//       console.error('Error fetching products:', error);
+//       setLoading(false);
+//     }
+//   };
+
+const handlePlaceOrder = async (product: Product) => {
+  try {
+   
+    const orderData = {
+      products: [
+        {
+          product: product._id, 
+          quantity: cart[product._id] || 1, 
+        },
+      ],
+      shippingAddress: {
+        street: '123 Main Street',
+        city: 'Mumbai',
+        state: 'Maharashtra',
+        zipCode: '400001',
+        country: 'India',
+      },
+      paymentMethod: 'cod' as 'cod' | 'card' | 'upi' | 'wallet', 
+      notes: `Order for product: ${product.name}`,
+    };
+
+    // API call
+    const response = await apiService.createOrder(orderData);
+
+    if (response.success) {
+      alert(' Order placed successfully!');
+      window.location.href = "/buyer/orders"; 
+
+
+      if (response.data?.order) {
+        console.log('Order Details:', response.data.order);
+      } else {
+        console.log('Order Response:', response.data ?? response);
+      }
+
+     
+    } else {
+      alert(response.message || 'Failed to place order!');
+    }
+  } catch (error) {
+    console.error(' Error placing order:', error);
+    alert('Something went wrong while placing your order.');
+  }
+};
+
+
 
   const handleFilterChange = (key: keyof FilterOptions, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -164,6 +286,7 @@ function BuyerMarketplace() {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
+  
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center hero-gradient">
@@ -299,6 +422,10 @@ function BuyerMarketplace() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
             >
+              
+              
+              
+              
               <Card className="h-full hover:shadow-lg transition-shadow duration-200">
                 <CardContent className="p-0">
                   {/* Product Image */}
@@ -345,11 +472,15 @@ function BuyerMarketplace() {
                         <span>{product.farmer.firstName} {product.farmer.lastName}</span>
                       </div>
 
-                      {/* Location */}
-                      <div className="flex items-center space-x-1 text-sm text-gray-600 mb-2">
-                        <MapPinIcon className="h-4 w-4" />
-                        <span>{product.farmer.location.city}, {product.farmer.location.state}</span>
-                      </div>
+
+      {/* Location */}
+      <div className="flex items-center space-x-1 text-sm text-gray-600 mb-2">
+        <MapPinIcon className="h-4 w-4" />
+<span>
+<span>{product.location?.city}, {product.location?.state}</span>
+</span>
+      </div>
+      
 
                       {/* Harvest Info */}
                       <div className="flex items-center space-x-1 text-sm text-gray-600 mb-3">
@@ -402,6 +533,17 @@ function BuyerMarketplace() {
                       <Button variant="outline" className="w-full">
                         <EyeIcon className="h-4 w-4 mr-2" />
                         View Details
+                      </Button>
+                    </div>
+
+
+                    {/* order place  */}
+                                        <div className="mt-3">
+                      <Button variant="outline" className="w-full"
+                        onClick={() => handlePlaceOrder(product)} // 👈 Function call here
+>
+                       <ShoppingCartIcon className="h-4 w-4 mr-1" />
+                        Order Place
                       </Button>
                     </div>
                   </div>

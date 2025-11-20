@@ -18,6 +18,8 @@ import {
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { apiService } from '@/services/api';
+import apiClient from '@/lib/api';
 
 interface Product {
   _id: string;
@@ -40,92 +42,180 @@ interface Product {
 function FarmerProducts() {
   const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+const [loadingProducts, setLoadingProducts] = useState(true);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+const [showEditModal, setShowEditModal] = useState(false);
+useEffect(() => {
+  fetchProducts();
+}, []);
+const handleUpdateProduct = async () => {
+  if (!selectedProduct) return;
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  try {
+    const formData = new FormData();
+    formData.append("name", selectedProduct.name);
+    formData.append("price", selectedProduct.price.toString());
+    formData.append("category", selectedProduct.category);
+    formData.append("description", selectedProduct.description);
 
-  const fetchProducts = async () => {
-    try {
-      // In a real app, you would fetch from your API
-      const mockProducts: Product[] = [
-        {
-          _id: '1',
-          name: 'Fresh Organic Tomatoes',
-          description: 'Freshly harvested organic tomatoes from our farm',
-          price: 50,
-          quantity: 100,
-          unit: 'kg',
-          images: [],
-          category: 'vegetables',
-          freshness: 'fresh',
-          rating: 4.8,
-          reviewCount: 24,
-          isAvailable: true,
-          harvestDate: '2024-01-10',
-          expiryDate: '2024-01-20',
-          createdAt: '2024-01-10T10:00:00Z'
-        },
-        {
-          _id: '2',
-          name: 'Sweet Mangoes',
-          description: 'Sweet and juicy mangoes from our orchard',
-          price: 80,
-          quantity: 50,
-          unit: 'kg',
-          images: [],
-          category: 'fruits',
-          freshness: 'fresh',
-          rating: 4.6,
-          reviewCount: 18,
-          isAvailable: true,
-          harvestDate: '2024-01-12',
-          expiryDate: '2024-01-22',
-          createdAt: '2024-01-12T14:00:00Z'
-        },
-        {
-          _id: '3',
-          name: 'Basmati Rice',
-          description: 'Premium quality basmati rice',
-          price: 120,
-          quantity: 200,
-          unit: 'kg',
-          images: [],
-          category: 'grains',
-          freshness: 'good',
-          rating: 4.7,
-          reviewCount: 32,
-          isAvailable: false,
-          harvestDate: '2024-01-05',
-          expiryDate: '2024-02-05',
-          createdAt: '2024-01-05T09:00:00Z'
-        }
-      ];
+   
 
-      setProducts(mockProducts);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      setLoading(false);
+    const response = await apiClient.updateProduct(selectedProduct._id, formData);
+
+    if (response?.success) {
+      alert("Product updated successfully!");
+      setShowEditModal(false);
+      await fetchProducts(); 
+    } else {
+      alert(response?.message || "Failed to update product");
     }
-  };
+  } catch (error: any) {
+    console.error("Error updating product:", error);
+    alert(error.message || "Something went wrong");
+  }
+};
 
+const handleEditClick = (product: Product) => {
+  setSelectedProduct(product);
+  setShowEditModal(true);
+};
+
+const fetchProducts = async () => {
+  setLoadingProducts(true);
+  try {
+    const response = await apiClient.getFarmerProducts(); // GET /api/v1/farmer/products
+
+    if (response?.success && Array.isArray(response.data)) {
+      setProducts(response.data);  
+    } else {
+      setProducts([]);
+    }
+  } catch (error) {
+    console.error("Error fetching farmer products:", error);
+    setProducts([]);
+  } finally {
+    setLoadingProducts(false);
+  }
+};
+
+
+  // const fetchProducts = async () => {
+  //   try {
+  //     // In a real app, you would fetch from your API
+  //     const mockProducts: Product[] = [
+  //       {
+  //         _id: '1',
+  //         name: 'Fresh Organic Tomatoes',
+  //         description: 'Freshly harvested organic tomatoes from our farm',
+  //         price: 50,
+  //         quantity: 100,
+  //         unit: 'kg',
+  //         images: [],
+  //         category: 'vegetables',
+  //         freshness: 'fresh',
+  //         rating: 4.8,
+  //         reviewCount: 24,
+  //         isAvailable: true,
+  //         harvestDate: '2024-01-10',
+  //         expiryDate: '2024-01-20',
+  //         createdAt: '2024-01-10T10:00:00Z'
+  //       },
+  //       {
+  //         _id: '2',
+  //         name: 'Sweet Mangoes',
+  //         description: 'Sweet and juicy mangoes from our orchard',
+  //         price: 80,
+  //         quantity: 50,
+  //         unit: 'kg',
+  //         images: [],
+  //         category: 'fruits',
+  //         freshness: 'fresh',
+  //         rating: 4.6,
+  //         reviewCount: 18,
+  //         isAvailable: true,
+  //         harvestDate: '2024-01-12',
+  //         expiryDate: '2024-01-22',
+  //         createdAt: '2024-01-12T14:00:00Z'
+  //       },
+  //       {
+  //         _id: '3',
+  //         name: 'Basmati Rice',
+  //         description: 'Premium quality basmati rice',
+  //         price: 120,
+  //         quantity: 200,
+  //         unit: 'kg',
+  //         images: [],
+  //         category: 'grains',
+  //         freshness: 'good',
+  //         rating: 4.7,
+  //         reviewCount: 32,
+  //         isAvailable: false,
+  //         harvestDate: '2024-01-05',
+  //         expiryDate: '2024-02-05',
+  //         createdAt: '2024-01-05T09:00:00Z'
+  //       }
+  //     ];
+
+  //     setProducts(mockProducts);
+  //     setLoading(false);
+  //   } catch (error) {
+  //     console.error('Error fetching products:', error);
+  //     setLoading(false);
+  //   }
+  // };
+
+  // const toggleAvailability = async (productId: string) => {
+  //   setProducts(prev => prev.map(product => 
+  //     product._id === productId 
+  //       ? { ...product, isAvailable: !product.isAvailable }
+  //       : product
+  //   ));
+  // };
   const toggleAvailability = async (productId: string) => {
-    setProducts(prev => prev.map(product => 
-      product._id === productId 
-        ? { ...product, isAvailable: !product.isAvailable }
-        : product
-    ));
-  };
+  try {
+    await apiClient.toggleProductAvailability(productId);
+
+   
+    setProducts(prev =>
+      prev.map(product =>
+        product._id === productId
+          ? { ...product, isAvailable: !product.isAvailable }
+          : product
+      )
+    );
+  } catch (error) {
+    console.error("Error toggling availability:", error);
+    alert("Something went wrong");
+  }
+};
+
+  // const deleteProduct = async (productId: string) => {
+  //   if (confirm('Are you sure you want to delete this product?')) {
+  //     setProducts(prev => prev.filter(product => product._id !== productId));
+  //   }
+  // };
 
   const deleteProduct = async (productId: string) => {
-    if (confirm('Are you sure you want to delete this product?')) {
-      setProducts(prev => prev.filter(product => product._id !== productId));
+  if (confirm("Are you sure you want to delete this product?")) {
+    try {
+      const response = await apiClient.deleteProduct(productId);
+
+      if (response?.success) {
+      
+        setProducts((prev) => prev.filter((product) => product._id !== productId));
+        alert("Product deleted successfully!");
+      } else {
+        alert(response?.message || "Failed to delete product.");
+      }
+    } catch (error: any) {
+      console.error("Error deleting product:", error);
+      alert(error.message || "Something went wrong while deleting.");
     }
-  };
+  }
+};
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -138,14 +228,13 @@ function FarmerProducts() {
     'vegetables', 'fruits', 'grains', 'spices', 'herbs', 'dairy', 'poultry', 'seafood', 'other'
   ];
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center hero-gradient">
-        <div className="spinner h-16 w-16"></div>
-      </div>
-    );
-  }
-
+if (loadingProducts) {
+  return (
+    <div className="min-h-screen flex items-center justify-center hero-gradient">
+      <div className="spinner h-16 w-16"></div>
+    </div>
+  );
+}
   return (
     <DashboardLayout
       title="My Products"
@@ -287,6 +376,8 @@ function FarmerProducts() {
                         variant="outline"
                         size="sm"
                         className="flex-1"
+                          onClick={() => handleEditClick(product)}
+
                       >
                         <PencilIcon className="h-4 w-4 mr-1" />
                         Edit
@@ -339,7 +430,96 @@ function FarmerProducts() {
           </div>
         )}
       </div>
+{showEditModal && selectedProduct && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn">
+    <div className="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-lg transform transition-all duration-300 scale-100 hover:scale-[1.01]">
+      
+      {/* Header */}
+      <div className="flex justify-between items-center mb-5 border-b border-gray-200 pb-3">
+        <h2 className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
+           Edit Product
+        </h2>
+        <button
+          onClick={() => setShowEditModal(false)}
+          className="text-gray-500 hover:text-red-500 text-xl transition-colors"
+          title="Close"
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Form */}
+      <div className="space-y-4">
+        {/* Product Name */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+          <input
+            type="text"
+            className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
+            placeholder="Enter product name"
+            value={selectedProduct.name}
+            onChange={(e) =>
+              setSelectedProduct({ ...selectedProduct, name: e.target.value })
+            }
+          />
+        </div>
+
+       
+       
+       
+
+        {/* Price */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Price (₹)</label>
+          <input
+            type="number"
+            className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500 focus:outline-none"
+            placeholder="Enter product price"
+            value={selectedProduct.price}
+            onChange={(e) =>
+              setSelectedProduct({ ...selectedProduct, price: Number(e.target.value) })
+            }
+          />
+        </div>
+
+       
+
+        {/* Description */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea
+            rows={3}
+            className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500 focus:outline-none resize-none"
+            placeholder="Enter product description"
+            value={selectedProduct.description}
+            onChange={(e) =>
+              setSelectedProduct({ ...selectedProduct, description: e.target.value })
+            }
+          />
+        </div>
+      </div>
+
+      {/* Buttons */}
+      <div className="flex justify-end gap-3 mt-6">
+        <button
+          onClick={() => setShowEditModal(false)}
+          className="bg-gray-100 text-gray-700 px-5 py-2 rounded-lg hover:bg-gray-200 active:scale-95 transition-all"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={async () => await handleUpdateProduct()}
+          className="bg-green-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-green-700 active:scale-95 transition-all"
+        >
+          Update Product
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </DashboardLayout>
+    
   );
 }
 

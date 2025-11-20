@@ -481,6 +481,8 @@
 //                 className="btn-primary"
 //               >
 //                 Start Shopping
+
+
 //               </Button>
 //             )}
 //           </div>
@@ -501,14 +503,19 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { withBuyerProtection } from '@/components/RouteProtection';
+import { useSearchParams } from 'next/navigation';
+
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { apiService } from '@/services/api';
+
+
 import { 
   EyeIcon,
   XMarkIcon,
   CheckCircleIcon,
-  ClockIcon,
+  ClockIcon,      
   TruckIcon,
   MapPinIcon,
   CurrencyDollarIcon,
@@ -518,6 +525,7 @@ import {
   ChevronUpIcon
 } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
+
 
 interface Order {
   _id: string;
@@ -556,149 +564,76 @@ interface Order {
   updatedAt: string;
 }
 
+
+
 function BuyerOrders() {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
+  const searchParams = useSearchParams();
+
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    fetchOrders();
-  }, [filter]);
-
-  const fetchOrders = async () => {
-    try {
-      // In a real app, you would fetch from your API
-      // For now, we'll use mock data
-      const mockOrders: Order[] = [
-        {
-          _id: '1',
-          farmer: {
-            firstName: 'Raj',
-            lastName: 'Kumar',
-            email: 'raj@example.com',
-            phone: '+91 98765 43210'
-          },
-          products: [
-            {
-              product: {
-                _id: '1',
-                name: 'Fresh Organic Tomatoes',
-                price: 50,
-                // images: []
-                images: ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8N5csgcRa_EQ-J6kbBBCThAm2MsDxURj5sw&s"]
-              },
-              quantity: 5,
-              totalPrice: 250
-            }
-          ],
-          totalAmount: 250,
-          status: 'confirmed',
-          paymentStatus: 'paid',
-          paymentMethod: 'upi',
-          shippingAddress: {
-            street: '123 Main Street',
-            city: 'Delhi',
-            state: 'Delhi',
-            zipCode: '110001',
-            country: 'India'
-          },
-          deliveryDate: '2024-01-20',
-          blockchainTxId: '0x1234567890abcdef',
-          blockchainStatus: 'verified',
-          notes: 'Please deliver in the morning',
-          createdAt: '2024-01-15T10:30:00Z',
-          updatedAt: '2024-01-15T10:30:00Z'
-        },
-        {
-          _id: '2',
-          farmer: {
-            firstName: 'Priya',
-            lastName: 'Sharma',
-            email: 'priya@example.com',
-            phone: '+91 98765 43211'
-          },
-          products: [
-            {
-              product: {
-                _id: '2',
-                name: 'Sweet Mangoes',
-                price: 80,
-                images: ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZfZqe1WL-fLg_LQ4YxiaM2vp2UQze5ddVQQ&s"]
-              },
-              quantity: 3,
-              totalPrice: 240
-            }
-          ],
-          totalAmount: 240,
-          status: 'shipped',
-          paymentStatus: 'paid',
-          paymentMethod: 'card',
-          shippingAddress: {
-            street: '123 Main Street',
-            city: 'Delhi',
-            state: 'Delhi',
-            zipCode: '110001',
-            country: 'India'
-          },
-          deliveryDate: '2024-01-18',
-          blockchainTxId: '0xabcdef1234567890',
-          blockchainStatus: 'verified',
-          createdAt: '2024-01-14T14:20:00Z',
-          updatedAt: '2024-01-16T09:15:00Z'
-        },
-        {
-          _id: '3',
-          farmer: {
-            firstName: 'Amit',
-            lastName: 'Singh',
-            email: 'amit@example.com',
-            phone: '+91 98765 43212'
-          },
-          products: [
-            {
-              product: {
-                _id: '3',
-                name: 'Basmati Rice',
-                price: 120,
-                images: ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlCZcAceDUgxII0KB0t2v_1ewWPKisKNLBJA&s"]
-              },
-              quantity: 2,
-              totalPrice: 240
-            }
-          ],
-          totalAmount: 240,
-          status: 'delivered',
-          paymentStatus: 'paid',
-          paymentMethod: 'cod',
-          shippingAddress: {
-            street: '123 Main Street',
-            city: 'Delhi',
-            state: 'Delhi',
-            zipCode: '110001',
-            country: 'India'
-          },
-          deliveryDate: '2024-01-12',
-          blockchainTxId: '0x9876543210fedcba',
-          blockchainStatus: 'verified',
-          createdAt: '2024-01-10T16:45:00Z',
-          updatedAt: '2024-01-12T11:30:00Z'
-        }
-      ];
-
-      let filteredOrders = mockOrders;
-      if (filter !== 'all') {
-        filteredOrders = mockOrders.filter(order => order.status === filter);
-      }
-
-      setOrders(filteredOrders);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      setLoading(false);
+// In your BuyerOrders component, replace the fetchOrders function:
+useEffect(() => {
+  if (typeof window !== 'undefined') {
+    const status = searchParams.get('status');
+    if (status) {
+      setFilter(status);
+    } else {
+      setFilter('all'); // 👈 Default “My Orders” tab
     }
-  };
+  }
+}, [searchParams]);
+
+
+const fetchOrders = async () => {
+  setLoading(true);
+  try {
+    // Create params object
+    const params: {
+      page?: number;
+      limit?: number;
+      status?: string;
+    } = {
+      page: 1,
+      limit: 10
+    };
+    
+    // Only add status if it's not 'all'
+    if (filter !== 'all') {
+      params.status = filter;
+    }
+    
+    // Call API with params object
+    const response = await apiService.getBuyerOrders(params);
+    
+    // Type-safe way to handle response - sab red lines chali jayengi
+    const data = response.data as any;
+    
+    if (Array.isArray(data)) {
+      // Agar direct array hai
+      setOrders(data);
+    } else if (data.orders && Array.isArray(data.orders)) {
+      // Agar nested object hai with orders property
+      setOrders(data.orders);
+    } else {
+      // Fallback to empty array
+      setOrders([]);
+    }
+    
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    setOrders([]); // Error pe empty array set karo
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  fetchOrders();
+}, [filter]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -747,18 +682,51 @@ function BuyerOrders() {
     return order.status === 'pending' || order.status === 'confirmed';
   };
 
+  // const handleCancelOrder = async (orderId: string) => {
+  //   if (confirm('Are you sure you want to cancel this order?')) {
+  //     // In a real app, you would call the API to cancel the order
+  //     console.log('Cancelling order:', orderId);
+  //     // Update the order status in the local state
+  //     setOrders(prev => prev.map(order => 
+  //       order._id === orderId 
+  //         ? { ...order, status: 'cancelled' as const }
+  //         : order
+  //     ));
+  //   }
+  // };
+
   const handleCancelOrder = async (orderId: string) => {
-    if (confirm('Are you sure you want to cancel this order?')) {
-      // In a real app, you would call the API to cancel the order
-      console.log('Cancelling order:', orderId);
-      // Update the order status in the local state
-      setOrders(prev => prev.map(order => 
-        order._id === orderId 
-          ? { ...order, status: 'cancelled' as const }
-          : order
-      ));
+  if (!confirm("Are you sure you want to cancel this order?")) return;
+  const reason = prompt("Please enter a reason for cancellation:", "");
+   if (!reason || reason.trim() === "") {
+    alert("Cancellation reason is required!");
+    return;
+  }
+  try {
+  
+
+    // API call to cancel order
+    const response = await apiService.cancelOrder(orderId, reason);
+
+    if (response.success) {
+      alert(" Order cancelled successfully!");
+
+      
+      setOrders((prev) =>
+        prev.map((order) =>
+          order._id === orderId
+            ? { ...order, status: "cancelled" as const }
+            : order
+        )
+      );
+    } else {
+      alert(response.message || " Failed to cancel order.");
     }
-  };
+  } catch (error) {
+    console.error("Cancel order error:", error);
+    alert("Something went wrong. Please try again ");
+  }
+};
 
   const toggleOrderDetails = (orderId: string) => {
     setExpandedOrders(prev => {
