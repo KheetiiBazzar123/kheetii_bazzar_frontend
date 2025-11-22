@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import { apiService } from '@/services/api';
 import { BlockchainTransaction } from '@/types';
 import { motion } from 'framer-motion';
@@ -23,7 +23,7 @@ import { toast } from '@/components/ui/use-toast';
 
 export default function BlockchainPage() {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const [transactions, setTransactions] = useState<BlockchainTransaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('all');

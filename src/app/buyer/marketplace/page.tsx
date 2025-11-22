@@ -217,14 +217,8 @@ const handlePlaceOrder = async (product: Product) => {
       alert(' Order placed successfully!');
       window.location.href = "/buyer/orders"; 
 
-
-      if (response.data?.order) {
-        console.log('Order Details:', response.data.order);
-      } else {
-        console.log('Order Response:', response.data ?? response);
-      }
-
-     
+      console.log('Order Response:', response.data ?? response);
+      
     } else {
       alert(response.message || 'Failed to place order!');
     }

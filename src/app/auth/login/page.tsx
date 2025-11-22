@@ -5,7 +5,7 @@
 // import Link from 'next/link';
 // import { motion } from 'framer-motion';
 // import { useAuth } from '@/contexts/AuthContext';
-// import { useLanguage } from '@/contexts/LanguageContext';
+// import { useTranslation } from 'react-i18next';
 // import Button from '@/components/ui/Button';
 // import { 
 //   EyeIcon, 
@@ -19,7 +19,7 @@
 //   const router = useRouter();
 //   const searchParams = useSearchParams();
 //   const { login } = useAuth();
-//   const { t } = useLanguage();
+//   const { t } = useTranslation();
   
 //   const [formData, setFormData] = useState({
 //     email: '',
@@ -38,7 +38,7 @@
 //       await login({ email: formData.email, password: formData.password });
 //       // Redirect will be handled by the AuthContext after login
 //     } catch (err: any) {
-//       setError(err.message || 'Login failed');
+//       setError(err.message || {t('login.loginFailed')});
 //     } finally {
 //       setLoading(false);
 //     }
@@ -62,7 +62,7 @@
 //         {/* Back Button */}
 //         <Link href="/" className="inline-flex items-center mb-8 text-gray-600 transition-colors hover:text-emerald-600">
 //           <ArrowLeftIcon className="mr-2 w-5 h-5" />
-//           Back to Home
+//           {t('login.backToHome')}
 //         </Link>
 
 //         {/* Login Card */}
@@ -72,8 +72,8 @@
 //             <div className="flex justify-center items-center mx-auto mb-4 w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl">
 //               <SparklesIcon className="w-8 h-8 text-white" />
 //             </div>
-//             <h1 className="mb-2 text-3xl font-bold text-gray-900">Welcome Back</h1>
-//             <p className="text-gray-600">Sign in to your KheetiiBazaar account</p>
+//             <h1 className="mb-2 text-3xl font-bold text-gray-900">{t('login.welcomeBack')}</h1>
+//             <p className="text-gray-600">{t('login.signInSubtitle')}</p>
 //           </div>
 
 //           {/* Form */}
@@ -90,7 +90,7 @@
 
 //             <div className="form-group">
 //               <label htmlFor="email" className="label">
-//                 Email Address
+//                 {t('login.emailAddress')}
 //               </label>
 //               <input
 //                 type="email"
@@ -99,7 +99,7 @@
 //                 value={formData.email}
 //                 onChange={handleChange}
 //                 className="input"
-//                 placeholder="Enter your email"
+//                 placeholder="{t('login.enterEmail')}"
 //                 required
 //               />
 //             </div>
@@ -116,7 +116,7 @@
 //                   value={formData.password}
 //                   onChange={handleChange}
 //                   className="pr-12 input"
-//                   placeholder="Enter your password"
+//                   placeholder="{t('login.enterPassword')}"
 //                   required
 //                 />
 //                 <button
@@ -136,10 +136,10 @@
 //             <div className="flex justify-between items-center">
 //               <label className="flex items-center">
 //                 <input type="checkbox" className="text-emerald-600 rounded border-gray-300 focus:ring-emerald-500" />
-//                 <span className="ml-2 text-sm text-gray-600">Remember me</span>
+//                 <span className="ml-2 text-sm text-gray-600">{t('login.rememberMe')}</span>
 //               </label>
 //               <Link href="/auth/forgot-password" className="text-sm text-emerald-600 hover:text-emerald-700">
-//                 Forgot password?
+//                 {t('login.forgotPassword')}
 //               </Link>
 //             </div>
 
@@ -151,10 +151,10 @@
 //               {loading ? (
 //                 <div className="flex justify-center items-center">
 //                   <div className="mr-2 w-5 h-5 spinner"></div>
-//                   Signing in...
+//                   {t('login.signingIn')}
 //                 </div>
 //               ) : (
-//                 'Sign In'
+//                 {t('login.signIn')}
 //               )}
 //             </Button>
 //           </form>
@@ -165,7 +165,7 @@
 //               <div className="w-full border-t border-gray-200" />
 //             </div>
 //             <div className="flex relative justify-center text-sm">
-//               <span className="px-2 text-gray-500 bg-white">Or continue with</span>
+//               <span className="px-2 text-gray-500 bg-white">{t('login.orContinueWith')}</span>
 //             </div>
 //           </div>
 
@@ -191,9 +191,9 @@
 //           {/* Sign Up Link */}
 //           <div className="mt-8 text-center">
 //             <p className="text-gray-600">
-//               Don't have an account?{' '}
+//               {t('login.noAccount')}{' '}
 //               <Link href="/auth/register" className="font-semibold text-emerald-600 hover:text-emerald-700">
-//                 Sign up here
+//                 {t('login.signUpHere')}
 //               </Link>
 //             </p>
 //           </div>
@@ -208,15 +208,15 @@
 //         >
 //           <div className="p-4 text-center rounded-xl glass">
 //             <CheckCircleIcon className="mx-auto mb-2 w-8 h-8 text-emerald-500" />
-//             <p className="text-sm text-gray-600">Secure & Encrypted</p>
+//             <p className="text-sm text-gray-600">{t('login.secureEncrypted')}</p>
 //           </div>
 //           <div className="p-4 text-center rounded-xl glass">
 //             <CheckCircleIcon className="mx-auto mb-2 w-8 h-8 text-emerald-500" />
-//             <p className="text-sm text-gray-600">Blockchain Verified</p>
+//             <p className="text-sm text-gray-600">{t('login.blockchainVerified')}</p>
 //           </div>
 //           <div className="p-4 text-center rounded-xl glass">
 //             <CheckCircleIcon className="mx-auto mb-2 w-8 h-8 text-emerald-500" />
-//             <p className="text-sm text-gray-600">24/7 Support</p>
+//             <p className="text-sm text-gray-600">{t('login.support247')}</p>
 //           </div>
 //         </motion.div>
 //       </motion.div>
@@ -242,7 +242,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import Button from '@/components/ui/Button';
 import { 
   EyeIcon, 
@@ -256,7 +256,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -275,7 +275,7 @@ function LoginForm() {
       await login({ email: formData.email, password: formData.password });
       // Redirect will be handled by the AuthContext after login
     } catch (err: any) {
-      setError(err.message || 'Login failed');
+      setError(err.message || t('login.loginFailed'));
     } finally {
       setLoading(false);
     }
@@ -299,7 +299,7 @@ function LoginForm() {
         {/* Back Button */}
         <Link href="/" className="inline-flex items-center mb-8 text-gray-600 transition-colors dark:text-white hover:text-emerald-600">
           <ArrowLeftIcon className="mr-2 w-5 h-5" />
-          Back to Home
+          {t('login.backToHome')}
         </Link>
 
         {/* Login Card */}
@@ -309,8 +309,8 @@ function LoginForm() {
             <div className="flex justify-center items-center mx-auto mb-4 w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl">
               <SparklesIcon className="w-8 h-8 text-white" />
             </div>
-            <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">Welcome Back</h1>
-            <p className="text-gray-600 dark:text-white">Sign in to your KheetiiBazaar account</p>
+            <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">{t('login.welcomeBack')}</h1>
+            <p className="text-gray-600 dark:text-white">{t('login.signInSubtitle')}</p>
           </div>
 
           {/* Form */}
@@ -327,7 +327,7 @@ function LoginForm() {
 
             <div className="form-group">
               <label htmlFor="email" className="label dark:text-white">
-                Email Address
+                {t('login.emailAddress')}
               </label>
               <input
               
@@ -338,7 +338,7 @@ function LoginForm() {
                 value={formData.email}
                 onChange={handleChange}
                 className="input dark:text-black"
-                placeholder="Enter your email"
+                placeholder="{t('login.enterEmail')}"
                 required
               />
             </div>
@@ -355,7 +355,7 @@ function LoginForm() {
                   value={formData.password}
                   onChange={handleChange}
                   className="pr-12 input dark:text-black"
-                  placeholder="Enter your password"
+                  placeholder="{t('login.enterPassword')}"
                   required
                 />
                 <button
@@ -375,10 +375,10 @@ function LoginForm() {
             <div className="flex justify-between items-center">
               <label className="flex items-center">
                 <input type="checkbox" className="text-emerald-600 rounded border-gray-300 focus:ring-emerald-500" />
-                <span className="ml-2 text-sm text-gray-600 dark:text-white">Remember me</span>
+                <span className="ml-2 text-sm text-gray-600 dark:text-white">{t('login.rememberMe')}</span>
               </label>
               <Link href="/auth/forgot-password" className="text-sm text-emerald-600 hover:text-emerald-700">
-                Forgot password?
+                {t('login.forgotPassword')}
               </Link>
             </div>
 
@@ -390,10 +390,10 @@ function LoginForm() {
               {loading ? (
                 <div className="flex justify-center items-center">
                   <div className="mr-2 w-5 h-5 spinner"></div>
-                  Signing in...
+                  {t('login.signingIn')}
                 </div>
               ) : (
-                'Sign In'
+                t('login.signIn')
               )}
             </Button>
           </form>
@@ -404,7 +404,7 @@ function LoginForm() {
               <div className="w-full border-t border-gray-200" />
             </div>
             <div className="flex relative justify-center text-sm">
-              <span className="px-2 text-gray-500 bg-white">Or continue with</span>
+              <span className="px-2 text-gray-500 bg-white">{t('login.orContinueWith')}</span>
             </div>
           </div>
 
@@ -430,9 +430,9 @@ function LoginForm() {
           {/* Sign Up Link */}
           <div className="mt-8 text-center">
             <p className="text-gray-600 dark:text-white">
-              Don't have an account?{' '}
+              {t('login.noAccount')}{' '}
               <Link href="/auth/register" className="font-semibold text-emerald-600 hover:text-emerald-700">
-                Sign up here
+                {t('login.signUpHere')}
               </Link>
             </p>
           </div>
@@ -447,15 +447,15 @@ function LoginForm() {
         >
           <div className="p-4 text-center rounded-xl glass">
             <CheckCircleIcon className="mx-auto mb-2 w-8 h-8 text-emerald-500" />
-            <p className="text-sm text-gray-600 dark:text-white">Secure & Encrypted</p>
+            <p className="text-sm text-gray-600 dark:text-white">{t('login.secureEncrypted')}</p>
           </div>
           <div className="p-4 text-center rounded-xl glass">
             <CheckCircleIcon className="mx-auto mb-2 w-8 h-8 text-emerald-500" />
-            <p className="text-sm text-gray-600 dark:text-white">Blockchain Verified</p>
+            <p className="text-sm text-gray-600 dark:text-white">{t('login.blockchainVerified')}</p>
           </div>
           <div className="p-4 text-center rounded-xl glass">
             <CheckCircleIcon className="mx-auto mb-2 w-8 h-8 text-emerald-500" />
-            <p className="text-sm text-gray-600 dark:text-white">24/7 Support</p>
+            <p className="text-sm text-gray-600 dark:text-white">{t('login.support247')}</p>
           </div>
         </motion.div>
       </motion.div>

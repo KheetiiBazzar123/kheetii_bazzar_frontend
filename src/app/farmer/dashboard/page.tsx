@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import DarkModeTest from '@/components/DarkModeTest';
-import { apiService } from '@/services/api';
+import { apiClient } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { 
@@ -64,6 +65,7 @@ interface TopProduct {
 }
 
 function FarmerDashboard() {
+  const { t } = useTranslation();
   const { user, loading: authLoading } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [stats, setStats] = useState<FarmerStats>({
@@ -84,7 +86,7 @@ function FarmerDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await apiService.getFarmerDashboard();
+      const response = await apiClient.getFarmerDashboard();
       
       if (response.success && response.data) {
         setStats(response.data.stats);
@@ -127,12 +129,12 @@ function FarmerDashboard() {
   if (loading) {
     return (
       <DashboardLayout
-        title="Farmer Dashboard"
-        subtitle="Loading..."
+        title={t('farmer.dashboard.title')}
+        subtitle={t('common.loading')}
       >
         <div className="flex items-center justify-center min-h-96">
           <div className="spinner h-16 w-16"></div>
-          <p className="ml-4 text-gray-600 dark:text-gray-400">Loading dashboard data...</p>
+          <p className="ml-4 text-gray-600 dark:text-gray-400">{t('farmer.dashboard.loadingDashboard')}</p>
         </div>
       </DashboardLayout>
     );
@@ -140,8 +142,8 @@ function FarmerDashboard() {
 
   return (
     <DashboardLayout
-      title="Farmer Dashboard"
-      subtitle={`Welcome back, ${user?.firstName}!`}
+      title={t('farmer.dashboard.title')}
+      subtitle={`${t('farmer.dashboard.welcomeBack')}, ${user?.firstName}!`}
       actions={
         <div className="flex items-center space-x-4">
           <Button onClick={toggleTheme} variant="outline">
@@ -150,7 +152,7 @@ function FarmerDashboard() {
           <Link href="/farmer/products/new">
             <Button className="btn-primary">
               <PlusIcon className="h-5 w-5 mr-2" />
-              Add Product
+              {t('farmer.dashboard.addProduct')}
             </Button>
           </Link>
         </div>
@@ -176,7 +178,7 @@ function FarmerDashboard() {
                     <ChartBarIcon className="h-6 w-6 text-blue-600" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Products</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('farmer.dashboard.totalProducts')}</p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.totalProducts}</p>
                   </div>
                 </div>
@@ -196,7 +198,7 @@ function FarmerDashboard() {
                     <CheckCircleIcon className="h-6 w-6 text-green-600" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Products</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('farmer.dashboard.activeProducts')}</p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.activeProducts}</p>
                   </div>
                 </div>
@@ -216,7 +218,7 @@ function FarmerDashboard() {
                     <ShoppingCartIcon className="h-6 w-6 text-purple-600" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Orders</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('farmer.dashboard.totalOrders')}</p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.totalOrders}</p>
                   </div>
                 </div>
@@ -236,7 +238,7 @@ function FarmerDashboard() {
                     <ClockIcon className="h-6 w-6 text-yellow-600" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending Orders</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('farmer.dashboard.pendingOrders')}</p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.pendingOrders}</p>
                   </div>
                 </div>
@@ -260,12 +262,12 @@ function FarmerDashboard() {
                     <CurrencyDollarIcon className="h-6 w-6 text-emerald-600" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Earnings</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('farmer.dashboard.totalEarnings')}</p>
                     <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">₹{stats.totalEarnings.toLocaleString()}</p>
                   </div>
                 </div>
                 <Link href="/farmer/earnings">
-                  <Button variant="outline">View Details</Button>
+                  <Button variant="outline">{t('farmer.dashboard.viewDetails')}</Button>
                 </Link>
               </div>
             </CardContent>
@@ -281,8 +283,8 @@ function FarmerDashboard() {
           >
             <Card>
               <CardHeader>
-                <CardTitle>Recent Orders</CardTitle>
-                <CardDescription>Latest orders from buyers</CardDescription>
+                <CardTitle>{t('farmer.dashboard.recentOrders')}</CardTitle>
+                <CardDescription>{t('farmer.dashboard.latestOrders')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -318,7 +320,7 @@ function FarmerDashboard() {
                 </div>
                 <div className="mt-4">
                   <Link href="/farmer/orders">
-                    <Button variant="outline" className="w-full">View All Orders</Button>
+                  <Button variant="outline" className="w-full">{t('farmer.dashboard.viewAllOrders')}</Button>
                   </Link>
                 </div>
               </CardContent>
@@ -333,8 +335,8 @@ function FarmerDashboard() {
           >
             <Card>
               <CardHeader>
-                <CardTitle>Top Products</CardTitle>
-                <CardDescription>Your best performing products</CardDescription>
+                <CardTitle>{t('farmer.dashboard.topProducts')}</CardTitle>
+                <CardDescription>{t('farmer.dashboard.bestPerforming')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -381,7 +383,7 @@ function FarmerDashboard() {
                 </div>
                 <div className="mt-4">
                   <Link href="/farmer/products">
-                    <Button variant="outline" className="w-full">Manage Products</Button>
+                  <Button variant="outline" className="w-full">{t('farmer.dashboard.manageProducts')}</Button>
                   </Link>
                 </div>
               </CardContent>

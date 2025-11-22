@@ -131,7 +131,7 @@ export default function OrderCard({ order, onStatusUpdate, onViewDetails, userRo
         return <TruckIcon className="h-4 w-4" />;
       case 'delivered':
         return <TruckIcon className="h-4 w-4" />;
-      primary:
+      default:
         return <ClockIcon className="h-4 w-4" />;
     }
   };
@@ -179,7 +179,7 @@ export default function OrderCard({ order, onStatusUpdate, onViewDetails, userRo
         {/* Products */}
         <div className="space-y-3">
           <h4 className="font-medium text-gray-900">Products</h4>
-          {order.(products??[]).map((product) => (
+          {(order.products ?? []).map((product) => (
             <div key={product.id} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
               <img
                 src={product.image}

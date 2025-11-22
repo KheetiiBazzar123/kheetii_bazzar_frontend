@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
+import { apiClient } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { 
@@ -15,8 +17,11 @@ import {
 } from '@heroicons/react/24/outline';
 
 function ProductPerformancePage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [productData, setProductData] = useState<any>(null);
+  const [timeRange, setTimeRange] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
 
   useEffect(() => {
     fetchProductData();
@@ -25,10 +30,12 @@ function ProductPerformancePage() {
   const fetchProductData = async () => {
     setLoading(true);
     try {
-      // TODO: Implement API call to fetch product performance data
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await apiClient.getFarmerProducts(1, 100);
+      if (response.success && response.data) {
+        setProductData(response.data);
+      }
     } catch (error) {
-      console.error('Error fetching product data:', error);
+      console.error('Error fetching product performance data:', error);
     } finally {
       setLoading(false);
     }

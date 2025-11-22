@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api';
 import { motion } from 'framer-motion';
@@ -41,7 +41,7 @@ interface Product {
 
 export default function ProductsPage() {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const router = useRouter();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

@@ -102,7 +102,7 @@ function AdminCategoriesPage() {
       const response = await apiClient.getCategories();
       if (response.success && response.data) {
         const apiCategories: Category[] = response.data.categories.map((catName, index) => {
-          const countObj = response.data.categoryCounts.find(c => c.category === catName);
+          const countObj = response.data?.categoryCounts.find(c => c.category === catName);
           return {
             id: index.toString(),
             name: catName,

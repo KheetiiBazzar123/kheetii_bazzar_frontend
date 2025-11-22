@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
+import { apiClient } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { 
@@ -32,6 +34,7 @@ interface Review {
 }
 
 function ReviewsPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,66 +47,15 @@ function ReviewsPage() {
   const fetchReviews = async () => {
     setLoading(true);
     try {
-      // TODO: Implement API call to fetch reviews
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await apiClient.getFarmerReviews(1, 50);
       
-      const mockReviews: Review[] = [
-        {
-          _id: '1',
-          product: {
-            name: 'Fresh Organic Tomatoes',
-            images: ['/images/tomatoes.jpg']
-          },
-          buyer: {
-            firstName: 'John',
-            lastName: 'Doe',
-            avatar: '/avatars/john.jpg'
-          },
-          rating: 5,
-          comment: 'Excellent quality! The tomatoes were fresh and delicious. Will definitely order again.',
-          createdAt: '2024-01-15T10:30:00Z',
-          helpful: 3,
-          isVerified: true
-        },
-        {
-          _id: '2',
-          product: {
-            name: 'Organic Carrots',
-            images: ['/images/carrots.jpg']
-          },
-          buyer: {
-            firstName: 'Jane',
-            lastName: 'Smith',
-            avatar: '/avatars/jane.jpg'
-          },
-          rating: 4,
-          comment: 'Good quality carrots, very fresh. Delivery was fast.',
-          createdAt: '2024-01-14T14:20:00Z',
-          helpful: 1,
-          isVerified: true
-        },
-        {
-          _id: '3',
-          product: {
-            name: 'Fresh Lettuce',
-            images: ['/images/lettuce.jpg']
-          },
-          buyer: {
-            firstName: 'Mike',
-            lastName: 'Johnson',
-            avatar: '/avatars/mike.jpg'
-          },
-          rating: 3,
-          comment: 'Lettuce was okay, but some leaves were wilted.',
-          createdAt: '2024-01-13T09:15:00Z',
-          helpful: 0,
-          isVerified: false
-        }
-      ];
-      
-      setReviews(mockReviews);
+      if (response.success && response.data) {
+        setReviews(Array.isArray(response.data) ? response.data : (response.data as any).data || []);
+      }
     } catch (error) {
       console.error('Error fetching reviews:', error);
+      // Fallback to empty for now
+      setReviews([]);
     } finally {
       setLoading(false);
     }
@@ -151,8 +103,8 @@ function ReviewsPage() {
 
   return (
     <DashboardLayout
-      title="Product Reviews"
-      subtitle="View and manage customer reviews for your products"
+      title={t('farmer.reviews.title')}
+      subtitle={t('farmer.reviews.subtitle')}
       actions={
         <Button
           onClick={() => window.history.back()}
@@ -172,7 +124,7 @@ function ReviewsPage() {
                   <StarIcon className="h-6 w-6 text-yellow-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Average Rating</p>
+                  <p className="text-sm font-medium text-gray-600">{t('farmer.reviews.averageRating')}</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {averageRating.toFixed(1)}
                   </p>
@@ -191,7 +143,7 @@ function ReviewsPage() {
                   <ChatBubbleLeftRightIcon className="h-6 w-6 text-blue-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Reviews</p>
+                  <p className="text-sm font-medium text-gray-600">{t('farmer.reviews.totalReviews')}</p>
                   <p className="text-2xl font-bold text-gray-900">{reviews.length}</p>
                 </div>
               </div>
@@ -311,7 +263,7 @@ function ReviewsPage() {
             {filteredReviews.length === 0 ? (
               <div className="text-center py-12">
                 <ChatBubbleLeftRightIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No reviews found</h3>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">{t('farmer.reviews.noReviews')}</h3>
                 <p className="mt-1 text-sm text-gray-500">
                   {filter === 'all' ? 'You have no reviews yet.' : `No ${filter}-star reviews.`}
                 </p>

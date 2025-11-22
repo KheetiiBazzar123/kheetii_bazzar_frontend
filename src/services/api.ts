@@ -438,6 +438,78 @@ async getFarmerEarnings(): Promise<ApiResponse<{
   async getCategories(): Promise<ApiResponse<{ categories: string[] }>> {
     return this.request('/products/categories');
   }
+
+  // Address Management
+  async getAddresses(): Promise<ApiResponse<any>> {
+    return this.request('/buyer/addresses');
+  }
+
+  async createAddress(data: any): Promise<ApiResponse<any>> {
+    return this.request('/buyer/addresses', { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async updateAddress(id: string, data: any): Promise<ApiResponse<any>> {
+    return this.request(`/buyer/addresses/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+  }
+
+  async deleteAddress(id: string): Promise<ApiResponse<any>> {
+    return this.request(`/buyer/addresses/${id}`, { method: 'DELETE' });
+  }
+
+  async setDefaultAddress(id: string): Promise<ApiResponse<any>> {
+    return this.request(`/buyer/addresses/${id}/default`, { method: 'PATCH' });
+  }
+
+  // Coupons
+  async getAvailableCoupons(): Promise<ApiResponse<any>> {
+    return this.request('/buyer/coupons/available');
+  }
+
+  // Wishlist
+  async getWishlist(): Promise<ApiResponse<any>> {
+    return this.request('/buyer/wishlist');
+  }
+
+  async removeFromWishlist(productId: string): Promise<ApiResponse<any>> {
+    return this.request(`/buyer/wishlist/${productId}`, { method: 'DELETE' });
+  }
+
+  async clearWishlist(): Promise<ApiResponse<any>> {
+    return this.request('/buyer/wishlist/clear', { method: 'DELETE' });
+  }
+
+  async shareWishlist(): Promise<ApiResponse<any>> {
+    return this.request('/buyer/wishlist/share', { method: 'POST' });
+  }
+
+  async getSharedWishlist(token: string): Promise<ApiResponse<any>> {
+    return this.request(`/buyer/wishlist/shared/${token}`);
+  }
+
+  // Loyalty Points
+  async getLoyaltyAccount(): Promise<ApiResponse<any>> {
+    return this.request('/buyer/loyalty');
+  }
+
+  async getPointsHistory(params?: any): Promise<ApiResponse<any>> {
+    const queryParams = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return this.request(`/buyer/loyalty/history${queryParams}`);
+  }
+
+  async redeemPoints(data: any): Promise<ApiResponse<any>> {
+    return this.request('/buyer/loyalty/redeem', { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  // Returns
+  async getMyReturns(): Promise<ApiResponse<any>> {
+    return this.request('/buyer/returns');
+  }
+
+  // Order Actions
+  async cancelOrder(orderId: string): Promise<ApiResponse<any>> {
+    return this.request(`/buyer/orders/${orderId}/cancel`, { method: 'POST' });
+  }
+
 }
 
 export const apiService = new ApiService();

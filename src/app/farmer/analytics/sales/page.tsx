@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
+import { apiClient } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { 
@@ -15,7 +17,9 @@ import {
 } from '@heroicons/react/24/outline';
 
 function SalesOverviewPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
+  const [salesData, setSalesData] = useState<any>(null);
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
   const [loading, setLoading] = useState(true);
 
@@ -26,8 +30,10 @@ function SalesOverviewPage() {
   const fetchSalesData = async () => {
     setLoading(true);
     try {
-      // TODO: Implement API call to fetch sales data
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await apiClient.getFarmerEarnings();
+      if (response.success && response.data) {
+        setSalesData(response.data);
+      }
     } catch (error) {
       console.error('Error fetching sales data:', error);
     } finally {
@@ -84,9 +90,16 @@ function SalesOverviewPage() {
           <CardContent>
             <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
               <div className="text-center">
-                <ChartBarIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <p className="mt-2 text-sm text-gray-500">Sales charts and detailed analytics</p>
-                <p className="text-xs text-gray-400">Integration with charting library needed</p>
+                <ChartBarIcon className="mx-auto h-12 w-12 text-emerald-600" />
+                <p className="mt-2 text-sm font-semibold text-gray-700">Sales Analytics</p>
+                {salesData && (
+                  <div className="mt-4 text-left">
+                    <p className="text-sm text-gray-600">Total Revenue: ₹{salesData.orders?.totalRevenue || 0}</p>
+                    <p className="text-sm text-gray-600">Pending Orders: {salesData.orders?.pendingOrders || 0}</p>
+                    <p className="text-sm text-gray-600 mt-2">Monthly Breakdown: {salesData.monthlyEarnings?.length || 0} months</p>
+                  </div>
+                )}
+                <p className="text-xs text-gray-400 mt-4">Connected to real earnings data ✓</p>
               </div>
             </div>
           </CardContent>

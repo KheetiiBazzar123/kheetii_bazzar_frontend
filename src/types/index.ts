@@ -210,6 +210,55 @@ export type Theme = 'light' | 'dark';
 // Language types
 export type Language = 'en' | 'hi';
 
+// Wishlist types
+export interface WishlistItem {
+  _id: string;
+  user: string;
+  product: Product;
+  addedAt: string;
+  notifyWhenAvailable?: boolean;
+  notifyOnPriceChange?: boolean;
+  priceWhenAdded?: number;
+  notes?: string;
+}
+
+// Delivery Address Management
+export interface DeliveryAddress {
+  _id: string;
+  user: string;
+  label: string;
+  fullName: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2?: string;
+  landmark?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  country: string;
+  latitude?: number;
+  longitude?: number;
+  isDefault: boolean;
+  addressType: 'home' | 'work' | 'other';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DeliveryAddressInput {
+  label: string;
+  fullName: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2?: string;
+  landmark?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  country?: string;
+  addressType?: 'home' | 'work' | 'other';
+  isDefault?: boolean;
+}
+
 // Socket events
 export interface SocketEvents {
   'order:created': (order: Order) => void;

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -38,6 +39,7 @@ interface EarningsData {
 }
 
 function EarningsPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [earnings, setEarnings] = useState<EarningsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,12 +67,12 @@ function EarningsPage() {
           : 0,
         growth:
           apiData.monthlyEarnings.length > 1
-            ? (
+            ? Number((
                 ((apiData.monthlyEarnings[apiData.monthlyEarnings.length - 1].earnings -
                   apiData.monthlyEarnings[apiData.monthlyEarnings.length - 2].earnings) /
                   apiData.monthlyEarnings[apiData.monthlyEarnings.length - 2].earnings) *
                 100
-              ).toFixed(2)
+              ).toFixed(2))
             : 0,
         pendingPayouts: apiData.orders.pendingOrders,
         availableBalance: apiData.orders.totalRevenue,
@@ -172,8 +174,8 @@ function EarningsPage() {
   if (loading) {
     return (
       <DashboardLayout
-        title="Earnings"
-        subtitle="Loading earnings data..."
+        title={t('farmer.earnings.title')}
+        subtitle={t('common.loading')}
       >
         <div className="flex items-center justify-center min-h-96">
           <div className="spinner h-16 w-16"></div>
@@ -185,12 +187,12 @@ function EarningsPage() {
   if (!earnings) {
     return (
       <DashboardLayout
-        title="Earnings"
-        subtitle="Unable to load earnings data"
+        title={t('farmer.earnings.title')}
+        subtitle={t('farmer.earnings.noEarningsDescription')}
       >
         <div className="text-center py-12">
           <CurrencyDollarIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No earnings data</h3>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">{t('farmer.earnings.noEarnings')}</h3>
           <p className="mt-1 text-sm text-gray-500">
             Earnings data will appear here once you start making sales.
           </p>
@@ -201,8 +203,8 @@ function EarningsPage() {
 
   return (
     <DashboardLayout
-      title="Earnings Dashboard"
-      subtitle="Track your farm's financial performance"
+      title={t('farmer.earnings.title')}
+      subtitle={t('farmer.earnings.subtitle')}
       actions={
         <div className="flex space-x-3">
           <select
@@ -210,10 +212,10 @@ function EarningsPage() {
             onChange={(e) => setTimeRange(e.target.value as any)}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
           >
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-            <option value="quarter">This Quarter</option>
-            <option value="year">This Year</option>
+            <option value="week">{t('common.thisWeek')}</option>
+            <option value="month">{t('farmer.earnings.thisMonth')}</option>
+            <option value="quarter">{t('common.thisQuarter')}</option>
+            <option value="year">{t('common.thisYear')}</option>
           </select>
           <Button
             onClick={() => window.history.back()}
@@ -234,7 +236,7 @@ function EarningsPage() {
                   <CurrencyDollarIcon className="h-6 w-6 text-green-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Earnings</p>
+                  <p className="text-sm font-medium text-gray-600">{t('farmer.earnings.totalEarnings')}</p>
                   <p className="text-2xl font-bold text-gray-900">
                     ${earnings.totalEarnings.toLocaleString()}
                   </p>
@@ -250,7 +252,7 @@ function EarningsPage() {
                   <CalendarIcon className="h-6 w-6 text-blue-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">This Month</p>
+                  <p className="text-sm font-medium text-gray-600">{t('farmer.earnings.thisMonth')}</p>
                   <p className="text-2xl font-bold text-gray-900">
                     ${earnings.thisMonth.toLocaleString()}
                   </p>
@@ -272,7 +274,7 @@ function EarningsPage() {
                   <BanknotesIcon className="h-6 w-6 text-purple-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Available Balance</p>
+                  <p className="text-sm font-medium text-gray-600">{t('farmer.earnings.availableBalance')}</p>
                   <p className="text-2xl font-bold text-gray-900">
                     ${earnings.availableBalance.toLocaleString()}
                   </p>
@@ -288,7 +290,7 @@ function EarningsPage() {
                   <CurrencyDollarIcon className="h-6 w-6 text-orange-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Pending Payouts</p>
+                  <p className="text-sm font-medium text-gray-600">{t('farmer.earnings.pendingPayouts')}</p>
                   <p className="text-2xl font-bold text-gray-900">
                     ${earnings.pendingPayouts.toLocaleString()}
                   </p>

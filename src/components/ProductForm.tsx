@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/Label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { toast } from '@/components/ui/use-toast';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiClient } from '@/lib/api';
 import { PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
@@ -62,7 +62,7 @@ const units = [
 ];
 
 export default function ProductForm({ product, editingProduct, onSubmit, onCancel, loading = false }: ProductFormProps) {
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);

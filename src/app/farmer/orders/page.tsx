@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -60,6 +61,7 @@ interface Order {
 }
 
 function FarmerOrders() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -146,13 +148,13 @@ useEffect(() => {
   };
 
   const filterOptions = [
-    { value: 'all', label: 'All Orders' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'confirmed', label: 'Confirmed' },
-    { value: 'preparing', label: 'Preparing' },
-    { value: 'shipped', label: 'Shipped' },
-    { value: 'delivered', label: 'Delivered' },
-    { value: 'cancelled', label: 'Cancelled' }
+    { value: 'all', label: t('common.all') + ' ' + t('farmer.orders.title') },
+    { value: 'pending', label: t('farmer.orders.statusPending') },
+    { value: 'confirmed', label: t('farmer.orders.statusConfirmed') },
+    { value: 'preparing', label: t('farmer.orders.statusPreparing') },
+    { value: 'shipped', label: t('farmer.orders.statusShipped') },
+    { value: 'delivered', label: t('farmer.orders.statusDelivered') },
+    { value: 'cancelled', label: t('farmer.orders.statusCancelled') }
   ];
 
   if (loading) {
@@ -165,8 +167,8 @@ useEffect(() => {
 
   return (
     <DashboardLayout
-      title="Orders"
-      subtitle="Manage incoming orders from buyers"
+      title={t('farmer.orders.title')}
+      subtitle={t('farmer.orders.subtitle')}
     >
       <div className="max-w-7xl mx-auto">
         {/* Filter Tabs */}
@@ -207,7 +209,7 @@ useEffect(() => {
                         <span className="capitalize">{order.status}</span>
                       </div>
                       <div className="text-sm text-gray-600">
-                        Order #{order._id.slice(-8)}
+                        {t('farmer.orders.orderNumber')}{order._id.slice(-8)}
                       </div>
                       <div className="text-sm text-gray-500">
                         {new Date(order.createdAt).toLocaleDateString()}
@@ -223,7 +225,7 @@ useEffect(() => {
                   <div className="mb-4 p-4 bg-gray-50 rounded-lg">
                     <h4 className="font-medium text-gray-900 mb-2 flex items-center">
                       <UserIcon className="h-4 w-4 mr-2" />
-                      Buyer Information
+                      {t('farmer.orders.customer')}
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
@@ -246,7 +248,7 @@ useEffect(() => {
 
                   {/* Products */}
                   <div className="mb-4">
-                    <h4 className="font-medium text-gray-900 mb-3">Products</h4>
+                    <h4 className="font-medium text-gray-900 mb-3">{t('farmer.orders.items')}</h4>
                     <div className="space-y-3">
                       {order.products.map((item, itemIndex) => (
                         <div key={itemIndex} className="flex items-center space-x-4 p-3 border rounded-lg">
@@ -263,7 +265,7 @@ useEffect(() => {
                           </div>
                           <div className="flex-1">
                             <h5 className="font-medium text-gray-900">{item.product.name}</h5>
-                            <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                            <p className="text-sm text-gray-600">{t('common.quantity')}: {item.quantity}</p>
                           </div>
                           <div className="text-right">
                             <p className="font-medium text-gray-900">₹{item.totalPrice}</p>
@@ -278,7 +280,7 @@ useEffect(() => {
                   <div className="mb-4 p-4 bg-blue-50 rounded-lg">
                     <h4 className="font-medium text-gray-900 mb-2 flex items-center">
                       <MapPinIcon className="h-4 w-4 mr-2" />
-                      Delivery Address
+                      {t('farmer.orders.deliveryAddress')}
                     </h4>
                     <p className="text-sm text-gray-700">
                       {order.shippingAddress.street}, {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}
@@ -301,7 +303,7 @@ useEffect(() => {
                     <div className="flex items-center space-x-2">
                       <Button variant="outline" size="sm">
                         <EyeIcon className="h-4 w-4 mr-1" />
-                        View Details
+                        {t('farmer.orders.viewDetails')}
                       </Button>
                       {getNextStatus(order.status) && (
                         <Button
@@ -327,11 +329,11 @@ useEffect(() => {
         {orders &&orders.length === 0 && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">📦</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No orders found</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('farmer.orders.noOrders')}</h3>
             <p className="text-gray-600 mb-4">
               {filter === 'all' 
-                ? "You haven't received any orders yet"
-                : `No orders with status "${filter}"`
+                ? t('farmer.orders.noOrdersDescription')
+                : `${t('common.no')} ${filter} ${t('farmer.orders.title').toLowerCase()}`
               }
             </p>
             {filter === 'all' && (

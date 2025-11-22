@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import Button from '@/components/ui/Button';
 import { 
   EyeIcon, 
@@ -23,7 +23,7 @@ function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { register } = useAuth();
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -52,7 +52,7 @@ function RegisterForm() {
     setError('');
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('register.passwordsNoMatch'));
       setLoading(false);
       return;
     }
@@ -68,7 +68,7 @@ function RegisterForm() {
       });
       // Redirect will be handled by the AuthContext after registration
     } catch (err: any) {
-      setError(err.message || 'Registration failed');
+      setError(err.message || t('register.registrationFailed'));
     } finally {
       setLoading(false);
     }
@@ -131,7 +131,7 @@ function RegisterForm() {
         {/* Back Button */}
         <Link href="/" className="inline-flex items-center mb-8 text-gray-600 transition-colors dark:text-white hover:text-emerald-600">
           <ArrowLeftIcon className="mr-2 w-5 h-5" />
-          Back to Home
+          {t('register.backToHome')}
         </Link>
 
         {/* Registration Card */}
@@ -141,13 +141,13 @@ function RegisterForm() {
             <div className="flex justify-center items-center mx-auto mb-4 w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl">
               <SparklesIcon className="w-8 h-8 text-white" />
             </div>
-            <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">Join KheetiiBazaar</h1>
-            <p className="text-gray-600 dark:text-white">Create your account and start your agricultural journey</p>
+            <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">{t('register.joinKheetiiBazaar')}</h1>
+            <p className="text-gray-600 dark:text-white">{t('register.createAccountSubtitle')}</p>
           </div>
 
           {/* Role Selection */}
           <div className="mb-8">
-            <label className="block text-center label dark:text-white">Choose your role</label>
+            <label className="block text-center label dark:text-white">{t('register.chooseRole')}</label>
             <div className="grid grid-cols-1 gap-4 mt-4 md:grid-cols-2">
               {roleOptions.map((option) => (
                 <motion.button
@@ -167,8 +167,8 @@ function RegisterForm() {
                       <option.icon className="w-6 h-6 text-white" />
                     </div>
                     <div className="text-left">
-                      <h3 className="font-semibold text-gray-900">{option.label}</h3>
-                      <p className="text-sm text-gray-600">{option.description}</p>
+                      <h3 className="font-semibold text-gray-900">{t(`register.${option.value}`)}</h3>
+                      <p className="text-sm text-gray-600">{t(`register.${option.value}Desc`)}</p>
                     </div>
                   </div>
                 </motion.button>
@@ -192,7 +192,7 @@ function RegisterForm() {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="form-group">
                 <label htmlFor="firstName" className="label dark:text-white">
-                  First Name
+                  {t('register.firstName')}
                 </label>
                 <input
                   type="text"
@@ -201,14 +201,14 @@ function RegisterForm() {
                   value={formData.firstName}
                   onChange={handleChange}
                   className="input dark:text-black"
-                  placeholder="Enter your first name"
+                  placeholder="{t('register.enterFirstName')}"
                   required
                 />
               </div>
 
               <div className="form-group">
                 <label htmlFor="lastName" className="label dark:text-white">
-                  Last Name
+                  {t('register.lastName')}
                 </label>
                 <input
                   type="text"
@@ -217,7 +217,7 @@ function RegisterForm() {
                   value={formData.lastName}
                   onChange={handleChange}
                   className="input dark:text-black"
-                  placeholder="Enter your last name"
+                  placeholder="{t('register.enterLastName')}"
                   required
                 />
               </div>
@@ -225,7 +225,7 @@ function RegisterForm() {
 
             <div className="form-group">
               <label htmlFor="email" className="label dark:text-white">
-                Email Address
+                {t('register.emailAddress')}
               </label>
               <input
                 type="email"
@@ -234,14 +234,14 @@ function RegisterForm() {
                 value={formData.email}
                 onChange={handleChange}
                 className="input dark:text-black"
-                placeholder="Enter your email"
+                placeholder="{t('register.enterEmail')}"
                 required
               />
             </div>
 
             <div className="form-group">
               <label htmlFor="phone" className="label dark:text-white">
-                Phone Number
+                {t('register.phoneNumber')}
               </label>
               <input
                 type="tel"
@@ -250,18 +250,18 @@ function RegisterForm() {
                 value={formData.phone}
                 onChange={handleChange}
                 className="input dark:text-black"
-                placeholder="Enter your phone number"
+                placeholder="{t('register.enterPhone')}"
                 required
               />
             </div>
 
             {/* Address */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Address Information</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('register.addressInfo')}</h3>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="form-group">
                   <label htmlFor="address.street" className="label dark:text-white">
-                    Street Address
+                    {t('register.streetAddress')}
                   </label>
                   <input
                     type="text"
@@ -270,14 +270,14 @@ function RegisterForm() {
                     value={formData.address.street}
                     onChange={handleChange}
                     className="input dark:text-black"
-                    placeholder="Enter street address"
+                    placeholder="{t('register.enterStreet')}"
                     required
                   />
                 </div>
 
                 <div className="form-group">
                   <label htmlFor="address.city" className="label dark:text-white">
-                    City
+                    {t('register.city')}
                   </label>
                   <input
                     type="text"
@@ -286,14 +286,14 @@ function RegisterForm() {
                     value={formData.address.city}
                     onChange={handleChange}
                     className="input dark:text-black"
-                    placeholder="Enter city"
+                    placeholder="{t('register.enterCity')}"
                     required
                   />
                 </div>
 
                 <div className="form-group">
                   <label htmlFor="address.state" className="label dark:text-white">
-                    State
+                    {t('register.state')}
                   </label>
                   <input
                     type="text"
@@ -302,14 +302,14 @@ function RegisterForm() {
                     value={formData.address.state}
                     onChange={handleChange}
                     className="input dark:text-black"
-                    placeholder="Enter state"
+                    placeholder="{t('register.enterState')}"
                     required
                   />
                 </div>
 
                 <div className="form-group">
                   <label htmlFor="address.zip" className="label dark:text-white">
-                    ZIP Code
+                    {t('register.zipCode')}
                   </label>
                   <input
                     type="text"
@@ -318,18 +318,18 @@ function RegisterForm() {
                     value={formData.address.zip}
                     onChange={handleChange}
                     className="input dark:text-black"
-                    placeholder="Enter ZIP code"
+                    placeholder="{t('register.enterZip')}"
                     required
                   />
                 </div>
               </div>
             </div>
 
-            {/* Password */}
+            {/* {t('register.password')} */}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="form-group">
                 <label htmlFor="password" className="label dark:text-white">
-                  Password
+                  {t('register.password')}
                 </label>
                 <div className="relative">
                   <input
@@ -339,7 +339,7 @@ function RegisterForm() {
                     value={formData.password}
                     onChange={handleChange}
                     className="pr-12 input dark:text-black"
-                    placeholder="Create a password"
+                    placeholder="{t('register.createPassword')}"
                     required
                     minLength={6}
                   />
@@ -359,7 +359,7 @@ function RegisterForm() {
 
               <div className="form-group">
                 <label htmlFor="confirmPassword" className="label dark:text-white">
-                  Confirm Password
+                  {t('register.confirmPassword')}
                 </label>
                 <div className="relative">
                   <input
@@ -369,7 +369,7 @@ function RegisterForm() {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     className="pr-12 input dark:text-black"
-                    placeholder="Confirm your password"
+                    placeholder="{t('register.confirmYourPassword')}"
                     required
                   />
                   <button
@@ -414,10 +414,10 @@ function RegisterForm() {
               {loading ? (
                 <div className="flex justify-center items-center">
                   <div className="mr-2 w-5 h-5 spinner"></div>
-                  Creating account...
+                  {t('register.creatingAccount')}
                 </div>
               ) : (
-                'Create Account'
+                t('register.createAccount')
               )}
             </Button>
           </form>
@@ -425,9 +425,9 @@ function RegisterForm() {
           {/* Sign In Link */}
           <div className="mt-8 text-center">
             <p className="text-gray-600 dark:text-white">
-              Already have an account?{' '}
+              {t('register.alreadyHaveAccount')}{' '}
               <Link href="/auth/login" className="font-semibold text-emerald-600 hover:text-emerald-700">
-                Sign in here
+                {t('register.signInHere')}
               </Link>
             </p>
           </div>

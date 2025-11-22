@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Button from '@/components/ui/Button';
 import { 
   HomeIcon,
@@ -34,7 +35,10 @@ import {
   DocumentTextIcon,
   QuestionMarkCircleIcon,
   ClockIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  DocumentCheckIcon,
+  UserCircleIcon,
+  ArchiveBoxIcon
 } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -52,6 +56,7 @@ interface MenuItem {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   // const { user, logout } = useAuth();
   const { user: contextUser, logout } = useAuth();
 const [user, setUser] = useState(contextUser);
@@ -69,7 +74,6 @@ React.useEffect(() => {
 }, [contextUser]);
 
   const { theme, toggleTheme } = useTheme();
-  const { language, setLanguage } = useLanguage();
   const pathname = usePathname();
   const router = useRouter();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
@@ -94,52 +98,77 @@ React.useEffect(() => {
   // Farmer menu items
   const farmerMenuItems: MenuItem[] = [
     {
-      name: 'Dashboard',
+      name: t('sidebar.dashboard'),
       href: '/farmer/dashboard',
       icon: HomeIcon
     },
     {
-      name: 'Products',
+      name: t('sidebar.products'),
       href: '/farmer/products',
       icon: BuildingStorefrontIcon,
       children: [
-        { name: 'All Products', href: '/farmer/products', icon: ClipboardDocumentListIcon },
-        { name: 'Add Product', href: '/farmer/products/new', icon: PlusIcon },
-        { name: 'Categories', href: '/farmer/products/categories', icon: DocumentTextIcon }
+        { name: t('sidebar.allProducts'), href: '/farmer/products', icon: ClipboardDocumentListIcon },
+        { name: t('sidebar.addProduct'), href: '/farmer/products/new', icon: PlusIcon },
+        { name: t('sidebar.categories'), href: '/farmer/products/categories', icon: DocumentTextIcon }
       ]
     },
     {
-      name: 'Orders',
+      name: t('sidebar.orders'),
       href: '/farmer/orders',
       icon: ShoppingCartIcon,
       children: [
-        { name: 'All Orders', href: '/farmer/orders', icon: ClipboardDocumentListIcon },
-        { name: 'Pending Orders', href: '/farmer/orders?status=pending', icon: ClockIcon },
-        { name: 'Order History', href: '/farmer/orders/history', icon: DocumentTextIcon }
+        { name: t('sidebar.allOrders'), href: '/farmer/orders', icon: ClipboardDocumentListIcon },
+        { name: t('sidebar.pendingOrders'), href: '/farmer/orders?status=pending', icon: ClockIcon },
+        { name: t('sidebar.orderHistory'), href: '/farmer/orders/history', icon: DocumentTextIcon }
       ]
     },
     {
-      name: 'Analytics',
+      name: t('sidebar.analytics'),
       href: '/farmer/analytics',
       icon: ChartBarIcon,
       children: [
-        { name: 'Sales Overview', href: '/farmer/analytics/sales', icon: CurrencyDollarIcon },
-        { name: 'Product Performance', href: '/farmer/analytics/products', icon: BuildingStorefrontIcon },
-        { name: 'Customer Insights', href: '/farmer/analytics/customers', icon: UserGroupIcon }
+        { name: t('sidebar.salesOverview'), href: '/farmer/analytics/sales', icon: CurrencyDollarIcon },
+        { name: t('sidebar.productPerformance'), href: '/farmer/analytics/products', icon: BuildingStorefrontIcon },
+        { name: t('sidebar.customerInsights'), href: '/farmer/analytics/customers', icon: UserGroupIcon }
       ]
     },
     {
-      name: 'Earnings',
+      name: t('sidebar.inventory'),
+      href: '/farmer/inventory',
+      icon: ArchiveBoxIcon
+    },
+    {
+      name: t('sidebar.earnings'),
       href: '/farmer/earnings',
       icon: CurrencyDollarIcon
     },
     {
-      name: 'Reviews',
+      name: t('sidebar.reviews'),
       href: '/farmer/reviews',
       icon: StarIcon
     },
     {
-      name: 'Notifications',
+      name: t('sidebar.certifications'),
+      href: '/farmer/certifications',
+      icon: DocumentCheckIcon
+    },
+    {
+      name: t('sidebar.delivery'),
+      href: '/farmer/delivery',
+      icon: TruckIcon
+    },
+    {
+      name: t('sidebar.profile'),
+      href: '/farmer/profile',
+      icon: UserCircleIcon
+    },
+    {
+      name: t('sidebar.billing'),
+      href: '/farmer/billing',
+      icon: CurrencyDollarIcon
+    },
+    {
+      name: t('sidebar.notifications'),
       href: '/farmer/notifications',
       icon: BellIcon,
       badge: 3
@@ -149,37 +178,42 @@ React.useEffect(() => {
   // Buyer menu items
   const buyerMenuItems: MenuItem[] = [
     {
-      name: 'Marketplace',
+      name: t('sidebar.marketplace'),
       href: '/buyer/marketplace',
       icon: HomeIcon
     },
     {
-      name: 'My Orders',
+      name: t('sidebar.myOrders'),
       href: '/buyer/orders',
       icon: ShoppingCartIcon,
       children: [
-        { name: 'All Orders', href: '/buyer/orders', icon: ClipboardDocumentListIcon },
-        { name: 'Pending Orders', href: '/buyer/orders?status=pending', icon: ClockIcon },
-        { name: 'Order History', href: '/buyer/orders/history', icon: DocumentTextIcon }
+        { name: t('sidebar.allOrders'), href: '/buyer/orders', icon: ClipboardDocumentListIcon },
+        { name: t('sidebar.pendingOrders'), href: '/buyer/orders?status=pending', icon: ClockIcon },
+        { name: t('sidebar.orderHistory'), href: '/buyer/orders/history', icon: DocumentTextIcon }
       ]
     },
     {
-      name: 'Favorites',
+      name: t('sidebar.favorites'),
       href: '/buyer/favorites',
       icon: HeartIcon
     },
     {
-      name: 'Reviews',
+      name: t('sidebar.reviews'),
       href: '/buyer/reviews',
       icon: StarIcon
     },
     {
-      name: 'Payments',
+      name: t('sidebar.payments'),
       href: '/buyer/payments',
       icon: CreditCardIcon
     },
     {
-      name: 'Notifications',
+      name: t('sidebar.billing'),
+      href: '/buyer/billing',
+      icon: DocumentTextIcon
+    },
+    {
+      name: t('sidebar.notifications'),
       href: '/buyer/notifications',
       icon: BellIcon,
       badge: 2
@@ -190,28 +224,28 @@ React.useEffect(() => {
     // admin menu items
   const adminMenuItems: MenuItem[] = [
     {
-      name: 'Dashboard',
+      name: t('sidebar.dashboard'),
       href: '/admin/dashboard',
       icon: HomeIcon
     },
     {
-      name: 'Products',
+      name: t('sidebar.products'),
       href: '/admin/products',
       icon: BuildingStorefrontIcon,
       children: [
-        { name: 'All Products', href: '/admin/products', icon: ClipboardDocumentListIcon },
-        { name: 'Add Product', href: '/admin/products/new', icon: PlusIcon },
-        { name: 'Categories', href: '/admin/products/categories', icon: DocumentTextIcon }
+        { name: t('sidebar.allProducts'), href: '/admin/products', icon: ClipboardDocumentListIcon },
+        { name: t('sidebar.addProduct'), href: '/admin/products/new', icon: PlusIcon },
+        { name: t('sidebar.categories'), href: '/admin/products/categories', icon: DocumentTextIcon }
       ]
     },
     {
-      name: 'Orders',
+      name: t('sidebar.orders'),
       href: '/admin/orders',
       icon: ShoppingCartIcon,
       children: [
-        { name: 'All Orders', href: '/admin/orders', icon: ClipboardDocumentListIcon },
-        { name: 'Pending Orders', href: '/admin/orders?status=pending', icon: ClockIcon },
-        { name: 'Order History', href: '/admin/orders/history', icon: DocumentTextIcon }
+        { name: t('sidebar.allOrders'), href: '/admin/orders', icon: ClipboardDocumentListIcon },
+        { name: t('sidebar.pendingOrders'), href: '/admin/orders?status=pending', icon: ClockIcon },
+        { name: t('sidebar.orderHistory'), href: '/admin/orders/history', icon: DocumentTextIcon }
       ]
     },
     // {
@@ -225,7 +259,7 @@ React.useEffect(() => {
     //   ]
     // },
     {
-      name: 'Earnings',
+      name: t('sidebar.earnings'),
       href: '/admin/earnings',
       icon: CurrencyDollarIcon
     },
@@ -441,18 +475,10 @@ if (user?.role === 'farmer') {
               </Button>
             </div>
 
-            {/* Language Toggle */}
+            {/* Language Switcher */}
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Language</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
-                className="flex items-center space-x-2"
-              >
-                <LanguageIcon className="h-5 w-5" />
-                <span className="text-sm">{language === 'en' ? 'हिंदी' : 'English'}</span>
-              </Button>
+              <LanguageSwitcher />
             </div>
 
             {/* Logout Button */}
@@ -462,7 +488,7 @@ if (user?.role === 'farmer') {
               className="w-full justify-center text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-800"
             >
               <ArrowRightOnRectangleIcon className="h-5 w-5 mr-2" />
-              Logout
+              {t('sidebar.logout')}
             </Button>
           </div>
         </div>

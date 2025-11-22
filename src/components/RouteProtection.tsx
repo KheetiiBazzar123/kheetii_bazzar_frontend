@@ -7,7 +7,7 @@
 
 // interface RouteProtectionProps {
 //   children: React.ReactNode;
-//   allowedRoles?: ('farmer' | 'buyer')[];
+//   allowedRoles?: ('farmer' | 'buyer' | 'admin')[];
 //   redirectTo?: string;
 // }
 
@@ -115,7 +115,7 @@ import { User } from '@/types';
 
 interface RouteProtectionProps {
   children: React.ReactNode;
-  allowedRoles?: ('farmer' | 'buyer')[];
+  allowedRoles?: ('farmer' | 'buyer' | 'admin')[];
   redirectTo?: string;
 }
 

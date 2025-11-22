@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 
@@ -31,6 +32,7 @@ interface Notification {
 
 }
 function NotificationsPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -238,8 +240,8 @@ const fetchUnreadCount = async () => {
 
   return (
     <DashboardLayout
-      title="Notifications"
-      subtitle="Stay updated with your farm's activity"
+      title={t('farmer.notifications.title')}
+      subtitle={t('farmer.notifications.subtitle')}
       actions={
         <div className="flex space-x-3">
           {unreadCount > 0 && (
@@ -249,7 +251,7 @@ const fetchUnreadCount = async () => {
               size="sm"
             >
               <CheckIcon className="h-4 w-4 mr-2" />
-              Mark All Read
+              {t('farmer.notifications.markAllRead')}
             </Button>
           )}
           <Button
@@ -371,7 +373,7 @@ const fetchUnreadCount = async () => {
             {filteredNotifications.length === 0 ? (
               <div className="text-center py-12">
                 <BellIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No notifications</h3>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">{t('farmer.notifications.noNotifications')}</h3>
                 <p className="mt-1 text-sm text-gray-500">
                   {filter === 'all' ? 'You have no notifications yet.' : `No ${filter} notifications.`}
                 </p>

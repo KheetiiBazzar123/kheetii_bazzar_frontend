@@ -302,6 +302,286 @@ async uploadImage(file: File, folder = 'products'): Promise<string> {
 
     return response.data.url;
   }
+
+  // Farmer-specific endpoints
+  async getFarmerDashboard(): Promise<ApiResponse<{
+    stats: any;
+    recentOrders: Order[];
+    topProducts: Product[];
+  }>> {
+    const response = await this.client.get("/api/v1/farmer/dashboard");
+    return response.data;
+  }
+
+  async getFarmerStats(): Promise<ApiResponse<any>> {
+    const response = await this.client.get("/api/v1/farmer/stats");
+    return response.data;
+  }
+
+  async getFarmerEarnings(): Promise<ApiResponse<{
+    orders: {
+      totalRevenue: number;
+      pendingOrders: number;
+    };
+    monthlyEarnings: Array<{
+      _id: { month: number; year: number };
+      earnings: number;
+    }>;
+  }>> {
+    const response = await this.client.get("/api/v1/farmer/earnings");
+    return response.data;
+  }
+
+  // Product Reviews (using general product endpoints)
+  async getProductReviews(
+    productId: string,
+    page = 1,
+    limit = 10
+  ): Promise<PaginatedResponse<any>> {
+    const response = await this.client.get(
+      `/api/v1/products/${productId}/reviews`,
+      {
+        params: { page, limit },
+      }
+    );
+    return response.data;
+  }
+
+  async getFarmerReviews(
+    page = 1,
+    limit = 10
+  ): Promise<PaginatedResponse<any>> {
+    // Get all products reviews for the farmer
+    const response = await this.client.get("/api/v1/farmer/reviews", {
+      params: { page, limit },
+    });
+    return response.data;
+  }
+
+  // Inventory Management APIs
+  async getFarmerInventory(alertsOnly = false): Promise<ApiResponse<any[]>> {
+    const params = alertsOnly ? "?alertsOnly=true" : "";
+    const response = await this.client.get(
+      `/api/v1/inventory/farmer${params}`
+    );
+    return response.data;
+  }
+
+  async createInventoryItem(data: {
+    product: string;
+    currentStock: number;
+    reorderLevel?: number;
+    expiryDate?: string;
+    harvestDate?: string;
+  }): Promise<ApiResponse<any>> {
+    const response = await this.client.post("/api/v1/inventory/create", data);
+    return response.data;
+  }
+
+  async updateInventoryStock(
+    itemId: string,
+    quantity: number,
+    reason: string
+  ): Promise<ApiResponse<any>> {
+    const response = await this.client.put(
+      `/api/v1/inventory/${itemId}/update-stock`,
+      { quantity, reason }
+    );
+    return response.data;
+  }
+
+  async getInventoryAlerts(): Promise<ApiResponse<any[]>> {
+    const response = await this.client.get("/api/v1/inventory/alerts");
+    return response.data;
+  }
+
+  async getWasteReport(): Promise<ApiResponse<any>> {
+    const response = await this.client.get("/api/v1/inventory/waste-report");
+    return response.data;
+  }
+
+  async acknowledgeInventoryAlert(itemId: string): Promise<ApiResponse<any>> {
+    const response = await this.client.put(
+      `/api/v1/inventory/${itemId}/acknowledge-alert`
+    );
+    return response.data;
+  }
+
+  // Certifications APIs
+  async getMyCertifications(): Promise<ApiResponse<any[]>> {
+    const response = await this.client.get('/api/v1/certifications/farmer/my');
+    return response.data;
+  }
+
+  async uploadCertification(data: FormData): Promise<ApiResponse<any>> {
+    const response = await this.client.post('/api/v1/certifications', data, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  }
+
+  async getProductCertifications(productId: string): Promise<ApiResponse<any[]>> {
+    const response = await this.client.get(`/api/v1/certifications/product/${productId}`);
+    return response.data;
+  }
+
+  async getQualityInspections(productId: string): Promise<ApiResponse<any[]>> {
+    const response = await this.client.get(`/api/v1/certifications/inspections/${productId}`);
+    return response.data;
+  }
+
+  // Delivery APIs
+  async getMyDeliverySchedules(): Promise<ApiResponse<any[]>> {
+    const response = await this.client.get('/api/v1/delivery/schedules');
+    return response.data;
+  }
+
+  async createDeliverySchedule(data: {
+    order?: string;
+    deliveryDate: string;
+    timeSlot: string;
+    address: any;
+    specialInstructions?: string;
+  }): Promise<ApiResponse<any>> {
+    const response = await this.client.post('/api/v1/delivery/schedule', data);
+    return response.data;
+  }
+
+  async updateDeliverySchedule(scheduleId: string, data: any): Promise<ApiResponse<any>> {
+    const response = await this.client.put(`/api/v1/delivery/schedules/${scheduleId}`, data);
+    return response.data;
+  }
+
+  async cancelDeliverySchedule(scheduleId: string, reason: string): Promise<ApiResponse<any>> {
+    const response = await this.client.put(`/api/v1/delivery/schedules/${scheduleId}/cancel`, { reason });
+    return response.data;
+  }
+
+  async completeDelivery(scheduleId: string): Promise<ApiResponse<any>> {
+    const response = await this.client.put(`/api/v1/delivery/schedules/${scheduleId}/complete`);
+    return response.data;
+  }
+
+  async getAvailableTimeSlots(date: string): Promise<ApiResponse<any[]>> {
+    const response = await this.client.get('/api/v1/delivery/timeslots', {
+      params: { date },
+    });
+    return response.data;
+  }
+
+  // Social/Profile APIs
+  async getMyFarmerProfile(): Promise<ApiResponse<any>> {
+    const response = await this.client.get('/api/v1/social/farmer/me');
+    return response.data;
+  }
+
+  async updateFarmerProfile(data: {
+    bio?: string;
+    farmName?: string;
+    location?: any;
+    specialties?: string[];
+    certifications?: string[];
+  }): Promise<ApiResponse<any>> {
+    const response = await this.client.put('/api/v1/social/farmer/profile', data);
+    return response.data;
+  }
+
+  async getMyFollowers(): Promise<ApiResponse<any[]>> {
+    const response = await this.client.get('/api/v1/social/followers/me');
+    return response.data;
+  }
+
+  async getMyTestimonials(): Promise<ApiResponse<any[]>> {
+    const response = await this.client.get('/api/v1/social/testimonials/me');
+    return response.data;
+  }
+
+  async getFarmerPublicProfile(farmerId: string): Promise<ApiResponse<any>> {
+    const response = await this.client.get(`/api/v1/social/farmer/${farmerId}`);
+    return response.data;
+  }
+
+  // ==================== Billing & Invoicing ====================
+
+  // Farmer Billing
+  async getFarmerBills(page = 1, limit = 10, status?: string): Promise<PaginatedResponse<any>> {
+    const response = await this.client.get('/api/v1/billing/farmer/my-bills', {
+      params: { page, limit, status },
+    });
+    return response.data;
+  }
+
+  async downloadFarmerBillPDF(billId: string): Promise<void> {
+    const response = await this.client.get(`/api/v1/billing/farmer/${billId}/pdf`, {
+      responseType: 'blob',
+    });
+    
+    // Create a download link
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `invoice-${billId}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  }
+
+  async exportFarmerBillsCSV(): Promise<void> {
+    const response = await this.client.get('/api/v1/billing/farmer/export/csv', {
+      responseType: 'blob',
+    });
+    
+    // Create a download link
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `my-bills-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  }
+
+  // Buyer Billing
+  async getBuyerBills(page = 1, limit = 10, status?: string): Promise<PaginatedResponse<any>> {
+    const response = await this.client.get('/api/v1/billing/buyer/my-bills', {
+      params: { page, limit, status },
+    });
+    return response.data;
+  }
+
+  async downloadBuyerBillPDF(billId: string): Promise<void> {
+    const response = await this.client.get(`/api/v1/billing/buyer/${billId}/pdf`, {
+      responseType: 'blob',
+    });
+    
+    // Create a download link
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `invoice-${billId}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  }
+
+  async exportBuyerBillsCSV(): Promise<void> {
+    const response = await this.client.get('/api/v1/billing/buyer/export/csv', {
+      responseType: 'blob',
+    });
+    
+    // Create a download link
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `my-invoices-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  }
 }
 
 

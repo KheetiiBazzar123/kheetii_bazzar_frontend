@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
+import { apiClient } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { 
@@ -38,6 +40,7 @@ interface AnalyticsData {
 }
 
 function AnalyticsPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -50,36 +53,40 @@ function AnalyticsPage() {
   const fetchAnalytics = async () => {
     setLoading(true);
     try {
-      // TODO: Implement API call to fetch analytics
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Fetch both stats and earnings data
+      const [statsResponse, earningsResponse] = await Promise.all([
+        apiClient.getFarmerStats(),
+        apiClient.getFarmerEarnings()
+      ])  
       
-      const mockData: AnalyticsData = {
-        totalRevenue: 15420.50,
-        totalOrders: 89,
-        totalProducts: 12,
-        averageOrderValue: 173.15,
-        revenueGrowth: 12.5,
-        orderGrowth: 8.3,
-        topProducts: [
-          { name: 'Organic Tomatoes', sales: 45, revenue: 1125.00, growth: 15.2 },
-          { name: 'Fresh Carrots', sales: 38, revenue: 684.00, growth: 8.7 },
-          { name: 'Lettuce Mix', sales: 32, revenue: 640.00, growth: -2.1 },
-          { name: 'Bell Peppers', sales: 28, revenue: 560.00, growth: 22.4 },
-          { name: 'Cucumbers', sales: 25, revenue: 375.00, growth: 5.6 }
-        ],
-        monthlyRevenue: [
-          { month: 'Jan', revenue: 1200, orders: 8 },
-          { month: 'Feb', revenue: 1350, orders: 9 },
-          { month: 'Mar', revenue: 1420, orders: 10 },
-          { month: 'Apr', revenue: 1580, orders: 11 },
-          { month: 'May', revenue: 1650, orders: 12 },
-          { month: 'Jun', revenue: 1720, orders: 13 }
-        ]
-      };
-      
-      setAnalytics(mockData);
+      if (statsResponse.success && earningsResponse.success) {
+        const stats = statsResponse.data;
+        const earnings = earningsResponse.data;
+        
+        // Transform backend data to frontend format
+        const analyticsData: AnalyticsData = {
+          totalRevenue: earnings?.orders?.totalRevenue || 0,
+          totalOrders: stats.totalOrders || 0,
+          totalProducts: stats.totalProducts || 0,
+          averageOrderValue: stats.totalOrders > 0 
+            ? (earnings?.orders?.totalRevenue || 0) / stats.totalOrders 
+            : 0,
+          revenueGrowth: 0,  // Calculate if historical data available
+          orderGrowth: 0,    // Calculate if historical data available
+          topProducts: stats.topProducts || [],
+          monthlyRevenue: earnings?.monthlyEarnings?.map((item: any) => ({
+            month: `${item._id.month}/${item._id.year}`,
+            revenue: item.earnings,
+            orders: 0  // Backend doesn't provide this
+          })) || []
+        };
+        
+        setAnalytics(analyticsData);
+      }
     } catch (error) {
       console.error('Error fetching analytics:', error);
+      // Set empty data on error
+      setAnalytics(null);
     } finally {
       setLoading(false);
     }
@@ -117,8 +124,8 @@ function AnalyticsPage() {
 
   return (
     <DashboardLayout
-      title="Analytics Dashboard"
-      subtitle="Track your farm's performance and growth"
+      title={t('farmer.analytics.title')}
+      subtitle={t('farmer.analytics.subtitle')}
       actions={
         <div className="flex space-x-3">
           <select

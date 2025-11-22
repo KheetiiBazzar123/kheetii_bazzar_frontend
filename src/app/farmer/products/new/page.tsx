@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -31,6 +32,7 @@ interface ProductFormData {
 }
 
 function AddProductPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
@@ -95,14 +97,14 @@ function AddProductPage() {
   if (!files.length) return [];
 
   if (files.length === 1) {
-    const res = await apiClient.uploadImage(files[0]);
-    return [res.data.url]; // single image URL
+    const url = await apiClient.uploadImage(files[0]);
+    return [url]; // single image URL
   } else {
     // Multiple files (max 5)
     const urls: string[] = [];
     for (const file of files.slice(0, 5)) {
-      const res = await apiClient.uploadImage(file);
-      urls.push(res.data.url);
+      const url = await apiClient.uploadImage(file);
+      urls.push(url);
     }
     return urls;
   }
@@ -173,8 +175,8 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   return (
     <DashboardLayout
-      title="Add New Product"
-      subtitle="Create a new product listing for your farm"
+      title={t('farmer.products.addProduct')}
+      subtitle={t('farmer.products.subtitle')}
       actions={
         <Button
           onClick={() => window.history.back()}

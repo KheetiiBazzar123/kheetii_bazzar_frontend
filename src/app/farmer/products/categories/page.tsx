@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -26,6 +27,7 @@ interface Category {
 }
 
 function CategoriesPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
 
@@ -135,7 +137,7 @@ function CategoriesPage() {
     const response = await apiClient.getCategories();
     if (response.success && response.data) {
 const apiCategories: Category[] = response.data.categories.map((catName, index) => {
-  const countObj = response.data.categoryCounts.find(c => c.category === catName);
+  const countObj = response.data?.categoryCounts.find(c => c.category === catName);
   return {
     id: index.toString(),
     name: catName,

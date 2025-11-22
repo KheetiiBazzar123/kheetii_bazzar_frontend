@@ -124,16 +124,8 @@ export default function HomePage() {
             </motion.div>
             
             <div className="flex items-center space-x-4">
-              {/* Language Toggle */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
-                className="flex items-center space-x-2"
-              >
-                <LanguageIcon className="h-5 w-5" />
-                <span>{language === 'en' ? 'हिंदी' : 'English'}</span>
-              </Button>
+              {/* Language Switcher */}
+              <LanguageSwitcher />
               
               {/* Theme Toggle */}
               <Button
