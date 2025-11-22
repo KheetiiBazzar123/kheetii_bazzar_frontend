@@ -201,7 +201,7 @@ function RegisterForm() {
                   value={formData.firstName}
                   onChange={handleChange}
                   className="input dark:text-black"
-                  placeholder="{t('register.enterFirstName')}"
+                  placeholder={t('register.enterFirstName')}
                   required
                 />
               </div>
@@ -217,7 +217,7 @@ function RegisterForm() {
                   value={formData.lastName}
                   onChange={handleChange}
                   className="input dark:text-black"
-                  placeholder="{t('register.enterLastName')}"
+                  placeholder={t('register.enterLastName')}
                   required
                 />
               </div>
@@ -234,7 +234,7 @@ function RegisterForm() {
                 value={formData.email}
                 onChange={handleChange}
                 className="input dark:text-black"
-                placeholder="{t('register.enterEmail')}"
+                placeholder={t('register.enterEmail')}
                 required
               />
             </div>
@@ -250,7 +250,7 @@ function RegisterForm() {
                 value={formData.phone}
                 onChange={handleChange}
                 className="input dark:text-black"
-                placeholder="{t('register.enterPhone')}"
+                placeholder={t('register.enterPhone')}
                 required
               />
             </div>
@@ -270,7 +270,7 @@ function RegisterForm() {
                     value={formData.address.street}
                     onChange={handleChange}
                     className="input dark:text-black"
-                    placeholder="{t('register.enterStreet')}"
+                    placeholder={t('register.enterStreet')}
                     required
                   />
                 </div>
@@ -286,7 +286,7 @@ function RegisterForm() {
                     value={formData.address.city}
                     onChange={handleChange}
                     className="input dark:text-black"
-                    placeholder="{t('register.enterCity')}"
+                    placeholder={t('register.enterCity')}
                     required
                   />
                 </div>
@@ -302,7 +302,7 @@ function RegisterForm() {
                     value={formData.address.state}
                     onChange={handleChange}
                     className="input dark:text-black"
-                    placeholder="{t('register.enterState')}"
+                    placeholder={t('register.enterState')}
                     required
                   />
                 </div>
@@ -318,7 +318,7 @@ function RegisterForm() {
                     value={formData.address.zip}
                     onChange={handleChange}
                     className="input dark:text-black"
-                    placeholder="{t('register.enterZip')}"
+                    placeholder={t('register.enterZip')}
                     required
                   />
                 </div>
@@ -339,7 +339,7 @@ function RegisterForm() {
                     value={formData.password}
                     onChange={handleChange}
                     className="pr-12 input dark:text-black"
-                    placeholder="{t('register.createPassword')}"
+                    placeholder={t('register.createPassword')}
                     required
                     minLength={6}
                   />
@@ -369,7 +369,7 @@ function RegisterForm() {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     className="pr-12 input dark:text-black"
-                    placeholder="{t('register.confirmYourPassword')}"
+                    placeholder={t('register.confirmYourPassword')}
                     required
                   />
                   <button

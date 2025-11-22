@@ -7,6 +7,7 @@ import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { apiService } from '@/services/api';
 import { 
   ClockIcon,
   CheckCircleIcon,
@@ -60,80 +61,47 @@ function OrderHistoryPage() {
   const fetchOrderHistory = async () => {
     setLoading(true);
     try {
-      // TODO: Implement API call to fetch order history
-      // Simulate API call with mock data
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await apiService.getFarmerOrders({ 
+        status: filter === 'all' ? undefined : filter,
+      });
       
-      const mockOrders: OrderHistory[] = [
-        {
-          _id: '1',
-          orderNumber: 'ORD-2024-001',
+      if (response.success) {
+        // Assuming the API returns orders in a format compatible with OrderHistory
+        // or we need to map it. The Order interface in api.ts might differ slightly from OrderHistory here.
+        // Let's map it to be safe.
+        const mappedOrders: OrderHistory[] = (response.data?.orders || []).map((order: any) => ({
+          _id: order._id,
+          orderNumber: order.orderNumber || order._id.substring(0, 8).toUpperCase(),
           buyer: {
-            firstName: 'John',
-            lastName: 'Doe',
-            email: 'john.doe@example.com',
-            phone: '+1234567890'
+            firstName: order.buyer?.firstName || 'Unknown',
+            lastName: order.buyer?.lastName || 'Buyer',
+            email: order.buyer?.email || '',
+            phone: order.buyer?.phone || ''
           },
-          products: [
-            {
-              product: {
-                name: 'Fresh Organic Tomatoes',
-                price: 2.50,
-                images: ['/images/tomatoes.jpg']
-              },
-              quantity: 5,
-              totalPrice: 12.50
-            }
-          ],
-          totalAmount: 12.50,
-          status: 'delivered',
-          paymentStatus: 'paid',
-          createdAt: '2024-01-15T10:30:00Z',
-          updatedAt: '2024-01-16T14:20:00Z',
-          deliveryDate: '2024-01-16T14:20:00Z',
-          notes: 'Delivered successfully'
-        },
-        {
-          _id: '2',
-          orderNumber: 'ORD-2024-002',
-          buyer: {
-            firstName: 'Jane',
-            lastName: 'Smith',
-            email: 'jane.smith@example.com',
-            phone: '+1234567891'
-          },
-          products: [
-            {
-              product: {
-                name: 'Organic Carrots',
-                price: 1.80,
-                images: ['/images/carrots.jpg']
-              },
-              quantity: 3,
-              totalPrice: 5.40
+          products: order.products.map((item: any) => ({
+            product: {
+              name: item.product?.name || 'Unknown Product',
+              price: item.priceAtPurchase || 0,
+              images: item.product?.images || []
             },
-            {
-              product: {
-                name: 'Fresh Lettuce',
-                price: 2.00,
-                images: ['/images/lettuce.jpg']
-              },
-              quantity: 2,
-              totalPrice: 4.00
-            }
-          ],
-          totalAmount: 9.40,
-          status: 'cancelled',
-          paymentStatus: 'refunded',
-          createdAt: '2024-01-14T09:15:00Z',
-          updatedAt: '2024-01-14T16:45:00Z',
-          notes: 'Customer requested cancellation'
-        }
-      ];
-      
-      setOrders(mockOrders);
+            quantity: item.quantity,
+            totalPrice: (item.priceAtPurchase || 0) * item.quantity
+          })),
+          totalAmount: order.totalAmount,
+          status: order.status,
+          paymentStatus: order.paymentStatus,
+          createdAt: order.createdAt,
+          updatedAt: order.updatedAt,
+          deliveryDate: order.deliveryDate,
+          notes: order.notes
+        }));
+        setOrders(mappedOrders);
+      } else {
+        setOrders([]);
+      }
     } catch (error) {
       console.error('Error fetching order history:', error);
+      setOrders([]);
     } finally {
       setLoading(false);
     }

@@ -57,6 +57,10 @@ interface Order {
   notes?: string;
 }
 
+import { apiService } from '@/services/api';
+
+// ... (imports remain same)
+
 export default function OrdersPage() {
   const { user } = useAuth();
   const { t } = useTranslation();
@@ -65,161 +69,85 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [updatingOrder, setUpdatingOrder] = useState<string | null>(null);
 
-  // Mock data for demonstration
   useEffect(() => {
-    const mockOrders: Order[] = [
-      {
-        id: '1',
-        orderNumber: 'KB-2024-001',
-        buyer: {
-          id: 'buyer1',
-          name: 'Rajesh Kumar',
-          email: 'rajesh@example.com',
-          phone: '+91 98765 43210',
-          address: {
-            street: '123 Main Street',
-            city: 'Mumbai',
-            state: 'Maharashtra',
-            zip: '400001',
+    fetchOrders();
+  }, [statusFilter]);
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      // Assuming this is the farmer dashboard based on userRole="farmer" prop later
+      const response = await apiService.getFarmerOrders({
+        status: statusFilter === 'all' ? undefined : statusFilter
+      });
+      
+      if (response.success) {
+        // Map API response to Order interface
+        const mappedOrders: Order[] = (response.data?.orders || []).map((order: any) => ({
+          id: order._id,
+          orderNumber: order.orderNumber,
+          buyer: {
+            id: order.buyer._id,
+            name: `${order.buyer.firstName} ${order.buyer.lastName}`,
+            email: order.buyer.email,
+            phone: order.buyer.phone,
+            address: order.shippingAddress // Assuming structure matches or we map it
           },
-        },
-        products: [
-          {
-            id: 'prod1',
-            name: 'Fresh Organic Tomatoes',
-            price: 120,
-            quantity: 2,
-            unit: 'kg',
-            image: '/api/placeholder/100/100',
-          },
-          {
-            id: 'prod2',
-            name: 'Premium Basmati Rice',
-            price: 180,
-            quantity: 1,
-            unit: 'kg',
-            image: '/api/placeholder/100/100',
-          },
-        ],
-        totalAmount: 420,
-        status: 'pending',
-        paymentStatus: 'paid',
-        shippingAddress: {
-          street: '123 Main Street',
-          city: 'Mumbai',
-          state: 'Maharashtra',
-          zip: '400001',
-        },
-        createdAt: '2024-01-15T10:00:00Z',
-        updatedAt: '2024-01-15T10:00:00Z',
-        estimatedDelivery: '2024-01-18T18:00:00Z',
-      },
-      {
-        id: '2',
-        orderNumber: 'KB-2024-002',
-        buyer: {
-          id: 'buyer2',
-          name: 'Priya Sharma',
-          email: 'priya@example.com',
-          phone: '+91 98765 43211',
-          address: {
-            street: '456 Park Avenue',
-            city: 'Delhi',
-            state: 'Delhi',
-            zip: '110001',
-          },
-        },
-        products: [
-          {
-            id: 'prod1',
-            name: 'Fresh Organic Tomatoes',
-            price: 120,
-            quantity: 5,
-            unit: 'kg',
-            image: '/api/placeholder/100/100',
-          },
-        ],
-        totalAmount: 600,
-        status: 'shipped',
-        paymentStatus: 'paid',
-        shippingAddress: {
-          street: '456 Park Avenue',
-          city: 'Delhi',
-          state: 'Delhi',
-          zip: '110001',
-        },
-        createdAt: '2024-01-14T14:30:00Z',
-        updatedAt: '2024-01-16T09:15:00Z',
-        estimatedDelivery: '2024-01-17T12:00:00Z',
-        trackingNumber: 'TRK123456789',
-      },
-      {
-        id: '3',
-        orderNumber: 'KB-2024-003',
-        buyer: {
-          id: 'buyer3',
-          name: 'Amit Patel',
-          email: 'amit@example.com',
-          phone: '+91 98765 43212',
-          address: {
-            street: '789 Garden Road',
-            city: 'Bangalore',
-            state: 'Karnataka',
-            zip: '560001',
-          },
-        },
-        products: [
-          {
-            id: 'prod2',
-            name: 'Premium Basmati Rice',
-            price: 180,
-            quantity: 3,
-            unit: 'kg',
-            image: '/api/placeholder/100/100',
-          },
-        ],
-        totalAmount: 540,
-        status: 'delivered',
-        paymentStatus: 'paid',
-        shippingAddress: {
-          street: '789 Garden Road',
-          city: 'Bangalore',
-          state: 'Karnataka',
-          zip: '560001',
-        },
-        createdAt: '2024-01-10T08:00:00Z',
-        updatedAt: '2024-01-12T16:30:00Z',
-      },
-    ];
-    setOrders(mockOrders);
-    setLoading(false);
-  }, []);
+          products: order.products.map((p: any) => ({
+            id: p.product._id,
+            name: p.product.name,
+            price: p.priceAtPurchase,
+            quantity: p.quantity,
+            unit: p.product.unit,
+            image: p.product.images[0]
+          })),
+          totalAmount: order.totalAmount,
+          status: order.status,
+          paymentStatus: order.paymentStatus,
+          shippingAddress: order.shippingAddress,
+          createdAt: order.createdAt,
+          updatedAt: order.updatedAt,
+          estimatedDelivery: order.deliveryDate,
+          trackingNumber: order.trackingNumber,
+          notes: order.notes
+        }));
+        setOrders(mappedOrders);
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch orders',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleStatusUpdate = async (orderId: string, newStatus: string) => {
     setUpdatingOrder(orderId);
     try {
-      // TODO: Implement actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await apiService.updateOrderStatus(orderId, newStatus);
       
-      setOrders(orders.map(order => 
-        order.id === orderId 
-          ? { 
-              ...order, 
-              status: newStatus as any,
-              updatedAt: new Date().toISOString(),
-              ...(newStatus === 'shipped' && { 
-                trackingNumber: `TRK${Date.now()}`,
-                estimatedDelivery: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
-              })
-            }
-          : order
-      ));
-      
-      toast({
-        title: 'Success',
-        description: `Order status updated to ${newStatus}`,
-        variant: 'default',
-      });
+      if (response.success) {
+        setOrders(orders.map(order => 
+          order.id === orderId 
+            ? { 
+                ...order, 
+                status: newStatus as any,
+                updatedAt: new Date().toISOString(),
+                // If backend returns updated order, we could use that instead
+              }
+            : order
+        ));
+        
+        toast({
+          title: 'Success',
+          description: `Order status updated to ${newStatus}`,
+          variant: 'default',
+        });
+      }
     } catch (error) {
       toast({
         title: 'Error',

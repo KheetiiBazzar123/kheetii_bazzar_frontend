@@ -19,112 +19,63 @@ import {
   InformationCircleIcon
 } from '@heroicons/react/24/outline';
 
-import {apiClient} from "@/lib/api";
+import { apiService } from '@/services/api';
+
 interface Notification {
   _id: string;
-  type: 'order' | 'payment' | 'review' | 'system' | 'warning';
+  type: string;
   title: string;
   message: string;
   isRead: boolean;
   createdAt: string;
   actionUrl?: string;
   priority: 'low' | 'medium' | 'high';
-
 }
+
 function NotificationsPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
-
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'unread' | 'order' | 'payment' | 'review' | 'system'>('all');
 
   useEffect(() => {
     fetchNotifications();
+    fetchUnreadCount();
   }, [filter]);
-const fetchNotifications = async () => {
-  setLoading(true);
-  try {
-    const response = await apiClient.getNotifications({ page: 1, limit: 10 });
-    console.log("API Response:", response);
 
-    if (response.data.success && response.data?.notifications) {
-      setNotifications(response.data.notifications);
+  const fetchNotifications = async () => {
+    setLoading(true);
+    try {
+      const response = await apiService.getNotifications({ page: 1, limit: 20 });
+      if (response.success && response.data) {
+        // Assuming response.data.notifications exists or response.data is the array
+        // Adjust based on actual API response structure. 
+        // Based on api.ts, getNotifications returns ApiResponse<{ notifications: Notification[], total: number, ... }>
+        const mappedNotifications = (response.data.notifications || []).map((n: any) => ({
+          ...n,
+          priority: n.priority || 'low'
+        }));
+        setNotifications(mappedNotifications);
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("Error fetching notifications:", error);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
-
-  // const fetchNotifications = async () => {
-  //   setLoading(true);
-  //   try {
-  //     // TODO: Implement API call to fetch notifications
-  //     await new Promise(resolve => setTimeout(resolve, 1000));
-      
-  //     const mockNotifications: Notification[] = [
-  //       {
-  //         _id: '1',
-  //         type: 'order',
-  //         title: 'New Order Received',
-  //         message: 'You have received a new order for Organic Tomatoes from John Doe',
-  //         isRead: false,
-  //         createdAt: '2024-01-15T10:30:00Z',
-  //         actionUrl: '/farmer/orders',
-  //         priority: 'high'
-  //       },
-  //       {
-  //         _id: '2',
-  //         type: 'payment',
-  //         title: 'Payment Received',
-  //         message: 'Payment of $125.50 has been received for order #ORD-2024-001',
-  //         isRead: false,
-  //         createdAt: '2024-01-15T11:15:00Z',
-  //         actionUrl: '/farmer/earnings',
-  //         priority: 'medium'
-  //       },
-  //       {
-  //         _id: '3',
-  //         type: 'review',
-  //         title: 'New Product Review',
-  //         message: 'John Doe left a 5-star review for your Organic Tomatoes',
-  //         isRead: true,
-  //         createdAt: '2024-01-14T16:20:00Z',
-  //         actionUrl: '/farmer/reviews',
-  //         priority: 'medium'
-  //       },
-  //       {
-  //         _id: '4',
-  //         type: 'system',
-  //         title: 'System Maintenance',
-  //         message: 'Scheduled maintenance will occur tonight from 2 AM to 4 AM',
-  //         isRead: true,
-  //         createdAt: '2024-01-14T09:00:00Z',
-  //         priority: 'low'
-  //       },
-  //       {
-  //         _id: '5',
-  //         type: 'warning',
-  //         title: 'Low Stock Alert',
-  //         message: 'Your Fresh Carrots inventory is running low (only 5 units left)',
-  //         isRead: false,
-  //         createdAt: '2024-01-13T14:30:00Z',
-  //         actionUrl: '/farmer/products',
-  //         priority: 'high'
-  //       }
-  //     ];
-      
-  //     setNotifications(mockNotifications);
-  //   } catch (error) {
-  //     console.error('Error fetching notifications:', error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await apiService.getUnreadNotificationCount();
+      if (response.success) {
+        setUnreadCount(response.data?.unreadCount || 0);
+      }
+    } catch (error) {
+      console.error("Error fetching unread count:", error);
+    }
+  };
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -133,7 +84,7 @@ const fetchNotifications = async () => {
       case 'review': return <BellIcon className="h-5 w-5 text-yellow-600" />;
       case 'system': return <InformationCircleIcon className="h-5 w-5 text-gray-600" />;
       case 'warning': return <ExclamationTriangleIcon className="h-5 w-5 text-red-600" />;
-      primary: return <BellIcon className="h-5 w-5 text-gray-600" />;
+      default: return <BellIcon className="h-5 w-5 text-gray-600" />;
     }
   };
 
@@ -142,66 +93,43 @@ const fetchNotifications = async () => {
       case 'high': return 'border-l-red-500 bg-red-50';
       case 'medium': return 'border-l-yellow-500 bg-yellow-50';
       case 'low': return 'border-l-gray-500 bg-gray-50';
-      primary: return 'border-l-gray-500 bg-gray-50';
+      default: return 'border-l-gray-500 bg-gray-50';
     }
   };
 
-  // const markAsRead = (notificationId: string) => {
-  //   setNotifications(prev => 
-  //     prev.map(notif => 
-  //       notif._id === notificationId 
-  //         ? { ...notif, isRead: true }
-  //         : notif
-  //     )
-  //   );
-  // };
-
   const markAsRead = async (notificationId: string) => {
-  try {
-    const response = await apiClient.markNotificationAsRead(notificationId);
-    console.log("Calling API for notification:", notificationId);
-
-
-    if (response.data.success) {
-      setNotifications(prev =>
-        prev.map(notif =>
-          notif._id === notificationId ? { ...notif, isRead: true } : notif
-        )
-      );
-      console.log("Notification marked as read:", response);
-    } else {
-      console.error(" Failed to mark as read:", response.data.message);
+    try {
+      const response = await apiService.markNotificationAsRead(notificationId);
+      if (response.success) {
+        setNotifications(prev =>
+          prev.map(notif =>
+            notif._id === notificationId ? { ...notif, isRead: true } : notif
+          )
+        );
+        // Update unread count locally
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
     }
-  } catch (error) {
-    console.error(" Error marking notification as read:", error);
-  }
-};
+  };
 
-
-  // const markAllAsRead = () => {
-  //   setNotifications(prev => 
-  //     prev.map(notif => ({ ...notif, isRead: true }))
-  //   );
-  // };
   const markAllAsRead = async () => {
-  try {
-    const response = await apiClient.markAllNotificationsAsRead();
-
-    if (response.data.success) {
-      setNotifications(prev =>
-        prev.map(notif => ({ ...notif, isRead: true }))
-      );
-      console.log(" All notifications marked as read:", response.data.message);
-    } else {
-      console.error(" Failed to mark all as read:", response.data.message);
+    try {
+      const response = await apiService.markAllNotificationsAsRead();
+      if (response.success) {
+        setNotifications(prev =>
+          prev.map(notif => ({ ...notif, isRead: true }))
+        );
+        setUnreadCount(0);
+      }
+    } catch (error) {
+      console.error("Error marking all as read:", error);
     }
-  } catch (error) {
-    console.error(" Error marking all as read:", error);
-  }
-};
-
+  };
 
   const deleteNotification = (notificationId: string) => {
+    // TODO: Implement delete API if available
     setNotifications(prev => prev.filter(notif => notif._id !== notificationId));
   };
 
@@ -210,20 +138,6 @@ const fetchNotifications = async () => {
     if (filter === 'all') return true;
     return notification.type === filter;
   });
-
-useEffect(() => {
-  fetchUnreadCount();
-}, []);
-const fetchUnreadCount = async () => {
-  try {
-    const response = await apiClient.getUnreadNotificationCount();
-    // Access unreadCount from response.data per ApiResponse<{ unreadCount: number; }>
-    const unread = response?.data?.unreadCount ?? 0;
-    setUnreadCount(unread);
-  } catch (error) {
-    console.error("Error fetching unread count:", error);
-  }
-};
 
   if (loading) {
     return (

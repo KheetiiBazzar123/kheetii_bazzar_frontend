@@ -16,6 +16,7 @@ import {
   ChatBubbleLeftRightIcon,
   ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
+import { apiService } from '@/services/api';
 
 export default function NotificationCenter() {
   const { notifications, removeNotification } = useSocket();
@@ -60,18 +61,30 @@ export default function NotificationCenter() {
     }
   };
 
-  const markAsRead = (id: string) => {
-    // TODO: Implement API call to mark notification as read
-    removeNotification(id);
+
+
+// ...
+
+  const markAsRead = async (id: string) => {
+    try {
+      await apiService.markNotificationAsRead(id);
+      removeNotification(id);
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
   };
 
-  const markAllAsRead = () => {
-    // TODO: Implement API call to mark all notifications as read
-    notifications.forEach(notification => {
-      if (!notification.read) {
-        removeNotification(notification.id);
-      }
-    });
+  const markAllAsRead = async () => {
+    try {
+      await apiService.markAllNotificationsAsRead();
+      notifications.forEach(notification => {
+        if (!notification.read) {
+          removeNotification(notification.id);
+        }
+      });
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
   };
 
   const formatTime = (timestamp: Date) => {

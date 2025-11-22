@@ -261,6 +261,7 @@ function LoginForm() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    role: 'buyer', // default
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -272,7 +273,7 @@ function LoginForm() {
     setError('');
 
     try {
-      await login({ email: formData.email, password: formData.password });
+      await login({ email: formData.email, password: formData.password, role: formData.role });
       // Redirect will be handled by the AuthContext after login
     } catch (err: any) {
       setError(err.message || t('login.loginFailed'));
@@ -338,7 +339,7 @@ function LoginForm() {
                 value={formData.email}
                 onChange={handleChange}
                 className="input dark:text-black"
-                placeholder="{t('login.enterEmail')}"
+                placeholder={t('login.enterEmail')}
                 required
               />
             </div>
@@ -355,7 +356,7 @@ function LoginForm() {
                   value={formData.password}
                   onChange={handleChange}
                   className="pr-12 input dark:text-black"
-                  placeholder="{t('login.enterPassword')}"
+                  placeholder={t('login.enterPassword')}
                   required
                 />
                 <button
@@ -372,6 +373,24 @@ function LoginForm() {
               </div>
             </div>
 
+            <div className="form-group">
+              <label htmlFor="role" className="label dark:text-white">
+                Role
+              </label>
+              <select
+                id="role"
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="input dark:text-black"
+                required
+              >
+                <option value="buyer">Buyer</option>
+                <option value="farmer">Farmer</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            
             <div className="flex justify-between items-center">
               <label className="flex items-center">
                 <input type="checkbox" className="text-emerald-600 rounded border-gray-300 focus:ring-emerald-500" />

@@ -6,6 +6,7 @@ import { withBuyerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { apiService } from '@/services/api';
 import { 
   CreditCardIcon,
   BanknotesIcon,
@@ -52,74 +53,22 @@ function PaymentsPage() {
   const fetchPaymentData = async () => {
     setLoading(true);
     try {
-      // TODO: Implement API call to fetch payment data
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockPaymentMethods: PaymentMethod[] = [
-        {
-          _id: '1',
-          type: 'card',
-          last4: '4242',
-          brand: 'Visa',
-          isDefault: true,
-          expiryMonth: 12,
-          expiryYear: 2025
-        },
-        {
-          _id: '2',
-          type: 'card',
-          last4: '5555',
-          brand: 'Mastercard',
-          isDefault: false,
-          expiryMonth: 8,
-          expiryYear: 2026
-        },
-        {
-          _id: '3',
-          type: 'bank',
-          last4: '1234',
-          bankName: 'Chase Bank',
-          isDefault: false
-        }
-      ];
-
-      const mockTransactions: Transaction[] = [
-        {
-          _id: '1',
-          orderNumber: 'ORD-2024-001',
-          amount: 125.50,
-          status: 'completed',
-          paymentMethod: 'Visa ending in 4242',
-          createdAt: '2024-01-15T10:30:00Z',
-          description: 'Payment for Organic Tomatoes',
-          transactionId: 'txn_123456789'
-        },
-        {
-          _id: '2',
-          orderNumber: 'ORD-2024-002',
-          amount: 89.75,
-          status: 'completed',
-          paymentMethod: 'Mastercard ending in 5555',
-          createdAt: '2024-01-14T14:20:00Z',
-          description: 'Payment for Fresh Carrots',
-          transactionId: 'txn_987654321'
-        },
-        {
-          _id: '3',
-          orderNumber: 'ORD-2024-003',
-          amount: 45.00,
-          status: 'refunded',
-          paymentMethod: 'Visa ending in 4242',
-          createdAt: '2024-01-13T09:15:00Z',
-          description: 'Refund for cancelled order',
-          transactionId: 'txn_456789123'
-        }
-      ];
-      
-      setPaymentMethods(mockPaymentMethods);
-      setTransactions(mockTransactions);
+      const response = await apiService.getBuyerPayments();
+      if (response.success) {
+        // Assuming backend returns { paymentMethods: [], transactions: [] }
+        // If not, we might need separate calls or adjust the backend
+        // For now, let's assume the API returns what we need or we handle it gracefully
+        const data = response.data as any;
+        setPaymentMethods(data.paymentMethods || []);
+        setTransactions(data.transactions || []);
+      } else {
+        setPaymentMethods([]);
+        setTransactions([]);
+      }
     } catch (error) {
       console.error('Error fetching payment data:', error);
+      setPaymentMethods([]);
+      setTransactions([]);
     } finally {
       setLoading(false);
     }

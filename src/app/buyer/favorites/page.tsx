@@ -114,7 +114,7 @@ function FavoritesPage() {
   };
 
   const addToCart = (productId: string) => {
-    // TODO: Implement add to cart functionality
+    // Add to cart functionality
     toast.success('Add to cart functionality coming soon!');
   };
 

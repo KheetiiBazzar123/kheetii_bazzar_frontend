@@ -6,6 +6,7 @@ import { withBuyerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { apiService } from '@/services/api';
 import { 
   StarIcon,
   UserIcon,
@@ -53,72 +54,35 @@ function ReviewsPage() {
   const fetchReviews = async () => {
     setLoading(true);
     try {
-      // TODO: Implement API call to fetch user's reviews
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockReviews: Review[] = [
-        {
-          _id: '1',
+      const response = await apiService.getBuyerReviews({ rating: filter === 'all' ? undefined : Number(filter) });
+      if (response.success) {
+        const mappedReviews = (response.data?.reviews || []).map((r: any) => ({
+          _id: r._id,
           product: {
-            _id: 'prod1',
-            name: 'Fresh Organic Tomatoes',
-            images: ['/images/tomatoes.jpg']
+            _id: r.product?._id || r.product,
+            name: r.product?.name || 'Unknown Product',
+            images: r.product?.images || []
           },
           farmer: {
-            firstName: 'John',
-            lastName: 'Smith',
-            farmName: 'Green Valley Farm'
+            firstName: r.farmer?.firstName || 'Unknown',
+            lastName: r.farmer?.lastName || 'Farmer',
+            farmName: r.farmer?.farmName || 'Farm'
           },
-          rating: 5,
-          comment: 'Excellent quality! The tomatoes were fresh and delicious. Will definitely order again.',
-          createdAt: '2024-01-15T10:30:00Z',
-          updatedAt: '2024-01-15T10:30:00Z',
-          isVerified: true,
-          helpful: 3
-        },
-        {
-          _id: '2',
-          product: {
-            _id: 'prod2',
-            name: 'Organic Carrots',
-            images: ['/images/carrots.jpg']
-          },
-          farmer: {
-            firstName: 'Jane',
-            lastName: 'Doe',
-            farmName: 'Sunrise Organic Farm'
-          },
-          rating: 4,
-          comment: 'Good quality carrots, very fresh. Delivery was fast.',
-          createdAt: '2024-01-14T14:20:00Z',
-          updatedAt: '2024-01-14T14:20:00Z',
-          isVerified: true,
-          helpful: 1
-        },
-        {
-          _id: '3',
-          product: {
-            _id: 'prod3',
-            name: 'Fresh Lettuce',
-            images: ['/images/lettuce.jpg']
-          },
-          farmer: {
-            firstName: 'Mike',
-            lastName: 'Johnson',
-            farmName: 'Mountain View Farm'
-          },
-          rating: 3,
-          comment: 'Lettuce was okay, but some leaves were wilted.',
-          createdAt: '2024-01-13T09:15:00Z',
-          updatedAt: '2024-01-13T09:15:00Z',
-          isVerified: false,
-          helpful: 0
-        }
-      ];
-      
-      setReviews(mockReviews);
+          rating: r.rating,
+          comment: r.comment || '',
+          createdAt: r.createdAt,
+          updatedAt: r.updatedAt || r.createdAt,
+          isVerified: r.isVerified || true,
+          helpful: r.helpful || 0
+        }));
+        setReviews(mappedReviews);
+      } else {
+        setReviews([]);
+      }
     } catch (error) {
       console.error('Error fetching reviews:', error);
+      // Fallback to empty or handle error
+      setReviews([]);
     } finally {
       setLoading(false);
     }

@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
 import NotificationCenter from '@/components/NotificationCenter';
 import Button from '@/components/ui/Button';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { 
   ShoppingCartIcon, 
@@ -29,7 +30,7 @@ import { motion } from 'framer-motion';
 
 export default function HomePage() {
   const { user, loading } = useAuth();
-  const { t, language, setLanguage } = useLanguage();
+  const { t, i18n } = useTranslation();
   const { theme, toggleTheme } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
 
@@ -57,47 +58,47 @@ export default function HomePage() {
   const features = [
     {
       icon: ShoppingCartIcon,
-      title: "Smart Marketplace",
-      description: "AI-powered product recommendations and intelligent search to find the perfect produce for your needs.",
+      title: t('landing.smartMarketplace'),
+      description: t('landing.smartMarketplaceDesc'),
       color: "from-emerald-500 to-teal-600"
     },
     {
       icon: TruckIcon,
-      title: "Lightning Fast Delivery",
-      description: "Same-day delivery with real-time tracking and temperature-controlled transportation.",
+      title: t('landing.lightningDelivery'),
+      description: t('landing.lightningDeliveryDesc'),
       color: "from-blue-500 to-cyan-600"
     },
     {
       icon: ShieldCheckIcon,
-      title: "Blockchain Security",
-      description: "Every transaction is verified on the Algorand blockchain for maximum transparency and trust.",
+      title: t('landing.blockchainSecurity'),
+      description: t('landing.blockchainSecurityDesc'),
       color: "from-purple-500 to-pink-600"
     },
     {
       icon: ChartBarIcon,
-      title: "Analytics Dashboard",
-      description: "Comprehensive insights for farmers and detailed purchase history for buyers.",
+      title: t('landing.analyticsDashboard'),
+      description: t('landing.analyticsDashboardDesc'),
       color: "from-orange-500 to-red-600"
     },
     {
       icon: GlobeAltIcon,
-      title: "Multi-Language",
-      description: "Available in English and Hindi with plans to support more regional languages.",
+      title: t('landing.multiLanguage'),
+      description: t('landing.multiLanguageDesc'),
       color: "from-indigo-500 to-purple-600"
     },
     {
       icon: UserGroupIcon,
-      title: "Community Driven",
-      description: "Connect with local farmers and buyers, share reviews, and build lasting relationships.",
+      title: t('landing.communityDriven'),
+      description: t('landing.communityDrivenDesc'),
       color: "from-green-500 to-emerald-600"
     }
   ];
 
   const stats = [
-    { label: "Active Farmers", value: "2,500+", icon: UserGroupIcon },
-    { label: "Products Listed", value: "15,000+", icon: ShoppingCartIcon },
-    { label: "Orders Delivered", value: "50,000+", icon: TruckIcon },
-    { label: "Customer Rating", value: "4.9/5", icon: StarIcon }
+    { label: t('landing.activeFarmers'), value: "2,500+", icon: UserGroupIcon },
+    { label: t('landing.productsListed'), value: "15,000+", icon: ShoppingCartIcon },
+    { label: t('landing.ordersDelivered'), value: "50,000+", icon: TruckIcon },
+    { label: t('landing.customerRating'), value: "4.9/5", icon: StarIcon }
   ];
 
   return (
@@ -183,13 +184,12 @@ export default function HomePage() {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              <span className="gradient-text">Revolutionizing</span>
+              <span className="gradient-text">{t('landing.title')}</span>
               <br />
-              <span className="text-gray-900">Agriculture</span>
+              <span className="text-gray-900">{t('landing.titleSecond')}</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed">
-              Connect directly with local farmers, enjoy blockchain-verified transactions, 
-              and experience the future of sustainable agriculture marketplace.
+              {t('landing.subtitle')}
             </p>
             
             {!user && (
@@ -201,13 +201,13 @@ export default function HomePage() {
               >
                 <Link href="/auth/register?role=farmer">
                   <Button size="lg" className="btn-primary text-lg px-8 py-4">
-                    I'm a Farmer
+                    {t('landing.imFarmer')}
                     <ArrowRightIcon className="h-5 w-5 ml-2" />
                   </Button>
                 </Link>
                 <Link href="/auth/register?role=buyer">
                   <Button size="lg" variant="outline" className="text-lg px-8 py-4">
-                    I'm a Buyer
+                    {t('landing.imBuyer')}
                     <ShoppingCartIcon className="h-5 w-5 ml-2" />
                   </Button>
                 </Link>
@@ -215,7 +215,7 @@ export default function HomePage() {
                 {/* admin  */}
                                 <Link href="/auth/register?role=admin">
                   <Button size="lg" variant="outline" className="text-lg px-8 py-4">
-                    I'm a Admin
+                    {t('landing.imAdmin')}
     <Cog6ToothIcon className="h-5 w-5 ml-2" />
                   </Button>
                 </Link>
@@ -257,11 +257,10 @@ export default function HomePage() {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Why Choose <span className="gradient-text">KheetiiBazaar</span>?
+              {t('landing.whyChoose')} <span className="gradient-text">{t('landing.kheetiiBazaar')}</span>?
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Experience the next generation of agricultural marketplace with cutting-edge technology 
-              and farmer-first approach.
+              {t('landing.whySubtitle')}
             </p>
           </motion.div>
           
@@ -297,25 +296,24 @@ export default function HomePage() {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Ready to Transform Your
-              <span className="gradient-text"> Agricultural Journey</span>?
+              {t('landing.readyToTransform')}
+              <span className="gradient-text"> {t('landing.agriculturalJourney')}</span>?
             </h2>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Join thousands of farmers and buyers who are already experiencing 
-              the future of sustainable agriculture.
+              {t('landing.readySubtitle')}
             </p>
             
             {!user && (
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/auth/register">
                   <Button size="lg" className="btn-primary text-lg px-8 py-4">
-                    Start Your Journey
+                    {t('landing.startYourJourney')}
                     <ArrowRightIcon className="h-5 w-5 ml-2" />
                   </Button>
                 </Link>
                 <Link href="/products">
                   <Button size="lg" variant="outline" className="text-lg px-8 py-4">
-                    Explore Products
+                    {t('landing.exploreProducts')}
                     <ShoppingCartIcon className="h-5 w-5 ml-2" />
                   </Button>
                 </Link>
@@ -343,62 +341,62 @@ export default function HomePage() {
             </div>
             
             <div>
-              <h4 className="text-lg font-semibold mb-6">For Farmers</h4>
+              <h4 className="text-lg font-semibold mb-6">{t('landing.forFarmers')}</h4>
               <ul className="space-y-3 text-gray-400">
                 <li className="flex items-center space-x-2">
                   <CheckCircleIcon className="h-4 w-4 text-emerald-500" />
-                  <span>Sell your produce</span>
+                  <span>{t('landing.sellProduce')}</span>
                 </li>
                 <li className="flex items-center space-x-2">
                   <CheckCircleIcon className="h-4 w-4 text-emerald-500" />
-                  <span>Track orders</span>
+                  <span>{t('landing.trackOrders')}</span>
                 </li>
                 <li className="flex items-center space-x-2">
                   <CheckCircleIcon className="h-4 w-4 text-emerald-500" />
-                  <span>Manage inventory</span>
+                  <span>{t('landing.manageInventory')}</span>
                 </li>
                 <li className="flex items-center space-x-2">
                   <CheckCircleIcon className="h-4 w-4 text-emerald-500" />
-                  <span>View analytics</span>
+                  <span>{t('landing.viewAnalytics')}</span>
                 </li>
               </ul>
             </div>
             
             <div>
-              <h4 className="text-lg font-semibold mb-6">For Buyers</h4>
+              <h4 className="text-lg font-semibold mb-6">{t('landing.forBuyers')}</h4>
               <ul className="space-y-3 text-gray-400">
                 <li className="flex items-center space-x-2">
                   <CheckCircleIcon className="h-4 w-4 text-emerald-500" />
-                  <span>Browse products</span>
+                  <span>{t('landing.browseProducts')}</span>
                 </li>
                 <li className="flex items-center space-x-2">
                   <CheckCircleIcon className="h-4 w-4 text-emerald-500" />
-                  <span>Place orders</span>
+                  <span>{t('landing.placeOrders')}</span>
                 </li>
                 <li className="flex items-center space-x-2">
                   <CheckCircleIcon className="h-4 w-4 text-emerald-500" />
-                  <span>Track deliveries</span>
+                  <span>{t('landing.trackDeliveries')}</span>
                 </li>
                 <li className="flex items-center space-x-2">
                   <CheckCircleIcon className="h-4 w-4 text-emerald-500" />
-                  <span>Rate products</span>
+                  <span>{t('landing.rateProducts')}</span>
                 </li>
               </ul>
             </div>
             
             <div>
-              <h4 className="text-lg font-semibold mb-6">Support</h4>
+              <h4 className="text-lg font-semibold mb-6">{t('landing.support')}</h4>
               <ul className="space-y-3 text-gray-400">
-                <li>Help Center</li>
-                <li>Contact Us</li>
-                <li>Privacy Policy</li>
-                <li>Terms of Service</li>
+                <li>{t('landing.helpCenter')}</li>
+                <li>{t('landing.contactUs')}</li>
+                <li>{t('landing.privacyPolicy')}</li>
+                <li>{t('landing.termsOfService')}</li>
               </ul>
             </div>
           </div>
           
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 KheetiiBazaar. All rights reserved. Built with ❤️ for sustainable agriculture.</p>
+            <p>{t('landing.copyright')}</p>
           </div>
         </div>
       </footer>

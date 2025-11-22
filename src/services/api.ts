@@ -2,6 +2,15 @@ import { ApiResponse, User, Product, Order, Review, Notification, FarmerStats, B
 
 const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/v1`;
 
+interface PaginatedResponse<T = any> {
+  success: boolean;
+  data: T[];
+  total: number;
+  page: number;
+  pages: number;
+  limit: number;
+}
+
 class ApiError extends Error {
   constructor(
     message: string,
@@ -89,36 +98,36 @@ class ApiService {
     return this.request('/farmer/dashboard');
   }
 
-  // async getFarmerProducts(params?: {
-  //   page?: number;
-  //   limit?: number;
-  //   search?: string;
-  //   category?: string;
-  //   isAvailable?: boolean;
-  // }): Promise<ApiResponse<{
-  //   products: Product[];
-  //   total: number;
-  //   page: number;
-  //   pages: number;
-  // }>> {
-  //   const queryParams = new URLSearchParams();
-  //   if (params) {
-  //     Object.entries(params).forEach(([key, value]) => {
-  //       if (value !== undefined) {
-  //         queryParams.append(key, value.toString());
-  //       }
-  //     });
-  //   }
-  //   return this.request(`/farmer/products?${queryParams.toString()}`);
-  // }
+  async getFarmerProducts(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    category?: string;
+    isAvailable?: boolean;
+  }): Promise<ApiResponse<{
+    products: Product[];
+    total: number;
+    page: number;
+    pages: number;
+  }>> {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+    return this.request(`/farmer/products?${queryParams.toString()}`);
+  }
 
-  // async createProduct(productData: FormData): Promise<ApiResponse<{ product: Product }>> {
-  //   return this.request('/farmer/products', {
-  //     method: 'POST',
-  //     headers: {}, // Let browser set Content-Type for FormData
-  //     body: productData,
-  //   });
-  // }
+  async createProduct(productData: FormData): Promise<ApiResponse<{ product: Product }>> {
+    return this.request('/farmer/products', {
+      method: 'POST',
+      headers: {}, // Let browser set Content-Type for FormData
+      body: productData,
+    });
+  }
 
 
   async updateProduct(productId: string, productData: FormData): Promise<ApiResponse<{ product: Product }>> {
@@ -138,27 +147,27 @@ class ApiService {
     return this.request(`/farmer/products/${productId}/toggle-availability`, { method: 'PATCH' });
   }
 
-  // async getFarmerOrders(params?: {
-  //   page?: number;
-  //   limit?: number;
-  //   status?: string;
-  //   search?: string;
-  // }): Promise<ApiResponse<{
-  //   orders: Order[];
-  //   total: number;
-  //   page: number;
-  //   pages: number;
-  // }>> {
-  //   const queryParams = new URLSearchParams();
-  //   if (params) {
-  //     Object.entries(params).forEach(([key, value]) => {
-  //       if (value !== undefined) {
-  //         queryParams.append(key, value.toString());
-  //       }
-  //     });
-  //   }
-  //   return this.request(`/farmer/orders?${queryParams.toString()}`);
-  // }
+  async getFarmerOrders(params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    search?: string;
+  }): Promise<ApiResponse<{
+    orders: Order[];
+    total: number;
+    page: number;
+    pages: number;
+  }>> {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+    return this.request(`/farmer/orders?${queryParams.toString()}`);
+  }
 
   async updateOrderStatus(orderId: string, status: string): Promise<ApiResponse<{ order: Order }>> {
     return this.request(`/farmer/orders/${orderId}/status`, {
@@ -315,7 +324,7 @@ async getFarmerEarnings(): Promise<ApiResponse<{
   async cancelOrder(orderId: string, reason?: string): Promise<ApiResponse<{ order: Order }>> {
     return this.request(`/buyer/orders/${orderId}/cancel`, {
       method: 'PATCH',
-      body: JSON.stringify({ reason }),
+      body: JSON.stringify({ reason })
     });
   }
 
@@ -376,6 +385,10 @@ async getFarmerEarnings(): Promise<ApiResponse<{
 
   async markAllNotificationsAsRead(): Promise<ApiResponse<null>> {
     return this.request('/notifications/read-all', { method: 'PATCH' });
+  }
+
+  async getUnreadNotificationCount(): Promise<ApiResponse<{ unreadCount: number }>> {
+    return this.request('/notifications/count');
   }
 
   // Blockchain APIs
@@ -470,6 +483,18 @@ async getFarmerEarnings(): Promise<ApiResponse<{
     return this.request('/buyer/wishlist');
   }
 
+  async addToWishlist(productId: string): Promise<ApiResponse<any>> {
+    return this.request('/buyer/wishlist', {
+      method: 'POST',
+      body: JSON.stringify({ productId })
+    });
+  }
+
+  async getBuyerPayments(params?: any): Promise<PaginatedResponse<any>> {
+    const queryParams = new URLSearchParams(params);
+    return this.request(`/buyer/payments?${queryParams.toString()}`);
+  }
+
   async removeFromWishlist(productId: string): Promise<ApiResponse<any>> {
     return this.request(`/buyer/wishlist/${productId}`, { method: 'DELETE' });
   }
@@ -505,9 +530,196 @@ async getFarmerEarnings(): Promise<ApiResponse<{
     return this.request('/buyer/returns');
   }
 
-  // Order Actions
-  async cancelOrder(orderId: string): Promise<ApiResponse<any>> {
-    return this.request(`/buyer/orders/${orderId}/cancel`, { method: 'POST' });
+  // ========== PHASE 1: ADMIN API METHODS ==========
+  
+  async getAdminDashboardStats(): Promise<ApiResponse<any>> {
+    return this.request('/admin/dashboard/stats');
+  }
+
+  async getAdminRecentActivity(): Promise<ApiResponse<any>> {
+    return this.request('/admin/dashboard/recent-activity');
+  }
+
+  async getAdminUsers(params?: any): Promise<PaginatedResponse<any>> {
+    const queryParams = new URLSearchParams(params);
+    return this.request(`/admin/users?${queryParams.toString()}`);
+  }
+
+  async getAdminUserDetails(userId: string): Promise<ApiResponse<any>> {
+    return this.request(`/admin/users/${userId}`);
+  }
+
+  async updateUserStatus(userId: string, status: string): Promise<ApiResponse<any>> {
+    return this.request(`/admin/users/${userId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status })
+    });
+  }
+
+  async deleteAdminUser(userId: string): Promise<ApiResponse<any>> {
+    return this.request(`/admin/users/${userId}`, { method: 'DELETE' });
+  }
+
+  async getAdminOrders(params?: any): Promise<PaginatedResponse<any>> {
+    const queryParams = new URLSearchParams(params);
+    return this.request(`/admin/orders?${queryParams.toString()}`);
+  }
+
+  async bulkUpdateOrderStatus(orderIds: string[], status: string): Promise<ApiResponse<any>> {
+    return this.request('/admin/orders/bulk-update', {
+      method: 'POST',
+      body: JSON.stringify({ orderIds, status })
+    });
+  }
+
+  async getAdminProducts(params?: any): Promise<PaginatedResponse<any>> {
+    const queryParams = new URLSearchParams(params);
+    return this.request(`/admin/products?${queryParams.toString()}`);
+  }
+
+  async updateProductStatus(productId: string, status: string): Promise<ApiResponse<any>> {
+    return this.request(`/admin/products/${productId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status })
+    });
+  }
+
+  // ========== PHASE 2: ANALYTICS API METHODS ==========
+  
+  async getRevenueAnalytics(params?: any): Promise<ApiResponse<any>> {
+    const queryParams = new URLSearchParams(params);
+    return this.request(`/admin/analytics/revenue?${queryParams.toString()}`);
+  }
+
+  async getUserGrowthAnalytics(params?: any): Promise<ApiResponse<any>> {
+    const queryParams = new URLSearchParams(params);
+    return this.request(`/admin/analytics/users?${queryParams.toString()}`);
+  }
+
+  async getProductAnalytics(): Promise<ApiResponse<any>> {
+    return this.request('/admin/analytics/products');
+  }
+
+  async getOrderTrends(params?: any): Promise<ApiResponse<any>> {
+    const queryParams = new URLSearchParams(params);
+    return this.request(`/admin/analytics/orders?${queryParams.toString()}`);
+  }
+
+  async getPlatformOverview(): Promise<ApiResponse<any>> {
+    return this.request('/admin/analytics/overview');
+  }
+
+  // ========== PHASE 3: SYSTEM MANAGEMENT API METHODS ==========
+  
+  // Settings Management
+  async getPlatformSettings(): Promise<ApiResponse<any>> {
+    return this.request('/admin/settings');
+  }
+
+  async updatePlatformSettings(settings: any): Promise<ApiResponse<any>> {
+    return this.request('/admin/settings', {
+      method: 'PUT',
+      body: JSON.stringify(settings)
+    });
+  }
+
+  async getPaymentSettings(): Promise<ApiResponse<any>> {
+    return this.request('/admin/settings/payment');
+  }
+
+  async updatePaymentSettings(settings: any): Promise<ApiResponse<any>> {
+    return this.request('/admin/settings/payment', {
+      method: 'PUT',
+      body: JSON.stringify(settings)
+    });
+  }
+
+  async getEmailSettings(): Promise<ApiResponse<any>> {
+    return this.request('/admin/settings/email');
+  }
+
+  async updateEmailSettings(settings: any): Promise<ApiResponse<any>> {
+    return this.request('/admin/settings/email', {
+      method: 'PUT',
+      body: JSON.stringify(settings)
+    });
+  }
+
+  // Moderation
+  async getModerationQueue(params?: any): Promise<PaginatedResponse<any>> {
+    const queryParams = new URLSearchParams(params);
+    return this.request(`/admin/moderation/queue?${queryParams.toString()}`);
+  }
+
+  async approveModerationItem(itemId: string, itemType: string): Promise<ApiResponse<any>> {
+    return this.request(`/admin/moderation/${itemType}/${itemId}/approve`, {
+      method: 'POST'
+    });
+  }
+
+  async rejectModerationItem(itemId: string, itemType: string, reason: string): Promise<ApiResponse<any>> {
+    return this.request(`/admin/moderation/${itemType}/${itemId}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason })
+    });
+  }
+
+  async getReportedContent(params?: any): Promise<PaginatedResponse<any>> {
+    const queryParams = new URLSearchParams(params);
+    return this.request(`/admin/moderation/reports?${queryParams.toString()}`);
+  }
+
+  async reviewReport(reportId: string, action: 'dismiss' | 'warn' | 'ban'): Promise<ApiResponse<any>> {
+    return this.request(`/admin/moderation/reports/${reportId}`, {
+      method: 'POST',
+      body: JSON.stringify({ action })
+    });
+  }
+
+  // ========== PHASE 4: FINANCIAL MANAGEMENT API METHODS ==========
+
+  // Billing & Finance
+  async getFinancialStats(params?: any): Promise<ApiResponse<any>> {
+    const queryParams = new URLSearchParams(params);
+    return this.request(`/admin/finance/stats?${queryParams.toString()}`);
+  }
+
+  async getPayouts(params?: any): Promise<PaginatedResponse<any>> {
+    const queryParams = new URLSearchParams(params);
+    return this.request(`/admin/finance/payouts?${queryParams.toString()}`);
+  }
+
+  async processPayout(payoutId: string, action: 'approve' | 'reject', notes?: string): Promise<ApiResponse<any>> {
+    return this.request(`/admin/finance/payouts/${payoutId}/process`, {
+      method: 'POST',
+      body: JSON.stringify({ action, notes })
+    });
+  }
+
+  // Coupons & Promotions
+  async getCoupons(params?: any): Promise<PaginatedResponse<any>> {
+    const queryParams = new URLSearchParams(params);
+    return this.request(`/admin/coupons?${queryParams.toString()}`);
+  }
+
+  async createCoupon(data: any): Promise<ApiResponse<any>> {
+    return this.request('/admin/coupons', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async updateCoupon(id: string, data: any): Promise<ApiResponse<any>> {
+    return this.request(`/admin/coupons/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async deleteCoupon(id: string): Promise<ApiResponse<any>> {
+    return this.request(`/admin/coupons/${id}`, {
+      method: 'DELETE'
+    });
   }
 
 }

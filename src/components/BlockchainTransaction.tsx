@@ -79,8 +79,8 @@ export default function BlockchainTransactionComponent({
   const handleVerify = async () => {
     setIsVerifying(true);
     try {
-      // TODO: Implement actual verification API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Call parent handler which calls the API
+      // await new Promise(resolve => setTimeout(resolve, 2000)); // Removed mock delay
       onVerify?.(transaction.txId);
       toast({
         title: 'Verification Complete',

@@ -96,62 +96,7 @@ function EarningsPage() {
 };
 
 
-  // const fetchEarningsData = async () => {
-  //   setLoading(true);
-  //   try {
-  //     // TODO: Implement API call to fetch earnings data
-  //     await new Promise(resolve => setTimeout(resolve, 1000));
-      
-  //     const mockData: EarningsData = {
-  //       totalEarnings: 15420.50,
-  //       thisMonth: 2850.75,
-  //       lastMonth: 2420.30,
-  //       growth: 17.8,
-  //       pendingPayouts: 450.25,
-  //       availableBalance: 2400.50,
-  //       monthlyBreakdown: [
-  //         { month: 'Jan', earnings: 1200, orders: 8 },
-  //         { month: 'Feb', earnings: 1350, orders: 9 },
-  //         { month: 'Mar', earnings: 1420, orders: 10 },
-  //         { month: 'Apr', earnings: 1580, orders: 11 },
-  //         { month: 'May', earnings: 1650, orders: 12 },
-  //         { month: 'Jun', earnings: 1720, orders: 13 }
-  //       ],
-  //       recentTransactions: [
-  //         {
-  //           id: '1',
-  //           amount: 125.50,
-  //           type: 'sale',
-  //           description: 'Order #ORD-2024-001 - Organic Tomatoes',
-  //           date: '2024-01-15T10:30:00Z',
-  //           status: 'completed'
-  //         },
-  //         {
-  //           id: '2',
-  //           amount: 89.75,
-  //           type: 'sale',
-  //           description: 'Order #ORD-2024-002 - Fresh Carrots',
-  //           date: '2024-01-14T14:20:00Z',
-  //           status: 'completed'
-  //         },
-  //         {
-  //           id: '3',
-  //           amount: 2400.50,
-  //           type: 'payout',
-  //           description: 'Monthly payout to bank account',
-  //           date: '2024-01-01T09:00:00Z',
-  //           status: 'completed'
-  //         }
-  //       ]
-  //     };
-      
-  //     setEarnings(mockData);
-  //   } catch (error) {
-  //     console.error('Error fetching earnings data:', error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+
 
   const getTransactionIcon = (type: string) => {
     switch (type) {

@@ -509,6 +509,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { apiService } from '@/services/api';
+import OrderStatusBadge from '@/components/OrderStatusBadge';
 
 
 import { 
@@ -803,12 +804,9 @@ useEffect(() => {
               <Card>
                 <CardContent className="p-6">
                   {/* Order Header */}
-                  <div className="flex justify-between items-center mb-1">
+                  <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-4">
-                      <div className={`px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-1 ${getStatusColor(order.status)}`}>
-                        {getStatusIcon(order.status)}
-                        <span className="capitalize">{order.status}</span>
-                      </div>
+                      <OrderStatusBadge status={order.status as any} />
                       <div className={`px-3 py-1 rounded-full text-sm font-medium ${getPaymentStatusColor(order.paymentStatus)}`}>
                         {order.paymentStatus.toUpperCase()}
                       </div>

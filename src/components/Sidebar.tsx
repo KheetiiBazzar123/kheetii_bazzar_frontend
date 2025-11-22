@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,17 +10,29 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Button from '@/components/ui/Button';
 import { 
   HomeIcon,
+  ShoppingBagIcon, // Added
   ShoppingCartIcon,
   TruckIcon,
   ChartBarIcon,
   UserIcon,
   CogIcon,
+  Cog6ToothIcon,
+  ShieldCheckIcon,
   BellIcon,
   HeartIcon,
   StarIcon,
+  CurrencyDollarIcon,
+  UserGroupIcon,
+  BuildingStorefrontIcon,
+  ClockIcon,
+  ClipboardDocumentListIcon,
+  DocumentTextIcon,
   CreditCardIcon,
-  ShieldCheckIcon,
+  MapPinIcon,
+  TagIcon,
+  BanknotesIcon,
   ArrowRightOnRectangleIcon,
+  ChevronDownIcon,
   Bars3Icon,
   XMarkIcon,
   SunIcon,
@@ -28,17 +40,12 @@ import {
   LanguageIcon,
   SparklesIcon,
   PlusIcon,
-  ClipboardDocumentListIcon,
-  CurrencyDollarIcon,
-  BuildingStorefrontIcon,
-  UserGroupIcon,
-  DocumentTextIcon,
   QuestionMarkCircleIcon,
-  ClockIcon,
   ChevronRightIcon,
   DocumentCheckIcon,
   UserCircleIcon,
-  ArchiveBoxIcon
+  ArchiveBoxIcon,
+  TicketIcon
 } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -248,20 +255,30 @@ React.useEffect(() => {
         { name: t('sidebar.orderHistory'), href: '/admin/orders/history', icon: DocumentTextIcon }
       ]
     },
-    // {
-    //   name: 'Analytics',
-    //   href: '/admin/analytics',
-    //   icon: ChartBarIcon,
-    //   children: [
-    //     { name: 'Sales Overview', href: '/admin/analytics/sales', icon: CurrencyDollarIcon },
-    //     { name: 'Product Performance', href: '/admin/analytics/products', icon: BuildingStorefrontIcon },
-    //     { name: 'Customer Insights', href: '/admin/analytics/customers', icon: UserGroupIcon }
-    //   ]
-    // },
     {
-      name: t('sidebar.earnings'),
-      href: '/admin/earnings',
-      icon: CurrencyDollarIcon
+      name: t('sidebar.settings'),
+      href: '/admin/settings',
+      icon: Cog6ToothIcon
+    },
+    {
+      name: t('sidebar.moderation'),
+      href: '/admin/moderation',
+      icon: ShieldCheckIcon
+    },
+    {
+      name: t('sidebar.analytics'),
+      href: '/admin/analytics',
+      icon: ChartBarIcon
+    },
+    {
+      name: t('sidebar.billing'),
+      href: '/admin/billing',
+      icon: BanknotesIcon
+    },
+    {
+      name: t('sidebar.coupons'),
+      href: '/admin/coupons',
+      icon: TicketIcon
     },
     // {
     //   name: 'Reviews',

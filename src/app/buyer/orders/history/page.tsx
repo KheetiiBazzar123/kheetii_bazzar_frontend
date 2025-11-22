@@ -6,6 +6,7 @@ import { withBuyerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { apiService } from '@/services/api';
 import { 
   ClockIcon,
   CheckCircleIcon,
@@ -58,105 +59,23 @@ function OrderHistoryPage() {
   const fetchOrderHistory = async () => {
     setLoading(true);
     try {
-      // TODO: Implement API call to fetch order history
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await apiService.getBuyerOrders({ 
+        status: filter === 'all' ? undefined : filter,
+        // dateRange filtering would typically be handled by backend with startDate/endDate params
+        // For now we just pass the status
+      });
       
-      const mockOrders: OrderHistory[] = [
-        {
-          _id: '1',
-          orderNumber: 'ORD-2024-001',
-          farmer: {
-            firstName: 'John',
-            lastName: 'Smith',
-            farmName: 'Green Valley Farm',
-            avatar: '/avatars/john.jpg'
-          },
-          products: [
-            {
-              product: {
-                name: 'Fresh Organic Tomatoes',
-                price: 2.50,
-                images: ['/images/tomatoes.jpg']
-              },
-              quantity: 5,
-              totalPrice: 12.50
-            }
-          ],
-          totalAmount: 12.50,
-          status: 'delivered',
-          paymentStatus: 'paid',
-          createdAt: '2024-01-15T10:30:00Z',
-          deliveredAt: '2024-01-16T14:20:00Z',
-          trackingNumber: 'TRK123456789',
-          canReview: true
-        },
-        {
-          _id: '2',
-          orderNumber: 'ORD-2024-002',
-          farmer: {
-            firstName: 'Jane',
-            lastName: 'Doe',
-            farmName: 'Sunrise Organic Farm',
-            avatar: '/avatars/jane.jpg'
-          },
-          products: [
-            {
-              product: {
-                name: 'Organic Carrots',
-                price: 1.80,
-                images: ['/images/carrots.jpg']
-              },
-              quantity: 3,
-              totalPrice: 5.40
-            },
-            {
-              product: {
-                name: 'Fresh Lettuce',
-                price: 2.00,
-                images: ['/images/lettuce.jpg']
-              },
-              quantity: 2,
-              totalPrice: 4.00
-            }
-          ],
-          totalAmount: 9.40,
-          status: 'dispatched',
-          paymentStatus: 'paid',
-          createdAt: '2024-01-14T09:15:00Z',
-          trackingNumber: 'TRK987654321',
-          canReview: false
-        },
-        {
-          _id: '3',
-          orderNumber: 'ORD-2024-003',
-          farmer: {
-            firstName: 'Mike',
-            lastName: 'Johnson',
-            farmName: 'Mountain View Farm',
-            avatar: '/avatars/mike.jpg'
-          },
-          products: [
-            {
-              product: {
-                name: 'Bell Peppers',
-                price: 3.00,
-                images: ['/images/peppers.jpg']
-              },
-              quantity: 4,
-              totalPrice: 12.00
-            }
-          ],
-          totalAmount: 12.00,
-          status: 'cancelled',
-          paymentStatus: 'refunded',
-          createdAt: '2024-01-13T16:45:00Z',
-          canReview: false
-        }
-      ];
-      
-      setOrders(mockOrders);
+      if (response.success) {
+        // Transform API response to match OrderHistory interface if needed
+        // Assuming API returns compatible structure or we map it here
+        // Assuming API returns array of orders in data.orders
+        setOrders((response.data?.orders || []) as any); 
+      } else {
+        setOrders([]);
+      }
     } catch (error) {
       console.error('Error fetching order history:', error);
+      setOrders([]);
     } finally {
       setLoading(false);
     }
