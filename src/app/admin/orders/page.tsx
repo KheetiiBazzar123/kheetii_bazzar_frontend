@@ -5,6 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { withAdminProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { apiService } from '@/services/api';
+import showToast from '@/lib/toast';
+import { useTranslation } from 'react-i18next';
 import { apiClient } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -59,6 +61,7 @@ interface Order {
 }
 
 function AdminOrders() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -146,13 +149,13 @@ function AdminOrders() {
   };
 
   const filterOptions = [
-    { value: 'all', label: 'All Orders' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'confirmed', label: 'Confirmed' },
-    { value: 'preparing', label: 'Preparing' },
-    { value: 'shipped', label: 'Shipped' },
-    { value: 'delivered', label: 'Delivered' },
-    { value: 'cancelled', label: 'Cancelled' }
+    { value: 'all', label: t('orders.allOrders') },
+    { value: 'pending', label: t('orders.pending') },
+    { value: 'confirmed', label: t('orders.confirmed') },
+    { value: 'preparing', label: t('orders.preparing') },
+    { value: 'shipped', label: t('orders.shipped') },
+    { value: 'delivered', label: t('orders.delivered') },
+    { value: 'cancelled', label: t('orders.cancelled') }
   ];
 
   if (loading) {
@@ -165,8 +168,8 @@ function AdminOrders() {
 
   return (
     <DashboardLayout
-      title="Admin Orders"
-      subtitle="Manage and monitor all orders placed across the platform"
+      title={t('orders.adminOrders')}
+      subtitle={t('orders.adminOrdersSubtitle')}
     >
       <div className="max-w-7xl mx-auto">
         {/* Filter Tabs */}

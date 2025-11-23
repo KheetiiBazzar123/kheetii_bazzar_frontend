@@ -6,8 +6,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
-import DarkModeTest from '@/components/DarkModeTest';
 import { apiClient } from '@/lib/api';
+import { apiService } from '@/services/api';
+import showToast from '@/lib/toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { 
@@ -142,8 +143,8 @@ function FarmerDashboard() {
 
   return (
     <DashboardLayout
-      title={t('farmer.dashboard.title')}
-      subtitle={`${t('farmer.dashboard.welcomeBack')}, ${user?.firstName}!`}
+      title={t('dashboard.farmer.title')}
+      subtitle={t('dashboard.farmer.subtitle')}
       actions={
         <div className="flex items-center space-x-4">
           <Button onClick={toggleTheme} variant="outline">

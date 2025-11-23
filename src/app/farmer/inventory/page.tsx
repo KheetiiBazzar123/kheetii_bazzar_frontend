@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { apiClient } from '@/lib/api';
+import showToast from '@/lib/toast';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import {
@@ -70,13 +71,14 @@ function InventoryPage() {
   const fetchInventory = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.getFarmerInventory();
+      const response = await apiService.getFarmerInventory();
       if (response.success && response.data) {
         setInventory(response.data);
         calculateStats(response.data);
       }
     } catch (error) {
       console.error('Error fetching inventory:', error);
+      showToast.error('Error fetching inventory');
     } finally {
       setLoading(false);
     }
@@ -118,7 +120,7 @@ function InventoryPage() {
 
   if (loading) {
     return (
-      <DashboardLayout title="Inventory Management" subtitle="Loading...">
+      <DashboardLayout title={t('farmer.inventory.title')} subtitle={t('common.loading')}>
         <div className="flex items-center justify-center min-h-96">
           <div className="spinner h-16 w-16"></div>
         </div>
@@ -128,12 +130,12 @@ function InventoryPage() {
 
   return (
     <DashboardLayout
-      title="Inventory Management"
-      subtitle="Track stock levels and manage inventory"
+      title={t('farmer.inventory.title')}
+      subtitle={t('farmer.inventory.subtitle')}
       actions={
         <Button onClick={() => setShowAddModal(true)}>
           <PlusIcon className="h-5 w-5 mr-2" />
-          Add Inventory
+          {t('farmer.inventory.addInventory')}
         </Button>
       }
     >
@@ -144,7 +146,7 @@ function InventoryPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Total Items</p>
+                  <p className="text-sm text-gray-600">{t('farmer.inventory.totalItems')}</p>
                   <p className="text-2xl font-bold">{stats.total}</p>
                 </div>
                 <ArchiveBoxIcon className="h-10 w-10 text-blue-500" />
@@ -156,7 +158,7 @@ function InventoryPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Low Stock</p>
+                  <p className="text-sm text-gray-600">{t('farmer.inventory.lowStock')}</p>
                   <p className="text-2xl font-bold text-red-600">{stats.lowStock}</p>
                 </div>
                 <ExclamationTriangleIcon className="h-10 w-10 text-red-500" />
@@ -168,7 +170,7 @@ function InventoryPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Expiring Soon</p>
+                  <p className="text-sm text-gray-600">{t('farmer.inventory.expiringSoon')}</p>
                   <p className="text-2xl font-bold text-yellow-600">{stats.expiringSoon}</p>
                 </div>
                 <ClockIcon className="h-10 w-10 text-yellow-500" />
@@ -180,7 +182,7 @@ function InventoryPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Wasted</p>
+                  <p className="text-sm text-gray-600">{t('farmer.inventory.wasted')}</p>
                   <p className="text-2xl font-bold text-gray-600">{stats.wasted}</p>
                 </div>
                 <XCircleIcon className="h-10 w-10 text-gray-500" />
@@ -195,7 +197,7 @@ function InventoryPage() {
             <CardHeader>
               <CardTitle className="flex items-center text-red-600">
                 <ExclamationTriangleIcon className="h-5 w-5 mr-2" />
-                Alerts ({stats.lowStock + stats.expiringSoon})
+                {t('farmer.inventory.alerts')} ({stats.lowStock + stats.expiringSoon})
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -217,7 +219,7 @@ function InventoryPage() {
                         </span>
                       </div>
                       <Button variant="outline" size="sm" onClick={() => handleUpdateStock(item)}>
-                        Update Stock
+                        {t('farmer.inventory.updateStock')}
                       </Button>
                     </div>
                   ))}
@@ -229,16 +231,16 @@ function InventoryPage() {
         {/* Inventory Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Inventory List</CardTitle>
-            <CardDescription>Manage your product stock levels</CardDescription>
+            <CardTitle>{t('farmer.inventory.inventoryList')}</CardTitle>
+            <CardDescription>{t('farmer.inventory.manageStock')}</CardDescription>
           </CardHeader>
           <CardContent>
             {inventory.length === 0 ? (
               <div className="text-center py-12">
                 <ArchiveBoxIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <p className="mt-2 text-gray-600">No inventory items yet</p>
+                <p className="mt-2 text-gray-600">{t('farmer.inventory.noInventory')}</p>
                 <Button className="mt-4" onClick={() => setShowAddModal(true)}>
-                  Add Your First Item
+                  {t('farmer.inventory.addFirstItem')}
                 </Button>
               </div>
             ) : (
@@ -246,12 +248,12 @@ function InventoryPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left p-3">Product</th>
-                      <th className="text-left p-3">Current Stock</th>
-                      <th className="text-left p-3">Reorder Level</th>
-                      <th className="text-left p-3">Status</th>
-                      <th className="text-left p-3">Expiry</th>
-                      <th className="text-right p-3">Actions</th>
+                      <th className="text-left p-3">{t('farmer.inventory.product')}</th>
+                      <th className="text-left p-3">{t('farmer.inventory.currentStock')}</th>
+                      <th className="text-left p-3">{t('farmer.inventory.reorderLevel')}</th>
+                      <th className="text-left p-3">{t('farmer.inventory.status')}</th>
+                      <th className="text-left p-3">{t('farmer.inventory.expiry')}</th>
+                      <th className="text-right p-3">{t('farmer.inventory.actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -293,7 +295,7 @@ function InventoryPage() {
                             size="sm"
                             onClick={() => handleUpdateStock(item)}
                           >
-                            Update Stock
+                            {t('farmer.inventory.updateStock')}
                           </Button>
                         </td>
                       </tr>
@@ -310,12 +312,12 @@ function InventoryPage() {
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Add Inventory Item</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('farmer.inventory.addInventoryItem')}</h3>
             <form onSubmit={async (e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
               try {
-                await apiClient.createInventoryItem({
+                await apiService.createInventoryItem({
                   product: formData.get('product') as string,
                   currentStock: Number(formData.get('currentStock')),
                   reorderLevel: Number(formData.get('reorderLevel')),
@@ -324,24 +326,25 @@ function InventoryPage() {
                 });
                 setShowAddModal(false);
                 fetchInventory();
+                showToast.success('Inventory item added successfully!');
               } catch (error: any) {
-                alert(error.response?.data?.message || 'Error creating inventory item');
+                showToast.error(error.response?.data?.message || 'Error creating inventory item');
               }
             }}>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Product</label>
-                  <p className="text-xs text-gray-500 mb-2">Note: Create products first in Products page</p>
+                  <label className="block text-sm font-medium mb-1">{t('farmer.inventory.product')}</label>
+                  <p className="text-xs text-gray-500 mb-2">{t('farmer.inventory.note')}</p>
                   <input
                     type="text"
                     name="product"
                     required
-                    placeholder="Product ID"
+                   placeholder={t('farmer.inventory.productId')}
                     className="w-full px-3 py-2 border rounded-lg"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Current Stock</label>
+                  <label className="block text-sm font-medium mb-1">{t('farmer.inventory.currentStock')}</label>
                   <input
                     type="number"
                     name="currentStock"
@@ -351,7 +354,7 @@ function InventoryPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Reorder Level</label>
+                  <label className="block text-sm font-medium mb-1">{t('farmer.inventory.reorderLevel')}</label>
                   <input
                     type="number"
                     name="reorderLevel"
@@ -361,7 +364,7 @@ function InventoryPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Harvest Date (Optional)</label>
+                  <label className="block text-sm font-medium mb-1">{t('farmer.inventory.harvestDate')}</label>
                   <input
                     type="date"
                     name="harvestDate"
@@ -369,7 +372,7 @@ function InventoryPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Expiry Date (Optional)</label>
+                  <label className="block text-sm font-medium mb-1">{t('farmer.inventory.expiryDate')}</label>
                   <input
                     type="date"
                     name="expiryDate"
@@ -379,9 +382,9 @@ function InventoryPage() {
               </div>
               <div className="flex justify-end gap-2 mt-6">
                 <Button type="button" variant="outline" onClick={() => setShowAddModal(false)}>
-                  Cancel
+                  {t('farmer.inventory.cancel')}
                 </Button>
-                <Button type="submit">Add Inventory</Button>
+                <Button type="submit">{t('farmer.inventory.addInventory')}</Button>
               </div>
             </form>
           </div>
@@ -416,18 +419,18 @@ function InventoryPage() {
             }}>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Action</label>
+                  <label className="block text-sm font-medium mb-1">{t('farmer.inventory.action')}</label>
                   <select
                     name="action"
                     required
                     className="w-full px-3 py-2 border rounded-lg"
                   >
-                    <option value="add">Add Stock</option>
-                    <option value="remove">Remove Stock</option>
+                    <option value="add">{t('farmer.inventory.addStock')}</option>
+                    <option value="remove">{t('farmer.inventory.removeStock')}</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Quantity</label>
+                  <label className="block text-sm font-medium mb-1">{t('farmer.inventory.quantity')}</label>
                   <input
                     type="number"
                     name="quantity"
@@ -437,16 +440,16 @@ function InventoryPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Reason</label>
+                  <label className="block text-sm font-medium mb-1">{t('farmer.inventory.reason')}</label>
                   <select
                     name="reason"
                     required
                     className="w-full px-3 py-2 border rounded-lg"
                   >
-                    <option value="restock">Restock</option>
-                    <option value="sale">Sale</option>
-                    <option value="waste">Waste/Spoilage</option>
-                    <option value="adjustment">Inventory Adjustment</option>
+                    <option value="restock">{t('farmer.inventory.restock')}</option>
+                    <option value="sale">{t('farmer.inventory.sale')}</option>
+                    <option value="waste">{t('farmer.inventory.waste')}</option>
+                    <option value="adjustment">{t('farmer.inventory.adjustment')}</option>
                   </select>
                 </div>
               </div>
@@ -459,9 +462,9 @@ function InventoryPage() {
                     setSelectedItem(null);
                   }}
                 >
-                  Cancel
+                  {t('farmer.inventory.cancel')}
                 </Button>
-                <Button type="submit">Update Stock</Button>
+                <Button type="submit">{t('farmer.inventory.updateStock')}</Button>
               </div>
             </form>
           </div>

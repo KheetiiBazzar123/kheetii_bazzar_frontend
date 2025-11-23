@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { apiClient } from '@/lib/api';
+import showToast from '@/lib/toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { 
@@ -157,7 +158,7 @@ function ReviewsPage() {
                   <StarIcon className="h-6 w-6 text-green-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">5-Star Reviews</p>
+                  <p className="text-sm font-medium text-gray-600">5-{t('farmer.reviews.stars')} Reviews</p>
                   <p className="text-2xl font-bold text-gray-900">{ratingDistribution[5]}</p>
                 </div>
               </div>
@@ -168,9 +169,9 @@ function ReviewsPage() {
         {/* Rating Distribution */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Rating Distribution</CardTitle>
+            <CardTitle>{t('farmer.reviews.ratingDistribution')}</CardTitle>
             <CardDescription>
-              Breakdown of reviews by rating
+              {t('farmer.reviews.breakdownByRating')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -285,7 +286,7 @@ function ReviewsPage() {
                             {review.buyer.firstName} {review.buyer.lastName}
                             {review.isVerified && (
                               <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                                Verified
+                                {t('farmer.reviews.verified')}
                               </span>
                             )}
                           </h4>
@@ -308,12 +309,9 @@ function ReviewsPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4 text-sm text-gray-500">
-                        <span>Helpful: {review.helpful}</span>
+                        <span>{t('farmer.reviews.helpful')}: {review.helpful}</span>
                       </div>
                       <div className="flex space-x-2">
-                        <Button variant="ghost" size="sm">
-                          Reply
-                        </Button>
                         <Button variant="ghost" size="sm">
                           Report
                         </Button>

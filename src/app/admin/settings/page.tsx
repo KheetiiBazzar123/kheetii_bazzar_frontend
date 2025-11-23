@@ -6,6 +6,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { apiService } from '@/services/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import showToast from '@/lib/toast';
 import {
   Cog6ToothIcon,
   CurrencyDollarIcon,
@@ -72,6 +73,7 @@ function AdminSettingsPage() {
       }
     } catch (error) {
       console.error('Failed to fetch settings:', error);
+      showToast.error('Failed to fetch settings');
     } finally {
       setLoading(false);
     }
@@ -81,9 +83,10 @@ function AdminSettingsPage() {
     setSaving(true);
     try {
       await apiService.updatePlatformSettings(generalSettings);
-      alert('General settings saved successfully!');
+      showToast.success('General settings saved successfully!');
     } catch (error) {
-      alert('Failed to save settings');
+      console.error('Error saving settings:', error);
+      showToast.error('Failed to save settings');
     } finally {
       setSaving(false);
     }
@@ -93,9 +96,10 @@ function AdminSettingsPage() {
     setSaving(true);
     try {
       await apiService.updatePaymentSettings(paymentSettings);
-      alert('Payment settings saved successfully!');
+      showToast.success('Payment settings saved successfully!');
     } catch (error) {
-      alert('Failed to save settings');
+      console.error('Error saving settings:', error);
+      showToast.error('Failed to save settings');
     } finally {
       setSaving(false);
     }
@@ -105,9 +109,10 @@ function AdminSettingsPage() {
     setSaving(true);
     try {
       await apiService.updateEmailSettings(emailSettings);
-      alert('Email settings saved successfully!');
+      showToast.success('Email settings saved successfully!');
     } catch (error) {
-      alert('Failed to save settings');
+      console.error('Error saving settings:', error);
+      showToast.error('Failed to save settings');
     } finally {
       setSaving(false);
     }

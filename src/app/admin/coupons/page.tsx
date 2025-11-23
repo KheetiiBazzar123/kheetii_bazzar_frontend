@@ -1,16 +1,18 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { withAdminProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { apiService } from '@/services/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import showToast from '@/lib/toast';
 import {
-  TicketIcon,
-  PlusIcon,
   TrashIcon,
-  PencilIcon
+  PencilIcon,
+  PlusIcon,
+  TicketIcon
 } from '@heroicons/react/24/outline';
 
 function AdminCouponsPage() {
@@ -69,6 +71,7 @@ function AdminCouponsPage() {
       }
     } catch (error) {
       console.error('Error fetching coupons:', error);
+      showToast.error('Failed to fetch coupons');
     } finally {
       setLoading(false);
     }
@@ -79,26 +82,30 @@ function AdminCouponsPage() {
     try {
       if (editingCoupon) {
         await apiService.updateCoupon(editingCoupon._id, formData);
-        alert('Coupon updated successfully!');
+        showToast.success('Coupon updated successfully!');
       } else {
         await apiService.createCoupon(formData);
-        alert('Coupon created successfully!');
+        showToast.success('Coupon created successfully!');
       }
       setShowModal(false);
+      setEditingCoupon(null);
       fetchCoupons();
       resetForm();
     } catch (error) {
-      alert('Failed to save coupon');
+      console.error('Error saving coupon:', error);
+      showToast.error('Failed to save coupon');
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDeleteCoupon = async (id: string) => {
     if (!confirm('Are you sure you want to delete this coupon?')) return;
     try {
       await apiService.deleteCoupon(id);
+      showToast.success('Coupon deleted successfully');
       fetchCoupons();
     } catch (error) {
-      alert('Failed to delete coupon');
+      console.error('Error deleting coupon:', error);
+      showToast.error('Failed to delete coupon');
     }
   };
 
@@ -158,7 +165,7 @@ function AdminCouponsPage() {
                     <button onClick={() => handleEdit(coupon)} className="text-blue-600 hover:text-blue-800">
                       <PencilIcon className="h-5 w-5" />
                     </button>
-                    <button onClick={() => handleDelete(coupon._id)} className="text-red-600 hover:text-red-800">
+                    <button onClick={() => handleDeleteCoupon(coupon._id)} className="text-red-600 hover:text-red-800">
                       <TrashIcon className="h-5 w-5" />
                     </button>
                   </div>

@@ -5,9 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
-import { apiClient } from '@/lib/api';
+import { apiService } from '@/services/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import showToast from '@/lib/toast';
 import {
   UserCircleIcon,
   PencilIcon,
@@ -64,7 +65,7 @@ function ProfilePage() {
   const fetchProfile = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.getMyFarmerProfile();
+      const response = await apiService.getMyFarmerProfile();
       if (response.success && response.data) {
         setProfile(response.data);
       }
@@ -77,7 +78,7 @@ function ProfilePage() {
 
   const fetchTestimonials = async () => {
     try {
-      const response = await apiClient.getMyTestimonials();
+      const response = await apiService.getMyTestimonials();
       if (response.success && response.data) {
         setTestimonials(response.data.filter(t => t.isApproved));
       }
@@ -104,12 +105,13 @@ function ProfilePage() {
     };
 
     try {
-      await apiClient.updateFarmerProfile(data);
+      await apiService.updateFarmerProfile(data);
       setShowEditModal(false);
       fetchProfile();
-      alert('Profile updated successfully!');
+      showToast.success('Profile updated successfully!');
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error updating profile');
+      console.error('Error updating profile:', error);
+      showToast.error(error.response?.data?.message || 'Error updating profile');
     } finally {
       setSaving(false);
     }

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { withAuthProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { 
@@ -37,6 +38,7 @@ interface ProfileData {
 }
 
 function ProfilePage() {
+  const { t } = useTranslation();
   const { user, updateUser } = useAuth();
   const [profileData, setProfileData] = useState<ProfileData>({
     firstName: '',
@@ -164,14 +166,14 @@ function ProfilePage() {
 
   return (
     <DashboardLayout
-      title="Profile"
-      subtitle="Manage your account information"
+      title={t('profilePage.title')}
+      subtitle={t('profilePage.subtitle')}
       actions={
         <Button
           onClick={() => window.history.back()}
           variant="outline"
         >
-          Back
+          {t('profilePage.back')}
         </Button>
       }
     >
@@ -229,9 +231,9 @@ function ProfilePage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Profile Information</CardTitle>
+                    <CardTitle>{t('profilePage.profileInformation')}</CardTitle>
                     <CardDescription>
-                      Update your personal information and preferences
+                      {t('profilePage.updateInfo')}
                     </CardDescription>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -247,14 +249,14 @@ function ProfilePage() {
                           ) : (
                             <CheckIcon className="h-4 w-4 mr-2" />
                           )}
-                          Save
+                          {t('profilePage.save')}
                         </Button>
                         <Button
                           onClick={handleCancel}
                           variant="outline"
                         >
                           <XMarkIcon className="h-4 w-4 mr-2" />
-                          Cancel
+                          {t('profilePage.cancel')}
                         </Button>
                       </>
                     ) : (
@@ -263,7 +265,7 @@ function ProfilePage() {
                         variant="outline"
                       >
                         <PencilIcon className="h-4 w-4 mr-2" />
-                        Edit
+                        {t('profilePage.edit')}
                       </Button>
                     )}
                   </div>
@@ -279,11 +281,11 @@ function ProfilePage() {
                 <div className="space-y-6">
                   {/* Personal Information */}
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">{t('profilePage.personalInfo')}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          First Name
+                          {t('profilePage.firstName')}
                         </label>
                         <input
                           type="text"
@@ -296,7 +298,7 @@ function ProfilePage() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Last Name
+                          {t('profilePage.lastName')}
                         </label>
                         <input
                           type="text"
@@ -312,11 +314,11 @@ function ProfilePage() {
 
                   {/* Contact Information */}
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Contact Information</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">{t('profilePage.contactInfo')}</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Email Address
+                          {t('profilePage.emailAddress')}
                         </label>
                         <div className="relative">
                           <input
@@ -334,14 +336,14 @@ function ProfilePage() {
                           )}
                         </div>
                         {profileData.isEmailVerified ? (
-                          <p className="text-sm text-green-600 mt-1">Email verified</p>
+                          <p className="text-sm text-green-600 mt-1">{t('profilePage.emailVerified')}</p>
                         ) : (
-                          <p className="text-sm text-yellow-600 mt-1">Email not verified</p>
+                          <p className="text-sm text-yellow-600 mt-1">{t('profilePage.emailNotVerified')}</p>
                         )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Phone Number
+                          {t('profilePage.phoneNumber')}
                         </label>
                         <input
                           type="tel"
@@ -357,11 +359,11 @@ function ProfilePage() {
 
                   {/* Address Information */}
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Address Information</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">{t('profilePage.addressInfo')}</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Street Address
+                          {t('profilePage.streetAddress')}
                         </label>
                         <input
                           type="text"
@@ -375,7 +377,7 @@ function ProfilePage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            City
+                            {t('profilePage.city')}
                           </label>
                           <input
                             type="text"
@@ -388,7 +390,7 @@ function ProfilePage() {
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            State
+                            {t('profilePage.state')}
                           </label>
                           <input
                             type="text"
@@ -403,7 +405,7 @@ function ProfilePage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            ZIP Code
+                            {t('profilePage.zipCode')}
                           </label>
                           <input
                             type="text"
@@ -416,7 +418,7 @@ function ProfilePage() {
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Country
+                            {t('profilePage.country')}
                           </label>
                           <input
                             type="text"
@@ -433,11 +435,11 @@ function ProfilePage() {
 
                   {/* Account Information */}
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Account Information</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">{t('profilePage.accountInfo')}</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Account Type
+                          {t('profilePage.accountType')}
                         </label>
                         <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getRoleColor(profileData.role)}`}>
                           <ShieldCheckIcon className="h-4 w-4 mr-1" />
@@ -445,14 +447,14 @@ function ProfilePage() {
                         </div>
                         <p className="text-sm text-gray-600 mt-1">
                           {profileData.role === 'farmer' 
-                            ? 'You can sell products and manage orders from buyers'
-                            : 'You can browse products and place orders from farmers'
+                            ? t('profilePage.farmerDesc')
+                            : t('profilePage.buyerDesc')
                           }
                         </p>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Member Since
+                          {t('profilePage.memberSince')}
                         </label>
                         <p className="text-sm text-gray-600">
                           {new Date(profileData.createdAt).toLocaleDateString('en-US', {

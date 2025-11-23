@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
+import { apiClient } from '@/lib/api';
+import showToast from '@/lib/toast';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { 
+import {
   CurrencyDollarIcon,
   ArrowTrendingUpIcon,
   CalendarIcon,
@@ -252,12 +254,12 @@ function EarningsPage() {
               <div>
                 <CardTitle>Recent Transactions</CardTitle>
                 <CardDescription>
-                  Your latest earnings and payouts
+                {t('farmer.earnings.latestEarnings')}
                 </CardDescription>
               </div>
               <Button variant="outline" size="sm">
                 <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
-                Export
+                {t('farmer.earnings.export')}
               </Button>
             </div>
           </CardHeader>
@@ -302,17 +304,17 @@ function EarningsPage() {
         {/* Earnings Chart Placeholder */}
         <Card>
           <CardHeader>
-            <CardTitle>Earnings Trend</CardTitle>
+            <CardTitle>{t('farmer.earnings.earningsTrend')}</CardTitle>
             <CardDescription>
-              Monthly earnings breakdown
+              {t('farmer.earnings.monthlyBreakdown')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
               <div className="text-center">
                 <CurrencyDollarIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <p className="mt-2 text-sm text-gray-500">Earnings chart visualization</p>
-                <p className="text-xs text-gray-400">Integration with charting library needed</p>
+                <p className="mt-2 text-sm text-gray-500">{t('farmer.earnings.chartVisualization')}</p>
+                <p className="text-xs text-gray-400">{t('farmer.earnings.integrationNeeded')}</p>
               </div>
             </div>
           </CardContent>

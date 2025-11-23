@@ -5,9 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
-import { apiClient } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { apiService } from '@/services/api';
+import showToast from '@/lib/toast';
 import {
   PlusIcon,
   DocumentCheckIcon,
@@ -67,7 +68,7 @@ function CertificationsPage() {
   const fetchCertifications = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.getMyCertifications();
+      const response = await apiService.getMyCertifications();
       if (response.success && response.data) {
         setCertifications(response.data);
         calculateStats(response.data);
@@ -95,12 +96,13 @@ function CertificationsPage() {
     const formData = new FormData(e.currentTarget);
     
     try {
-      await apiClient.uploadCertification(formData);
+      await apiService.uploadCertification(formData);
       setShowUploadModal(false);
       fetchCertifications();
-      alert('Certification uploaded successfully! It will be reviewed by our team.');
+      showToast.success('Certification uploaded successfully! It will be reviewed by our team.');
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error uploading certification');
+      console.error('Error uploading certification:', error);
+      showToast.error(error.response?.data?.message || 'Error uploading certification');
     } finally {
       setUploading(false);
     }
@@ -152,7 +154,7 @@ function CertificationsPage() {
 
   if (loading) {
     return (
-      <DashboardLayout title="Certifications" subtitle="Loading...">
+      <DashboardLayout title={t('farmer.certifications.title')} subtitle={t('common.loading')}>
         <div className="flex items-center justify-center min-h-96">
           <div className="spinner h-16 w-16"></div>
         </div>
@@ -162,12 +164,12 @@ function CertificationsPage() {
 
   return (
     <DashboardLayout
-      title="Certifications"
-      subtitle="Manage your certifications and quality standards"
+      title={t('farmer.certifications.title')}
+      subtitle={t('farmer.certifications.subtitle')}
       actions={
         <Button onClick={() => setShowUploadModal(true)}>
           <PlusIcon className="h-5 w-5 mr-2" />
-          Upload Certification
+          {t('farmer.certifications.uploadCertification')}
         </Button>
       }
     >
@@ -178,7 +180,7 @@ function CertificationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Total Certifications</p>
+                  <p className="text-sm text-gray-600">{t('farmer.certifications.totalCertifications')}</p>
                   <p className="text-2xl font-bold">{stats.total}</p>
                 </div>
                 <DocumentCheckIcon className="h-10 w-10 text-blue-500" />
@@ -190,7 +192,7 @@ function CertificationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Verified</p>
+                  <p className="text-sm text-gray-600">{t('farmer.certifications.verified')}</p>
                   <p className="text-2xl font-bold text-green-600">{stats.verified}</p>
                 </div>
                 <CheckCircleIcon className="h-10 w-10 text-green-500" />
@@ -202,7 +204,7 @@ function CertificationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Pending Review</p>
+                  <p className="text-sm text-gray-600">{t('farmer.certifications.pendingReview')}</p>
                   <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
                 </div>
                 <ClockIcon className="h-10 w-10 text-yellow-500" />
@@ -214,7 +216,7 @@ function CertificationsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Rejected</p>
+                  <p className="text-sm text-gray-600">{t('farmer.certifications.rejected')}</p>
                   <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
                 </div>
                 <XCircleIcon className="h-10 w-10 text-red-500" />
@@ -226,16 +228,16 @@ function CertificationsPage() {
         {/* Certifications Table */}
         <Card>
           <CardHeader>
-            <CardTitle>My Certifications</CardTitle>
-            <CardDescription>View and manage all your certifications</CardDescription>
+            <CardTitle>{t('farmer.certifications.myCertifications')}</CardTitle>
+            <CardDescription>{t('farmer.certifications.viewManageCertifications')}</CardDescription>
           </CardHeader>
           <CardContent>
             {certifications.length === 0 ? (
               <div className="text-center py-12">
                 <DocumentCheckIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <p className="mt-2 text-gray-600">No certifications yet</p>
+                <p className="mt-2 text-gray-600">{t('farmer.certifications.noCertifications')}</p>
                 <Button className="mt-4" onClick={() => setShowUploadModal(true)}>
-                  Upload Your First Certification
+                  {t('farmer.certifications.uploadFirst')}
                 </Button>
               </div>
             ) : (
@@ -243,13 +245,13 @@ function CertificationsPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left p-3">Type</th>
-                      <th className="text-left p-3">Certificate #</th>
-                      <th className="text-left p-3">Authority</th>
-                      <th className="text-left p-3">Issue Date</th>
-                      <th className="text-left p-3">Expiry Date</th>
-                      <th className="text-left p-3">Status</th>
-                      <th className="text-right p-3">Actions</th>
+                      <th className="text-left p-3">{t('farmer.certifications.type')}</th>
+                      <th className="text-left p-3">{t('farmer.certifications.certificateNumber')}</th>
+                      <th className="text-left p-3">{t('farmer.certifications.authority')}</th>
+                      <th className="text-left p-3">{t('farmer.certifications.issueDate')}</th>
+                      <th className="text-left p-3">{t('farmer.certifications.expiryDate')}</th>
+                      <th className="text-left p-3">{t('farmer.certifications.status')}</th>
+                      <th className="text-right p-3">{t('farmer.certifications.actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -281,17 +283,17 @@ function CertificationsPage() {
                               </span>
                               {isExpiringSoon(cert.expiryDate) && !isExpired(cert.expiryDate) && (
                                 <span className="ml-2 px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded">
-                                  Expiring Soon
+                                  {t('farmer.certifications.expiringSoon')}
                                 </span>
                               )}
                               {isExpired(cert.expiryDate) && (
                                 <span className="ml-2 px-2 py-1 text-xs bg-red-100 text-red-700 rounded">
-                                  Expired
+                                  {t('farmer.certifications.expired')}
                                 </span>
                               )}
                             </div>
                           ) : (
-                            <span className="text-sm text-gray-400">No expiry</span>
+                            <span className="text-sm text-gray-400">{t('farmer.certifications.noExpiry')}</span>
                           )}
                         </td>
                         <td className="p-3">{getStatusBadge(cert.status)}</td>
@@ -303,7 +305,7 @@ function CertificationsPage() {
                             className="text-blue-600 hover:text-blue-800"
                           >
                             <Button variant="outline" size="sm">
-                              View Document
+                              {t('farmer.certifications.viewDocument')}
                             </Button>
                           </a>
                         </td>
@@ -319,29 +321,29 @@ function CertificationsPage() {
         {/* Info Card */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Why Get Certified?</CardTitle>
+            <CardTitle className="text-lg">{t('farmer.certifications.whyGetCertified')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="flex items-start">
                 <CheckCircleIcon className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
                 <div>
-                  <p className="font-medium">Build Trust</p>
-                  <p className="text-sm text-gray-600">Verified certifications increase buyer confidence</p>
+                  <p className="font-medium">{t('farmer.certifications.buildTrust')}</p>
+                  <p className="text-sm text-gray-600">{t('farmer.certifications.buildTrustDesc')}</p>
                 </div>
               </div>
               <div className="flex items-start">
                 <CheckCircleIcon className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
                 <div>
-                  <p className="font-medium">Premium Pricing</p>
-                  <p className="text-sm text-gray-600">Certified products can command higher prices</p>
+                  <p className="font-medium">{t('farmer.certifications.premiumPricing')}</p>
+                  <p className="text-sm text-gray-600">{t('farmer.certifications.premiumPricingDesc')}</p>
                 </div>
               </div>
               <div className="flex items-start">
                 <CheckCircleIcon className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
                 <div>
-                  <p className="font-medium">Market Access</p>
-                  <p className="text-sm text-gray-600">Access to more buyers seeking certified products</p>
+                  <p className="font-medium">{t('farmer.certifications.marketAccess')}</p>
+                  <p className="text-sm text-gray-600">{t('farmer.certifications.marketAccessDesc')}</p>
                 </div>
               </div>
             </div>

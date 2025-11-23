@@ -8,6 +8,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { apiService } from '@/services/api';
+import showToast from '@/lib/toast';
 import { 
   ClockIcon,
   CheckCircleIcon,
@@ -46,12 +47,17 @@ interface OrderHistory {
   notes?: string;
 }
 
-function OrderHistoryPage() {
+function FarmerOrderHistory() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const [orders, setOrders] = useState<OrderHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'confirmed' | 'dispatched' | 'delivered' | 'cancelled'>('all');
+  const filterOptions = [
+    { value: 'all', label: t('orders.allOrders') },
+    { value: 'delivered', label: t('orders.delivered') },
+    { value: 'cancelled', label: t('orders.cancelled') }
+  ];
   const [dateRange, setDateRange] = useState<'all' | 'week' | 'month' | 'year'>('all');
 
   useEffect(() => {
@@ -166,8 +172,8 @@ function OrderHistoryPage() {
 
   return (
     <DashboardLayout
-      title="Order History"
-      subtitle="View and manage your order history"
+      title={t('orders.orderHistory')}
+      subtitle={t('orders.farmerHistorySubtitle')}
       actions={
         <Button
           onClick={() => window.history.back()}

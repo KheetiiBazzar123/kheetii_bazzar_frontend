@@ -1,6 +1,6 @@
 import { ApiResponse, User, Product, Order, Review, Notification, FarmerStats, BuyerStats } from '@/types';
 
-const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/v1`;
+const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL || 'https://kheetiibazaar-backend-production.up.railway.app'}/api/v1`;
 
 interface PaginatedResponse<T = any> {
   success: boolean;
@@ -471,6 +471,65 @@ async getFarmerEarnings(): Promise<ApiResponse<{
 
   async setDefaultAddress(id: string): Promise<ApiResponse<any>> {
     return this.request(`/buyer/addresses/${id}/default`, { method: 'PATCH' });
+  }
+
+  // Payment Management
+  async createPaymentOrder(data: {
+    amount: number;
+    currency?: string;
+    orderId: string;
+  }): Promise<ApiResponse<{
+    razorpayOrderId: string;
+    amount: number;
+    currency: string;
+    keyId: string;
+  }>> {
+    return this.request('/payment/create-order', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async verifyPayment(data: {
+    razorpayOrderId: string;
+    razorpayPaymentId: string;
+    razorpaySignature: string;
+  }): Promise<ApiResponse<{
+    paymentId: string;
+    orderId: string;
+    status: string;
+  }>> {
+    return this.request('/payment/verify', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async getPaymentDetails(paymentId: string): Promise<ApiResponse<any>> {
+    return this.request(`/payment/${paymentId}`);
+  }
+
+  async getPaymentHistory(params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+  }): Promise<PaginatedResponse<any>> {
+    const queryParams = new URLSearchParams(params as any);
+    return this.request(`/payment/history?${queryParams.toString()}`);
+  }
+
+  async initiateRefund(paymentId: string, data: {
+    amount?: number;
+    reason?: string;
+  }): Promise<ApiResponse<{
+    refundId: string;
+    amount: number;
+    status: string;
+  }>> {
+    return this.request(`/payment/${paymentId}/refund`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
   }
 
   // Coupons

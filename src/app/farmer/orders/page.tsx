@@ -1,14 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { apiService } from '@/services/api';
+import showToast from '@/lib/toast';
+import { useTranslation } from 'react-i18next';
 import {apiClient} from '@/lib/api'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import OrderStatusBadge from '@/components/OrderStatusBadge';
 import { 
   EyeIcon,
   CheckCircleIcon,
@@ -63,7 +65,7 @@ interface Order {
 function FarmerOrders() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 const searchParams = useSearchParams();
 const [filter, setFilter] = useState<string>('all');useEffect(() => {
@@ -143,18 +145,18 @@ useEffect(() => {
       case 'confirmed': return 'preparing';
       case 'preparing': return 'shipped';
       case 'shipped': return 'delivered';
-      primary: return null;
+      default: return null;
     }
   };
 
   const filterOptions = [
-    { value: 'all', label: t('common.all') + ' ' + t('farmer.orders.title') },
-    { value: 'pending', label: t('farmer.orders.statusPending') },
-    { value: 'confirmed', label: t('farmer.orders.statusConfirmed') },
-    { value: 'preparing', label: t('farmer.orders.statusPreparing') },
-    { value: 'shipped', label: t('farmer.orders.statusShipped') },
-    { value: 'delivered', label: t('farmer.orders.statusDelivered') },
-    { value: 'cancelled', label: t('farmer.orders.statusCancelled') }
+    { value: 'all', label: t('orders.allOrders') },
+    { value: 'pending', label: t('orders.pending') },
+    { value: 'confirmed', label: t('orders.confirmed') },
+    { value: 'preparing', label: t('orders.preparing') },
+    { value: 'shipped', label: t('orders.shipped') },
+    { value: 'delivered', label: t('orders.delivered') },
+    { value: 'cancelled', label: t('orders.cancelled') }
   ];
 
   if (loading) {
@@ -167,8 +169,8 @@ useEffect(() => {
 
   return (
     <DashboardLayout
-      title={t('farmer.orders.title')}
-      subtitle={t('farmer.orders.subtitle')}
+      title={t('orders.myOrders')}
+      subtitle={t('orders.farmerOrdersSubtitle')}
     >
       <div className="max-w-7xl mx-auto">
         {/* Filter Tabs */}
@@ -204,10 +206,7 @@ useEffect(() => {
                   {/* Order Header */}
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-4">
-                      <div className={`px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-1 ${getStatusColor(order.status)}`}>
-                        {getStatusIcon(order.status)}
-                        <span className="capitalize">{order.status}</span>
-                      </div>
+                      <OrderStatusBadge status={order.status as any} />
                       <div className="text-sm text-gray-600">
                         {t('farmer.orders.orderNumber')}{order._id.slice(-8)}
                       </div>
@@ -288,12 +287,12 @@ useEffect(() => {
                     {order.deliveryDate && (
                       <p className="text-sm text-gray-600 mt-1 flex items-center">
                         <CalendarIcon className="h-4 w-4 mr-1" />
-                        Expected Delivery: {new Date(order.deliveryDate).toLocaleDateString()}
+                        {t('farmer.orders.expectedDelivery')}: {new Date(order.deliveryDate).toLocaleDateString()}
                       </p>
                     )}
                     {order.notes && (
                       <p className="text-sm text-gray-600 mt-1">
-                        <strong>Notes:</strong> {order.notes}
+                        <strong>{t('common.notes')}:</strong> {order.notes}
                       </p>
                     )}
                   </div>
@@ -311,12 +310,12 @@ useEffect(() => {
                           onClick={() => updateOrderStatus(order._id, getNextStatus(order.status)!)}
                           className="btn-primary"
                         >
-                          Mark as {getNextStatus(order.status) ? getNextStatus(order.status)!.charAt(0).toUpperCase() + getNextStatus(order.status)!.slice(1) : 'Next'}
+                          {t('farmer.orders.markAs')} {getNextStatus(order.status) ? getNextStatus(order.status)!.charAt(0).toUpperCase() + getNextStatus(order.status)!.slice(1) : 'Next'}
                         </Button>
                       )}
                     </div>
                     <div className="text-sm text-gray-500">
-                      Last updated: {new Date(order.updatedAt).toLocaleString()}
+                      {t('farmer.orders.lastUpdated')}: {new Date(order.updatedAt).toLocaleString()}
                     </div>
                   </div>
                 </CardContent>
@@ -338,7 +337,7 @@ useEffect(() => {
             </p>
             {filter === 'all' && (
               <p className="text-gray-500">
-                Orders will appear here when buyers purchase your products
+                {t('farmer.orders.emptyStateMessage')}
               </p>
             )}
           </div>

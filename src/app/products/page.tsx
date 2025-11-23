@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { apiClient } from '@/lib/api';
+import { useTranslation } from 'react-i18next';
 import { 
   MagnifyingGlassIcon,
   FunnelIcon,
@@ -21,6 +22,7 @@ import Button from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 
 export default function ProductsPage() {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -33,21 +35,21 @@ export default function ProductsPage() {
   const [cart, setCart] = useState<any[]>([]);
 
   const categories = [
-    { id: 'all', name: 'All Products', count: 156 },
-    { id: 'vegetables', name: 'Vegetables', count: 45 },
-    { id: 'fruits', name: 'Fruits', count: 32 },
-    { id: 'grains', name: 'Grains', count: 28 },
-    { id: 'spices', name: 'Spices', count: 23 },
-    { id: 'dairy', name: 'Dairy', count: 18 },
-    { id: 'organic', name: 'Organic', count: 10 }
+    { id: 'all', name: t('productsPage.categories.all'), count: 156 },
+    { id: 'vegetables', name: t('productsPage.categories.vegetables'), count: 45 },
+    { id: 'fruits', name: t('productsPage.categories.fruits'), count: 32 },
+    { id: 'grains', name: t('productsPage.categories.grains'), count: 28 },
+    { id: 'spices', name: t('productsPage.categories.spices'), count: 23 },
+    { id: 'dairy', name: t('productsPage.categories.dairy'), count: 18 },
+    { id: 'organic', name: t('productsPage.categories.organic'), count: 10 }
   ];
 
   const sortOptions = [
-    { value: 'newest', label: 'Newest First' },
-    { value: 'price-low', label: 'Price: Low to High' },
-    { value: 'price-high', label: 'Price: High to Low' },
-    { value: 'rating', label: 'Highest Rated' },
-    { value: 'popular', label: 'Most Popular' }
+    { value: 'newest', label: t('productsPage.sort.newest') },
+    { value: 'price-low', label: t('productsPage.sort.priceLowHigh') },
+    { value: 'price-high', label: t('productsPage.sort.priceHighLow') },
+    { value: 'rating', label: t('productsPage.sort.rating') },
+    { value: 'popular', label: t('productsPage.sort.popular') }
   ];
 
   // Load products from API
@@ -217,16 +219,16 @@ export default function ProductsPage() {
               <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
                 <SparklesIcon className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold gradient-text">KheetiiBazaar</h1>
+              <h1 className="text-2xl font-bold gradient-text">{t('productsPage.title')}</h1>
             </div>
             
             <div className="flex items-center space-x-4">
               <Button variant="ghost" size="sm">
                 <ShoppingCartIcon className="h-5 w-5 mr-2" />
-                Cart ({cart.length})
+                {t('productsPage.cart')} ({cart.length})
               </Button>
               <Button variant="ghost" size="sm">
-                Dashboard
+                {t('productsPage.dashboard')}
               </Button>
             </div>
           </div>
@@ -242,7 +244,7 @@ export default function ProductsPage() {
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search for products, farmers, or categories..."
+                placeholder={t('productsPage.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 input"
@@ -256,7 +258,7 @@ export default function ProductsPage() {
               className="lg:hidden"
             >
               <FunnelIcon className="h-5 w-5 mr-2" />
-              Filters
+              {t('productsPage.filters')}
             </Button>
           </div>
 
@@ -280,7 +282,7 @@ export default function ProductsPage() {
           {/* Sort and Results */}
           <div className="flex justify-between items-center">
             <p className="text-gray-600">
-              Showing {filteredProducts.length} products
+              {t('productsPage.showing', { count: filteredProducts.length })}
             </p>
             <select
               value={sortBy}
@@ -301,7 +303,7 @@ export default function ProductsPage() {
           <div className={`lg:w-64 ${showFilters ? 'block' : 'hidden lg:block'}`}>
             <div className="card sticky top-24">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900">Filters</h3>
+                <h3 className="font-semibold text-gray-900">{t('productsPage.filters')}</h3>
                 <button
                   onClick={() => setShowFilters(false)}
                   className="lg:hidden p-1 text-gray-400 hover:text-gray-600"
@@ -312,7 +314,7 @@ export default function ProductsPage() {
               
               {/* Price Range */}
               <div className="mb-6">
-                <h4 className="font-medium text-gray-900 mb-3">Price Range</h4>
+                <h4 className="font-medium text-gray-900 mb-3">{t('productsPage.priceRange')}</h4>
                 <div className="space-y-2">
                   <input
                     type="range"
@@ -331,25 +333,25 @@ export default function ProductsPage() {
 
               {/* Features */}
               <div className="mb-6">
-                <h4 className="font-medium text-gray-900 mb-3">Features</h4>
+                <h4 className="font-medium text-gray-900 mb-3">{t('productsPage.features')}</h4>
                 <div className="space-y-2">
                   <label className="flex items-center">
                     <input type="checkbox" className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" />
-                    <span className="ml-2 text-sm text-gray-600">Organic</span>
+                    <span className="ml-2 text-sm text-gray-600">{t('productsPage.organic')}</span>
                   </label>
                   <label className="flex items-center">
                     <input type="checkbox" className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" />
-                    <span className="ml-2 text-sm text-gray-600">Local</span>
+                    <span className="ml-2 text-sm text-gray-600">{t('productsPage.local')}</span>
                   </label>
                   <label className="flex items-center">
                     <input type="checkbox" className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" />
-                    <span className="ml-2 text-sm text-gray-600">Fresh</span>
+                    <span className="ml-2 text-sm text-gray-600">{t('productsPage.fresh')}</span>
                   </label>
                 </div>
               </div>
 
               <Button className="w-full btn-primary">
-                Apply Filters
+                {t('productsPage.applyFilters')}
               </Button>
             </div>
           </div>
@@ -375,11 +377,11 @@ export default function ProductsPage() {
                     {/* Badges */}
                     <div className="absolute top-4 left-4 flex flex-col space-y-2">
                       {product.organic && (
-                        <span className="badge badge-success text-xs">Organic</span>
+                        <span className="badge badge-success text-xs">{t('productsPage.organic')}</span>
                       )}
                       {product.originalPrice > product.price && (
                         <span className="badge badge-error text-xs">
-                          {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
+                          {Math.round((1 - product.price / product.originalPrice) * 100)}% {t('productsPage.off')}
                         </span>
                       )}
                     </div>
@@ -408,7 +410,7 @@ export default function ProductsPage() {
                       </div>
                     </div>
 
-                    <p className="text-sm text-gray-600 mb-2">by {product.farmer}</p>
+                    <p className="text-sm text-gray-600 mb-2">{t('productsPage.by')} {product.farmer}</p>
                     
                     <div className="flex items-center text-sm text-gray-500 mb-3">
                       <MapPinIcon className="h-4 w-4 mr-1" />
@@ -432,7 +434,7 @@ export default function ProductsPage() {
                           <span className="text-sm text-gray-400 line-through">₹{product.originalPrice}</span>
                         )}
                       </div>
-                      <span className="text-sm text-gray-500">{product.stock} in stock</span>
+                      <span className="text-sm text-gray-500">{product.stock} {t('productsPage.inStock')}</span>
                     </div>
 
                     <div className="flex space-x-2">
@@ -441,7 +443,7 @@ export default function ProductsPage() {
                         className="flex-1 btn-primary"
                       >
                         <ShoppingCartIcon className="h-4 w-4 mr-2" />
-                        Add to Cart
+                        {t('productsPage.addToCart')}
                       </Button>
                       <Button variant="outline" className="px-3">
                         <HeartIcon className="h-4 w-4" />
@@ -457,14 +459,14 @@ export default function ProductsPage() {
                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <ShoppingCartIcon className="h-12 w-12 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No products found</h3>
-                <p className="text-gray-600 mb-4">Try adjusting your search or filter criteria</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('productsPage.noProductsFound')}</h3>
+                <p className="text-gray-600 mb-4">{t('productsPage.tryAdjusting')}</p>
                 <Button onClick={() => {
                   setSearchTerm('');
                   setSelectedCategory('all');
                   setPriceRange([0, 1000]);
                 }}>
-                  Clear Filters
+                  {t('productsPage.clearFilters')}
                 </Button>
               </div>
             )}

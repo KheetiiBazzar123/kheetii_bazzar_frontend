@@ -1,11 +1,17 @@
 'use client';
 
-import React, { useState, useEffect } from 'use client';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import api from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { withBuyerProtection } from '@/components/RouteProtection';
+import DashboardLayout from '@/components/DashboardLayout';
+import { apiClient } from '@/lib/api';
+import { apiService } from '@/services/api';
 import { DeliveryAddress } from '@/types';
-import { ShoppingCartIcon, MapPinIcon, CreditCardIcon, TruckIcon } from '@heroicons/react/24/outline';
+import RazorpayPayment, { CODPayment } from '@/components/RazorpayPayment';
+import showToast from '@/lib/toast';
+import { ShoppingCartIcon, MapPinIcon, CreditCardIcon, TruckIcon, BanknotesIcon } from '@heroicons/react/24/outline';
 
 interface CartItem {
   product: {
@@ -14,6 +20,7 @@ interface CartItem {
     price: number;
     images: string[];
     farmer: {
+      _id: string;
       firstName: string;
       lastName: string;
     };
@@ -24,16 +31,22 @@ interface CartItem {
 export default function CheckoutPage() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { user } = useAuth();
   
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [addresses, setAddresses] = useState<DeliveryAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
-  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'card' | 'upi' | 'wallet'>('cod');
+  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'online'>('cod');
   const [orderNotes, setOrderNotes] = useState('');
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState('');
   const [showAddressForm, setShowAddressForm] = useState(false);
+  
+  // Payment state
+  const [orderId, setOrderId] = useState<string>('');
+  const [razorpayOrderId, setRazorpayOrderId] = useState<string>('');
+  const [showPayment, setShowPayment] = useState(false);
   
   const [newAddress, setNewAddress] = useState({
     label: 'Home',
@@ -45,6 +58,7 @@ export default function CheckoutPage() {
     city: '',
     state: '',
     pincode: '',
+    country: 'India',
     addressType: 'home' as 'home' | 'work' | 'other',
     isDefault: false
   });
@@ -62,11 +76,11 @@ export default function CheckoutPage() {
 
   const loadAddresses = async () => {
     try {
-      const response = await api.get('/addresses');
-      if (response.data.success) {
-        setAddresses(response.data.data as DeliveryAddress[]);
+      const response = await apiService.getAddresses();
+      if (response.success && response.data) {
+        setAddresses(Array.isArray(response.data) ? response.data : []);
         // Auto-select default address
-        const defaultAddr = response.data.data.find((addr: DeliveryAddress) => addr.isDefault);
+        const defaultAddr = response.data.find((addr: DeliveryAddress) => addr.isDefault);
         if (defaultAddr) {
           setSelectedAddressId(defaultAddr._id);
         }
@@ -80,15 +94,16 @@ export default function CheckoutPage() {
 
   const handleAddAddress = async () => {
     try {
-      const response = await api.post('/addresses', newAddress);
-      if (response.data.success) {
+      const response = await apiService.createAddress(newAddress);
+      if (response.success) {
         await loadAddresses();
         setShowAddressForm(false);
-        setSelectedAddressId(response.data.data._id);
+        setSelectedAddressId(response.data!._id);
+        showToast.success(t('addresses.createSuccess') || 'Address added successfully!');
       }
     } catch (err) {
       console.error('Error adding address:', err);
-      setError('Failed to add address');
+      showToast.error('Failed to add address');
     }
   };
 
@@ -101,12 +116,12 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = async () => {
     if (!selectedAddressId) {
-      setError(t('orders.checkout.selectAddress'));
+      showToast.error(t('orders.checkout.selectAddress') || 'Please select a delivery address');
       return;
     }
 
     if (cartItems.length === 0) {
-      setError('No items in cart');
+      showToast.error('No items in cart');
       return;
     }
 
@@ -115,13 +130,17 @@ export default function CheckoutPage() {
 
     try {
       const selectedAddress = addresses.find(addr => addr._id === selectedAddressId);
+      const { total } = calculateTotal();
       
+      // Prepare order data
       const orderData = {
         products: cartItems.map(item => ({
           product: item.product._id,
           quantity: item.quantity,
-          price: item.product.price
+          price: item.product.price,
+          totalPrice: item.product.price * item.quantity
         })),
+        farmer: cartItems[0].product.farmer._id, // Assuming single farmer for now
         shippingAddress: {
           street: selectedAddress?.addressLine1 || '',
           city: selectedAddress?.city || '',
@@ -129,26 +148,77 @@ export default function CheckoutPage() {
           zipCode: selectedAddress?.pincode || '',
           country: selectedAddress?.country || 'India'
         },
-        paymentMethod: paymentMethod,
+        paymentMethod: paymentMethod === 'cod' ? 'cod' : 'card',
         notes: orderNotes
       };
 
-      const response = await api.createOrder(orderData);
+      // Create order first
+      const orderResponse = await apiService.createOrder(orderData);
       
-      if (response.success && response.data) {
-        // Clear cart
+      if (!orderResponse.success || !orderResponse.data) {
+        throw new Error(orderResponse.message || 'Failed to create order');
+      }
+
+      const createdOrderId = orderResponse.data._id;
+      setOrderId(createdOrderId);
+
+      // Handle payment based on method
+      if (paymentMethod === 'cod') {
+        // COD - Order is created, redirect to confirmation
         localStorage.removeItem('checkout_cart');
-        // Redirect to confirmation page
-        router.push(`/buyer/orders/confirmation/${response.data._id}`);
+        showToast.success(t('orders.orderPlaced') || 'Order placed successfully!');
+        router.push(`/buyer/orders/confirmation/${createdOrderId}`);
       } else {
-        setError(response.message || 'Failed to place order');
+        // Online payment - Create Razorpay order
+        const paymentOrderResponse = await apiService.createPaymentOrder({
+          amount: Math.round(total),
+          currency: 'INR',
+          orderId: createdOrderId
+        });
+
+        if (!paymentOrderResponse.success || !paymentOrderResponse.data) {
+          throw new Error('Failed to create payment order');
+        }
+
+        setRazorpayOrderId(paymentOrderResponse.data.razorpayOrderId);
+        setShowPayment(true);
       }
     } catch (err: any) {
       console.error('Error placing order:', err);
-      setError(err.response?.data?.message || 'Failed to place order');
+      showToast.error(err.message || 'Failed to place order');
+      setError(err.message || 'Failed to place order');
     } finally {
       setProcessing(false);
     }
+  };
+
+  const handlePaymentSuccess = async (paymentId: string, razorpayOrderIdFromCallback: string, signature: string) => {
+    try {
+      // Verify payment
+      const verifyResponse = await apiService.verifyPayment({
+        razorpayOrderId: razorpayOrderIdFromCallback,
+        razorpayPaymentId: paymentId,
+        razorpaySignature: signature
+      });
+
+      if (verifyResponse.success) {
+        // Clear cart and redirect
+        localStorage.removeItem('checkout_cart');
+        showToast.success(t('payment.success') || 'Payment successful!');
+        router.push(`/buyer/orders/confirmation/${orderId}`);
+      } else {
+        throw new Error('Payment verification failed');
+      }
+    } catch (err: any) {
+      console.error('Payment verification error:', err);
+      showToast.error('Payment verification failed. Please contact support.');
+    }
+  };
+
+  const handlePaymentFailure = (error: any) => {
+    console.error('Payment failed:', error);
+    showToast.error(t('payment.failed') || 'Payment failed. Please try again.');
+    setShowPayment(false);
   };
 
   const { subtotal, shipping, tax, total } = calculateTotal();
@@ -159,6 +229,44 @@ export default function CheckoutPage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
           <p className="mt-4 text-gray-600 dark:text-gray-400">{t('common.loading')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show payment screen if payment method is online
+  if (showPayment && razorpayOrderId && user) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+            {t('payment.completePayment') || 'Complete Your Payment'}
+          </h2>
+          
+          <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-700 dark:text-gray-300">Order Total:</span>
+              <span className="text-2xl font-bold text-green-600">₹{total.toFixed(2)}</span>
+            </div>
+          </div>
+
+          <RazorpayPayment
+            orderId={razorpayOrderId}
+            amount={total}
+            currency="INR"
+            customerName={user.name || `${user.firstName} ${user.lastName}`}
+            customerEmail={user.email}
+            customerPhone={user.phone || ''}
+            onSuccess={handlePaymentSuccess}
+            onFailure={handlePaymentFailure}
+          />
+
+          <button
+            onClick={() => setShowPayment(false)}
+            className="w-full mt-4 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+          >
+            {t('common.cancel')}
+          </button>
         </div>
       </div>
     );
@@ -237,14 +345,14 @@ export default function CheckoutPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <input
                     type="text"
-                    placeholder="Full Name"
+                    placeholder="Full Name*"
                     value={newAddress.fullName}
                     onChange={(e) => setNewAddress({...newAddress, fullName: e.target.value})}
                     className="px-4 py-2 border rounded-lg dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                   />
                   <input
                     type="tel"
-                    placeholder="Phone"
+                    placeholder="Phone*"
                     value={newAddress.phone}
                     onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})}
                     className="px-4 py-2 border rounded-lg dark:bg-gray-600 dark:border-gray-500 dark:text-white"
@@ -252,7 +360,7 @@ export default function CheckoutPage() {
                 </div>
                 <input
                   type="text"
-                  placeholder="Address Line 1"
+                  placeholder="Address Line 1*"
                   value={newAddress.addressLine1}
                   onChange={(e) => setNewAddress({...newAddress, addressLine1: e.target.value})}
                   className="w-full px-4 py-2 border rounded-lg dark:bg-gray-600 dark:border-gray-500 dark:text-white"
@@ -260,21 +368,21 @@ export default function CheckoutPage() {
                 <div className="grid grid-cols-3 gap-4">
                   <input
                     type="text"
-                    placeholder="City"
+                    placeholder="City*"
                     value={newAddress.city}
                     onChange={(e) => setNewAddress({...newAddress, city: e.target.value})}
                     className="px-4 py-2 border rounded-lg dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                   />
                   <input
                     type="text"
-                    placeholder="State"
+                    placeholder="State*"
                     value={newAddress.state}
                     onChange={(e) => setNewAddress({...newAddress, state: e.target.value})}
                     className="px-4 py-2 border rounded-lg dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                   />
                   <input
                     type="text"
-                    placeholder="Pincode"
+                    placeholder="Pincode*"
                     value={newAddress.pincode}
                     onChange={(e) => setNewAddress({...newAddress, pincode: e.target.value})}
                     className="px-4 py-2 border rounded-lg dark:bg-gray-600 dark:border-gray-500 dark:text-white"
@@ -318,10 +426,10 @@ export default function CheckoutPage() {
                         Default
                       </span>
                     )}
-                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-300 ml-6">
                       {address.addressLine1}, {address.city}, {address.state} - {address.pincode}
                     </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{address.phone}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 ml-6">{address.phone}</p>
                   </label>
                 ))
               )}
@@ -338,28 +446,47 @@ export default function CheckoutPage() {
             </div>
 
             <div className="space-y-3">
-              {(['cod', 'card', 'upi', 'wallet'] as const).map((method) => (
-                <label
-                  key={method}
-                  className={`block p-4 border-2 rounded-lg cursor-pointer transition ${
-                    paymentMethod === method
-                      ? 'border-green-600 bg-green-50 dark:bg-green-900/20'
-                      : 'border-gray-200 dark:border-gray-700 hover:border-green-300'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="payment"
-                    value={method}
-                    checked={paymentMethod === method}
-                    onChange={(e) => setPaymentMethod(e.target.value as any)}
-                    className="mr-3"
-                  />
-                  <span className="font-medium text-gray-900 dark:text-white">
-                    {t(`orders.paymentMethods.${method}`)}
-                  </span>
-                </label>
-              ))}
+              <label
+                className={`block p-4 border-2 rounded-lg cursor-pointer transition ${
+                  paymentMethod === 'cod'
+                    ? 'border-green-600 bg-green-50 dark:bg-green-900/20'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-green-300'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="payment"
+                  value="cod"
+                  checked={paymentMethod === 'cod'}
+                  onChange={(e) => setPaymentMethod('cod')}
+                  className="mr-3"
+                />
+                <BanknotesIcon className="h-5 w-5 inline mr-2" />
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {t('payment.cashOnDelivery') || 'Cash on Delivery'}
+                </span>
+              </label>
+
+              <label
+                className={`block p-4 border-2 rounded-lg cursor-pointer transition ${
+                  paymentMethod === 'online'
+                    ? 'border-green-600 bg-green-50 dark:bg-green-900/20'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-green-300'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="payment"
+                  value="online"
+                  checked={paymentMethod === 'online'}
+                  onChange={(e) => setPaymentMethod('online')}
+                  className="mr-3"
+                />
+                <CreditCardIcon className="h-5 w-5 inline mr-2" />
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {t('payment.onlinePayment') || 'Online Payment (Card/UPI/Wallet)'}
+                </span>
+              </label>
             </div>
           </div>
 
@@ -425,13 +552,17 @@ export default function CheckoutPage() {
               ) : (
                 <>
                   <TruckIcon className="h-5 w-5" />
-                  {t('orders.checkout.placeOrder')}
+                  {paymentMethod === 'cod' 
+                    ? t('orders.checkout.placeOrder') 
+                    : t('payment.proceedToPayment') || 'Proceed to Payment'}
                 </>
               )}
             </button>
 
             <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4">
-              By placing this order, you agree to our terms and conditions
+              {paymentMethod === 'online' 
+                ? 'Secure payment powered by Razorpay'
+                : 'By placing this order, you agree to our terms and conditions'}
             </p>
           </div>
         </div>

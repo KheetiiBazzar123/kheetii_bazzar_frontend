@@ -1,13 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { withAdminProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { apiService } from '@/services/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import showToast from '@/lib/toast';
+import { useTranslation } from 'react-i18next';
 import {
-  ShieldCheckIcon,
+  ShieldCheckIcon, // Keep ShieldCheckIcon as it's used in JSX
   ExclamationTriangleIcon,
   CheckCircleIcon,
   XCircleIcon,
@@ -105,31 +108,31 @@ function AdminModerationPage() {
     }
   };
 
-  const handleApprove = async (itemId: string, itemType: string) => {
+  const handleModerationAction = async (itemId: string, itemType: string, action: 'approve' | 'reject') => {
     try {
-      await apiService.approveModerationItem(itemId, itemType);
-      alert('Item approved successfully!');
+      if (action === 'approve') {
+        await apiService.approveModerationItem(itemId, itemType);
+      } else {
+        const reason = prompt('Enter rejection reason:');
+        if (!reason) {
+          showToast.info('Rejection cancelled.');
+          return;
+        }
+        await apiService.rejectModerationItem(itemId, itemType, reason);
+      }
+      showToast.success(`Item ${action}ed successfully!`);
       fetchModerationQueue();
     } catch (error) {
-      alert('Failed to approve item');
-    }
-  };
-
-  const handleReject = async (itemId: string, itemType: string) => {
-    const reason = prompt('Enter rejection reason:');
-    if (!reason) return;
-
-    try {
-      await apiService.rejectModerationItem(itemId, itemType, reason);
-      alert('Item rejected successfully!');
-      fetchModerationQueue();
-    } catch (error) {
-      alert('Failed to reject item');
+      console.error(`Error ${action}ing item:`, error);
+      showToast.error(`Failed to ${action} item`);
     }
   };
 
   const handleReportAction = async (reportId: string, action: 'dismiss' | 'warn' | 'ban') => {
-    if (!confirm(`Are you sure you want to ${action} this report?`)) return;
+    if (!confirm(`Are you sure you want to ${action} this report?`)) {
+      showToast.info('Report action cancelled.');
+      return;
+    }
 
     try {
       await apiService.reviewReport(reportId, action);
@@ -167,7 +170,7 @@ function AdminModerationPage() {
               } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center`}
             >
               <ShieldCheckIcon className="h-5 w-5 mr-2" />
-              Moderation Queue ({moderationQueue.length})
+              {t('admin.moderation.moderationQueue')} ({moderationQueue.length})
             </button>
             <button
               onClick={() => { setActiveTab('reports'); setPage(1); }}
@@ -178,7 +181,7 @@ function AdminModerationPage() {
               } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center`}
             >
               <ExclamationTriangleIcon className="h-5 w-5 mr2" />
-              Reports ({reports.length})
+              {t('admin.moderation.reports')} ({reports.length})
             </button>
           </nav>
         </div>
@@ -196,7 +199,7 @@ function AdminModerationPage() {
                   <Card>
                     <CardContent className="p-12 text-center">
                       <ShieldCheckIcon className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                      <p className="text-gray-500">No items in moderation queue</p>
+                      <p className="text-gray-500">{t('admin.moderation.noItemsInQueue')}</p>
                     </CardContent>
                   </Card>
                 ) : (
@@ -235,7 +238,7 @@ function AdminModerationPage() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => handleApprove(item._id, item.type)}
+                                onClick={() => handleModerationAction(item._id, item.type, 'approve')}
                                 className="text-green-600 hover:bg-green-50"
                               >
                                 <CheckCircleIcon className="h-5 w-5" />
@@ -243,7 +246,7 @@ function AdminModerationPage() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => handleReject(item._id, item.type)}
+                                onClick={() => handleModerationAction(item._id, item.type, 'reject')}
                                 className="text-red-600 hover:bg-red-50"
                               >
                                 <XCircleIcon className="h-5 w-5" />
@@ -268,7 +271,7 @@ function AdminModerationPage() {
                   <Card>
                     <CardContent className="p-12 text-center">
                       <ExclamationTriangleIcon className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                      <p className="text-gray-500">No reports to review</p>
+                      <p className="text-gray-500">{t('admin.moderation.noReportsToReview')}</p>
                     </CardContent>
                   </Card>
                 ) : (
@@ -340,7 +343,7 @@ function AdminModerationPage() {
                   disabled={page === 1}
                   variant="outline"
                 >
-                  Previous
+                  {t('admin.moderation.previous')}
                 </Button>
                 <span className="text-sm text-gray-700 dark:text-gray-300">
                   Page {page} of {totalPages}
@@ -350,7 +353,7 @@ function AdminModerationPage() {
                   disabled={page === totalPages}
                   variant="outline"
                 >
-                  Next
+                  {t('admin.moderation.next')}
                 </Button>
               </div>
             )}

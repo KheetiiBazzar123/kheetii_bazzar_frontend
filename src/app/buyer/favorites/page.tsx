@@ -6,6 +6,8 @@ import { withBuyerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { apiClient } from '@/lib/api';
+import showToast from '@/lib/toast';
 import { apiService } from '@/services/api';
 import { WishlistItem } from '@/types';
 import toast from 'react-hot-toast';
@@ -284,7 +286,7 @@ function FavoritesPage() {
                     onClick={() => window.location.href = '/buyer/marketplace'}
                     className="mt-6 btn-primary"
                   >
-                    Browse Marketplace
+                    {t('wishlist.browseMarketplace')}
                   </Button>
                 )}
               </div>
@@ -317,7 +319,7 @@ function FavoritesPage() {
                       </button>
                       {!item.product.isAvailable && (
                         <div className="absolute top-2 left-2 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                          Out of Stock
+                          {t('wishlist.outOfStock')}
                         </div>
                       )}
                      </div>
@@ -362,7 +364,7 @@ function FavoritesPage() {
                           onClick={() => window.location.href = `/products/${item.product._id}`}
                         >
                           <EyeIcon className="h-4 w-4 mr-1" />
-                          View
+                          {t('wishlist.view')}
                         </Button>
                         <Button
                           className="btn-primary flex-1"
@@ -371,7 +373,7 @@ function FavoritesPage() {
                           onClick={() => addToCart(item.product._id)}
                         >
                           <ShoppingCartIcon className="h-4 w-4 mr-1" />
-                          Cart
+                          {t('wishlist.cart')}
                         </Button>
                       </div>
                     </CardContent>

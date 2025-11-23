@@ -18,9 +18,11 @@ import {
   InformationCircleIcon,
   StarIcon
 } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 
 
 function NotificationsPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(true);

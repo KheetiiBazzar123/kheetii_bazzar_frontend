@@ -33,7 +33,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (user) {
       // Connect to Socket.io server
-      const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5001';
+      const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'https://kheetiibazaar-backend-production.up.railway.app';
       const newSocket = io(socketUrl, {
         transports: ['polling', 'websocket'],
       });

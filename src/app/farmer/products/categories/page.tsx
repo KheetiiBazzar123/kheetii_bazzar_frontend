@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import {apiClient} from '@/lib/api'
+import { apiClient } from '@/lib/api';
+import showToast from '@/lib/toast';
+import { useTranslation } from 'react-i18next';
 import { 
   TagIcon,
   PlusIcon,
@@ -26,10 +27,10 @@ interface Category {
   createdAt: string;
 }
 
-function CategoriesPage() {
+function FarmerCategories() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
 
 
   // const [categories, setCategories] = useState<Category[]>([
@@ -183,8 +184,8 @@ if (loading) {
   return (
     
     <DashboardLayout
-      title="Product Categories"
-      subtitle="Manage your product categories and organization"
+      title={t('products.productCategories')}
+      subtitle={t('products.manageCategoriesSubtitle')}
       actions={
         <div className="flex space-x-3">
           <Button
@@ -198,7 +199,7 @@ if (loading) {
             className="btn-primary"
           >
             <PlusIcon className="h-5 w-5 mr-2" />
-            Add Category
+            {t('products.addCategory')}
           </Button>
         </div>
       }

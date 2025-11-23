@@ -5,9 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
-import { apiClient } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { apiService } from '@/services/api';
+import showToast from '@/lib/toast';
 import {
   DocumentTextIcon,
   ArrowDownTrayIcon,
@@ -67,13 +68,14 @@ function BillingPage() {
   const fetchBills = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.getFarmerBills();
+      const response = await apiService.getFarmerBills();
       if (response.success && response.data) {
         setBills(response.data);
         calculateStats(response.data);
       }
     } catch (error) {
       console.error('Error fetching bills:', error);
+      showToast.error('Failed to fetch billing history.');
     } finally {
       setLoading(false);
     }
@@ -94,22 +96,26 @@ function BillingPage() {
   const handleDownloadPDF = async (billId: string) => {
     setDownloading(billId);
     try {
-      await apiClient.downloadFarmerBillPDF(billId);
+      await apiService.downloadFarmerBillPDF(billId);
       // The download will be handled by the browser
+      showToast.success('Invoice download initiated.');
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error downloading invoice');
+      console.error('Error downloading invoice:', error);
+      showToast.error(error.response?.data?.message || 'Error downloading invoice');
     } finally {
       setDownloading(null);
     }
   };
 
-  const handleExportCSV = async () => {
+  const handleExportBills = async () => {
     setExporting(true);
     try {
-      await apiClient.exportFarmerBillsCSV();
+      await apiService.exportFarmerBillsCSV();
       // The download will be handled by the browser
+      showToast.success('Bills exported successfully.');
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error exporting bills');
+      console.error('Error exporting bills:', error);
+      showToast.error(error.response?.data?.message || 'Error exporting bills');
     } finally {
       setExporting(false);
     }
@@ -178,10 +184,10 @@ function BillingPage() {
 
   return (
     <DashboardLayout
-      title="Billing & Invoices"
-      subtitle="View your billing history and download invoices"
+      title={t('farmer.billing.title')}
+      subtitle={t('farmer.billing.subtitle')}
       actions={
-        <Button onClick={handleExportCSV} disabled={exporting} variant="outline">
+        <Button onClick={handleExportBills} disabled={exporting} variant="outline">
           <TableCellsIcon className="h-5 w-5 mr-2" />
           {exporting ? 'Exporting...' : 'Export to CSV'}
         </Button>

@@ -5,6 +5,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { SocketProvider } from '@/contexts/SocketContext';
+import ToastProvider from '@/components/ToastProvider';
 import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -46,6 +47,7 @@ export default function RootLayout({
             <AuthProvider>
               <SocketProvider>
                 {children}
+                <ToastProvider />
               </SocketProvider>
             </AuthProvider>
           </LanguageProvider>

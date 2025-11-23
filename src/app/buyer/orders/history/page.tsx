@@ -7,6 +7,9 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { apiService } from '@/services/api';
+import showToast from '@/lib/toast';
+import { useTranslation } from 'react-i18next';
+import OrderStatusBadge from '@/components/OrderStatusBadge';
 import { 
   ClockIcon,
   CheckCircleIcon,
@@ -45,7 +48,8 @@ interface OrderHistory {
   canReview: boolean;
 }
 
-function OrderHistoryPage() {
+function BuyerOrderHistory() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [orders, setOrders] = useState<OrderHistory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -114,7 +118,26 @@ function OrderHistoryPage() {
 
   const filteredOrders = orders.filter(order => {
     if (filter !== 'all' && order.status !== filter) return false;
-    // TODO: Implement date range filtering
+    
+    // Date range filtering
+    if (dateRange !== 'all') {
+      const orderDate = new Date(order.createdAt);
+      const now = new Date();
+      const daysDiff = Math.floor((now.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      switch (dateRange) {
+        case 'week':
+          if (daysDiff > 7) return false;
+          break;
+        case 'month':
+          if (daysDiff > 30) return false;
+          break;
+        case 'year':
+          if (daysDiff > 365) return false;
+          break;
+      }
+    }
+    
     return true;
   });
 
@@ -140,13 +163,12 @@ function OrderHistoryPage() {
 
   return (
     <DashboardLayout
-      title="Order History"
-      subtitle="Track your order history and deliveries"
+      title={t('orders.orderHistory')}
+      subtitle={t('orders.buyerHistorySubtitle')}
       actions={
         <Button
           onClick={() => window.history.back()}
           variant="outline"
-        >
           Back to Orders
         </Button>
       }

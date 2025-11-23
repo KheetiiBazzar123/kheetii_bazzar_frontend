@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { withAdminProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -15,6 +16,7 @@ import {
   ScaleIcon,
 } from '@heroicons/react/24/outline';
 import { apiClient } from '@/lib/api';
+import { useTranslation } from 'react-i18next';
 
 interface ProductFormData {
   name: string;
@@ -27,7 +29,9 @@ interface ProductFormData {
   images: File[];
 }
 
-function AdminAddProductPage() {
+function AdminNewProduct() {
+  const { t } = useTranslation();
+  const router = useRouter();
   const { user } = useAuth();
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
@@ -142,8 +146,8 @@ function AdminAddProductPage() {
 
   return (
     <DashboardLayout
-      title="Add New Product (Admin)"
-      subtitle="Create a new product in the marketplace"
+      title={t('products.addNewProduct')}
+      subtitle={t('products.createProductSubtitle')}
       actions={
         <Button onClick={() => window.history.back()} variant="outline">
           Back to Products
@@ -387,4 +391,4 @@ function AdminAddProductPage() {
   );
 }
 
-export default withAdminProtection(AdminAddProductPage);
+export default withAdminProtection(AdminNewProduct);

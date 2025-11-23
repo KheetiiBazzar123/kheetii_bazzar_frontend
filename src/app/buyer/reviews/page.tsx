@@ -4,6 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { withBuyerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
+import { apiClient } from '@/lib/api';
+import showToast from '@/lib/toast';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { apiService } from '@/services/api';
@@ -37,6 +40,7 @@ interface Review {
 }
 
 function ReviewsPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -170,8 +174,8 @@ function ReviewsPage() {
 
   return (
     <DashboardLayout
-      title="My Reviews"
-      subtitle="Manage your product reviews and ratings"
+      title={t('buyer.reviews.myReviews')}
+      subtitle={t('buyer.reviews.subtitle')}
       actions={
         <Button
           onClick={() => window.history.back()}

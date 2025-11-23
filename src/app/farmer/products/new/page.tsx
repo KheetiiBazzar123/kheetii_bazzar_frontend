@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import showToast from '@/lib/toast';
 import { 
   PlusIcon,
   PhotoIcon,
@@ -16,7 +18,6 @@ import {
   DocumentTextIcon,
   ScaleIcon
 } from '@heroicons/react/24/outline';
-// import { apiService } from '@/services/api';
 import apiClient from '@/lib/api';
 import { apiService } from '@/services/api';
 
@@ -31,8 +32,9 @@ interface ProductFormData {
   images: File[];
 }
 
-function AddProductPage() {
+function FarmerNewProduct() {
   const { t } = useTranslation();
+  const router = useRouter();
   const { user } = useAuth();
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
@@ -136,23 +138,26 @@ const handleSubmit = async (e: React.FormEvent) => {
   
     uploadedImageUrls.forEach(url => data.append('images', url));
 
-    // Other required fields
-    data.append('freshness', 'fresh');
-    data.append('harvestDate', new Date().toISOString());
-    data.append('expiryDate', new Date(Date.now() + 7*24*60*60*1000).toISOString());
-    data.append('location[street]', '123 Farm Road');
-    data.append('location[city]', 'Mumbai');
-    data.append('location[state]', 'Maharashtra');
-    data.append('location[zipCode]', '400001');
-    data.append('location[latitude]', '19.0760');
-    data.append('location[longitude]', '72.8777');
+    // Use user's location from profile if available
+    if (user?.address) {
+      data.append('location[street]', user.address.street || '');
+      data.append('location[city]', user.address.city || '');
+      data.append('location[state]', user.address.state || '');
+      data.append('location[zipCode]', user.address.zipCode || '');
+      if (user.address.coordinates?.latitude) {
+        data.append('location[latitude]', user.address.coordinates.latitude.toString());
+      }
+      if (user.address.coordinates?.longitude) {
+        data.append('location[longitude]', user.address.coordinates.longitude.toString());
+      }
+    }
 
     
     const response = await apiClient.createProduct(data);
 
     console.log('Product created:', response);
 
-    alert('Product created successfully!');
+    showToast.success(t('farmer.products.createSuccess') || 'Product created successfully!');
     setFormData({
       name: '',
       description: '',
@@ -167,7 +172,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   } catch (error: any) {
     console.error('Error:', error);
-    alert(error?.message || 'Error creating product');
+    showToast.error(error?.message || 'Error creating product');
   } finally {
     setLoading(false);
   }
@@ -175,8 +180,8 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   return (
     <DashboardLayout
-      title={t('farmer.products.addProduct')}
-      subtitle={t('farmer.products.subtitle')}
+      title={t('products.addNewProduct')}
+      subtitle={t('products.createProductSubtitle')}
       actions={
         <Button
           onClick={() => window.history.back()}
@@ -191,14 +196,13 @@ const handleSubmit = async (e: React.FormEvent) => {
           <CardHeader>
             <CardTitle className="flex items-center">
               <PlusIcon className="h-6 w-6 mr-2" />
-              Product Information
+              {t('products.productDetails')}
             </CardTitle>
             <CardDescription>
-              Fill in the details about your product to create a new listing
+              {t('products.basicInformation')}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
               {/* Basic Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>

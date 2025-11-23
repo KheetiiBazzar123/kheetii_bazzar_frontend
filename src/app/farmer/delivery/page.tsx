@@ -5,9 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
-import { apiClient } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { apiService } from '@/services/api';
+import showToast from '@/lib/toast';
 import {
   PlusIcon,
   TruckIcon,
@@ -69,13 +70,14 @@ function DeliveryPage() {
   const fetchSchedules = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.getMyDeliverySchedules();
+      const response = await apiService.getMyDeliverySchedules();
       if (response.success && response.data) {
         setSchedules(response.data);
         calculateStats(response.data);
       }
     } catch (error) {
       console.error('Error fetching schedules:', error);
+      showToast.error('Failed to fetch delivery schedules.');
     } finally {
       setLoading(false);
     }
@@ -111,12 +113,13 @@ function DeliveryPage() {
     };
 
     try {
-      await apiClient.createDeliverySchedule(data);
+      await apiService.createDeliverySchedule(data);
       setShowCreateModal(false);
       fetchSchedules();
-      alert('Delivery schedule created successfully!');
+      showToast.success('Delivery schedule created successfully!');
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error creating delivery schedule');
+      console.error('Error creating delivery schedule:', error);
+      showToast.error(error.response?.data?.message || 'Error creating delivery schedule');
     } finally {
       setCreating(false);
     }
@@ -129,11 +132,12 @@ function DeliveryPage() {
     if (!reason) return;
 
     try {
-      await apiClient.cancelDeliverySchedule(scheduleId, reason);
+      await apiService.cancelDeliverySchedule(scheduleId, reason);
       fetchSchedules();
-      alert('Delivery schedule cancelled');
+      showToast.success('Delivery schedule cancelled');
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error cancelling schedule');
+      console.error('Error cancelling schedule:', error);
+      showToast.error(error.response?.data?.message || 'Error cancelling schedule');
     }
   };
 
@@ -141,11 +145,12 @@ function DeliveryPage() {
     if (!confirm('Mark this delivery as completed?')) return;
 
     try {
-      await apiClient.completeDelivery(scheduleId);
+      await apiService.completeDelivery(scheduleId);
       fetchSchedules();
-      alert('Delivery marked as completed!');
+      showToast.success('Delivery marked as completed!');
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error completing delivery');
+      console.error('Error completing delivery:', error);
+      showToast.error(error.response?.data?.message || 'Error completing delivery');
     }
   };
 

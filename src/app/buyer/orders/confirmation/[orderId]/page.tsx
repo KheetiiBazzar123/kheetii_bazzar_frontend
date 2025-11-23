@@ -1,16 +1,18 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { withBuyerProtection } from '@/components/RouteProtection';
+import { useParams } from 'next/navigation';
+import DashboardLayout from '@/components/DashboardLayout';
+import { apiService } from '@/services/api';
 import { useTranslation } from 'react-i18next';
-import Link from 'next/link';
-import api from '@/services/api';
-import { Order } from '@/types';
 import OrderTimeline from '@/components/OrderTimeline';
 import { CheckCircleIcon, TruckIcon, ShoppingBagIcon, HomeIcon } from '@heroicons/react/24/solid';
 
-export default function OrderConfirmationPage() {
+export default function OrderConfirmation() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const router = useRouter();
   const params = useParams();
   const orderId = params.orderId as string;

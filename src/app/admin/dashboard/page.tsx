@@ -7,6 +7,7 @@ import { withAdminProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import DarkModeTest from '@/components/DarkModeTest';
 import { apiService } from '@/services/api';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import {
@@ -65,6 +66,7 @@ interface TopProduct {
 }
 
 function AdminDashboard() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
@@ -157,8 +159,8 @@ useEffect(() => {
 
   return (
     <DashboardLayout
-      title="Admin Dashboard"
-      subtitle={`Welcome back, Admin ${user?.firstName || ''}!`}
+      title={t('dashboard.admin.title')}
+      subtitle={t('dashboard.admin.subtitle', { name: user?.firstName || '' })}
       actions={
         <div className="flex items-center space-x-4">
           <Button onClick={toggleTheme} variant="outline">

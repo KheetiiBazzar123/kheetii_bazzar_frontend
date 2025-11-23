@@ -6,6 +6,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { apiService } from '@/services/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import showToast from '@/lib/toast';
 import {
   BanknotesIcon,
   CreditCardIcon,
@@ -80,6 +81,7 @@ function AdminBillingPage() {
       }
     } catch (error) {
       console.error('Error fetching billing data:', error);
+      showToast.error('Failed to fetch billing data.');
     } finally {
       setLoading(false);
     }
@@ -87,16 +89,18 @@ function AdminBillingPage() {
 
   const handlePayoutAction = async (payoutId: string, action: 'approve' | 'reject') => {
     const notes = action === 'reject' ? prompt('Enter rejection reason:') : undefined;
-    if (action === 'reject' && !notes) return;
-
-    if (!confirm(`Are you sure you want to ${action} this payout?`)) return;
+    if (action === 'reject' && !notes) {
+      showToast.info('Payout rejection cancelled.');
+      return;
+    }
 
     try {
       await apiService.processPayout(payoutId, action, notes || undefined);
-      alert(`Payout ${action}ed successfully!`);
+      showToast.success(`Payout ${action}ed successfully!`);
       fetchData();
     } catch (error) {
-      alert(`Failed to ${action} payout`);
+      console.error(`Error ${action}ing payout:`, error);
+      showToast.error(`Failed to ${action} payout`);
     }
   };
 

@@ -6,6 +6,9 @@ import { withAdminProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { apiClient } from '@/lib/api';
+import showToast from '@/lib/toast';
+import { useTranslation } from 'react-i18next';
 import {
   PlusIcon,
   PencilIcon,
@@ -17,7 +20,7 @@ import {
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { apiClient } from '@/lib/api';
+
 
 interface Product {
   _id: string;
@@ -38,13 +41,19 @@ interface Product {
 }
 
 function AdminProducts() {
+  const { t } = useTranslation();
   const { user } = useAuth();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(12);
+  const [totalPages, setTotalPages] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const categories = [
     'vegetables', 'fruits', 'grains', 'spices', 'herbs', 'dairy', 'meat', 'other'
@@ -54,15 +63,21 @@ function AdminProducts() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.getFarmerProducts(); // same API reused
-      if (response?.success && Array.isArray(response.data)) {
+      // Admin should get all products, not just farmer's products
+      const response = await apiClient.getProducts({
+        page: currentPage,
+        limit: itemsPerPage,
+        category: selectedCategory !== 'all' ? selectedCategory : undefined,
+        search: searchQuery || undefined
+      });
+      
+      if (response.success && response.data) {
         setProducts(response.data);
-      } else {
-        setProducts([]);
+        setTotalPages(response.pagination?.pages || 1);
       }
-    } catch (error) {
-      console.error('Error fetching admin products:', error);
-      setProducts([]);
+    } catch (error: any) {
+      console.error('Error fetching products:', error);
+      showToast.error(error.message || 'Failed to load products');
     } finally {
       setLoading(false);
     }
@@ -149,13 +164,13 @@ function AdminProducts() {
 
   return (
     <DashboardLayout
-      title="Admin Product Management"
-      subtitle="View, Edit, and Manage all marketplace products"
+      title={t('products.adminTitle')}
+      subtitle={t('products.adminSubtitle')}
       actions={
         <Link href="/admin/products/new">
-          <Button className="btn-primary">
+          <Button onClick={() => router.push('/admin/products/new')} className="btn-primary">
             <PlusIcon className="h-5 w-5 mr-2" />
-            Add Product
+            {t('products.addProduct')}
           </Button>
         </Link>
       }
@@ -167,9 +182,9 @@ function AdminProducts() {
             <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search products..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder={t('products.searchPlaceholder')}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
             />
           </div>
@@ -178,7 +193,7 @@ function AdminProducts() {
             onChange={(e) => setFilterCategory(e.target.value)}
             className="md:w-60 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
           >
-            <option value="">All Categories</option>
+            <option value="all">{t('products.allCategories')}</option>
             {categories.map((c) => (
               <option key={c} value={c} className="capitalize">
                 {c}

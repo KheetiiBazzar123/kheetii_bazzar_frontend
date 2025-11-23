@@ -5,6 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { withBuyerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { apiService } from '@/services/api';
+import showToast from '@/lib/toast';
+import { useTranslation } from 'react-i18next';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -97,7 +99,8 @@ interface FilterOptions {
 
 function BuyerMarketplace() {
   const { user } = useAuth();
-  const [products, setProducts] = useState<Product[]>([]);
+  const { t } = useTranslation();
+  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<FilterOptions>({
     category: '',
@@ -214,17 +217,17 @@ const handlePlaceOrder = async (product: Product) => {
     const response = await apiService.createOrder(orderData);
 
     if (response.success) {
-      alert(' Order placed successfully!');
+      showToast.success('Order placed successfully!');
       window.location.href = "/buyer/orders"; 
 
       console.log('Order Response:', response.data ?? response);
       
     } else {
-      alert(response.message || 'Failed to place order!');
+      showToast.error(response.message || 'Failed to place order!');
     }
   } catch (error) {
     console.error(' Error placing order:', error);
-    alert('Something went wrong while placing your order.');
+    showToast.error('Something went wrong while placing your order.');
   }
 };
 
@@ -291,8 +294,8 @@ const handlePlaceOrder = async (product: Product) => {
 
   return (
     <DashboardLayout
-      title="Marketplace"
-      subtitle="Discover fresh produce from local farmers"
+      title={t('dashboard.buyer.title')}
+      subtitle={t('dashboard.buyer.subtitle')}
       actions={
         <Link href="/buyer/orders">
           <Button variant="outline">

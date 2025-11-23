@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, Fragment } from 'react';
+import React, { useState, Fragment, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -63,22 +63,39 @@ interface MenuItem {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const { t } = useTranslation();
-  // const { user, logout } = useAuth();
+  const { t, i18n } = useTranslation();
   const { user: contextUser, logout } = useAuth();
-const [user, setUser] = useState(contextUser);
+  const [user, setUser] = useState(contextUser);
+  
+  // Force re-render when language changes
+  const [, forceUpdate] = useState(0);
 
-// Sync with localStorage — ensures admin override is detected
-React.useEffect(() => {
-  const storedUser = localStorage.getItem('user');
-  if (storedUser) {
-    const parsedUser = JSON.parse(storedUser);
-    // only update if role changed (like buyer → admin)
-    if (parsedUser.role !== contextUser?.role) {
-      setUser(parsedUser);
+  // Listen for language changes
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      forceUpdate(n => n + 1);
+    };
+
+    i18n.on('languageChanged', handleLanguageChange);
+    window.addEventListener('languagechange', handleLanguageChange);
+
+    return () => {
+      i18n.off('languageChanged', handleLanguageChange);
+      window.removeEventListener('languagechange', handleLanguageChange);
+    };
+  }, [i18n]);
+
+  // Sync with localStorage — ensures admin override is detected
+  React.useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      // only update if role changed (like buyer → admin)
+      if (parsedUser.role !== contextUser?.role) {
+        setUser(parsedUser);
+      }
     }
-  }
-}, [contextUser]);
+  }, [contextUser]);
 
   const { theme, toggleTheme } = useTheme();
   const pathname = usePathname();

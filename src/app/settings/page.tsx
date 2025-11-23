@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { withAuthProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { 
@@ -20,6 +21,7 @@ import {
 import { motion } from 'framer-motion';
 
 function SettingsPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [settings, setSettings] = useState({
     notifications: {
@@ -74,8 +76,8 @@ function SettingsPage() {
 
   return (
     <DashboardLayout
-      title="Settings"
-      subtitle="Manage your account preferences and privacy"
+      title={t('settingsPage.title')}
+      subtitle={t('settingsPage.subtitle')}
     >
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Notifications */}
@@ -88,19 +90,19 @@ function SettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <BellIcon className="h-5 w-5 mr-2" />
-                Notifications
+                {t('settingsPage.notifications')}
               </CardTitle>
               <CardDescription>
-                Choose how you want to be notified about updates and activities
+                {t('settingsPage.notificationsDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">Notification Channels</h4>
+                  <h4 className="font-medium text-gray-900">{t('settingsPage.notificationChannels')}</h4>
                   <div className="space-y-3">
                     <label className="flex items-center justify-between">
-                      <span className="text-sm text-gray-700">Email Notifications</span>
+                      <span className="text-sm text-gray-700">{t('settingsPage.emailNotifications')}</span>
                       <input
                         type="checkbox"
                         checked={settings.notifications.email}
@@ -109,7 +111,7 @@ function SettingsPage() {
                       />
                     </label>
                     <label className="flex items-center justify-between">
-                      <span className="text-sm text-gray-700">Push Notifications</span>
+                      <span className="text-sm text-gray-700">{t('settingsPage.pushNotifications')}</span>
                       <input
                         type="checkbox"
                         checked={settings.notifications.push}
@@ -118,7 +120,7 @@ function SettingsPage() {
                       />
                     </label>
                     <label className="flex items-center justify-between">
-                      <span className="text-sm text-gray-700">SMS Notifications</span>
+                      <span className="text-sm text-gray-700">{t('settingsPage.smsNotifications')}</span>
                       <input
                         type="checkbox"
                         checked={settings.notifications.sms}
@@ -129,10 +131,10 @@ function SettingsPage() {
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">Notification Types</h4>
+                  <h4 className="font-medium text-gray-900">{t('settingsPage.notificationTypes')}</h4>
                   <div className="space-y-3">
                     <label className="flex items-center justify-between">
-                      <span className="text-sm text-gray-700">Order Updates</span>
+                      <span className="text-sm text-gray-700">{t('settingsPage.orderUpdates')}</span>
                       <input
                         type="checkbox"
                         checked={settings.notifications.orderUpdates}
@@ -141,7 +143,7 @@ function SettingsPage() {
                       />
                     </label>
                     <label className="flex items-center justify-between">
-                      <span className="text-sm text-gray-700">Product Updates</span>
+                      <span className="text-sm text-gray-700">{t('settingsPage.productUpdates')}</span>
                       <input
                         type="checkbox"
                         checked={settings.notifications.productUpdates}
@@ -150,7 +152,7 @@ function SettingsPage() {
                       />
                     </label>
                     <label className="flex items-center justify-between">
-                      <span className="text-sm text-gray-700">Marketing Emails</span>
+                      <span className="text-sm text-gray-700">{t('settingsPage.marketingEmails')}</span>
                       <input
                         type="checkbox"
                         checked={settings.notifications.marketing}
@@ -175,10 +177,10 @@ function SettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <ShieldCheckIcon className="h-5 w-5 mr-2" />
-                Privacy
+                {t('settingsPage.privacy')}
               </CardTitle>
               <CardDescription>
-                Control who can see your information and contact you
+                {t('settingsPage.privacyDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -186,20 +188,20 @@ function SettingsPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Profile Visibility
+                      {t('settingsPage.profileVisibility')}
                     </label>
                     <select
                       value={settings.privacy.profileVisibility}
                       onChange={(e) => handleSettingChange('privacy', 'profileVisibility', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     >
-                      <option value="public">Public</option>
-                      <option value="private">Private</option>
-                      <option value="friends">Friends Only</option>
+                      <option value="public">{t('settingsPage.public')}</option>
+                    <option value="private">{t('settingsPage.private')}</option>
+                    <option value="friends">{t('settingsPage.friendsOnly')}</option>
                     </select>
                   </div>
                   <label className="flex items-center justify-between">
-                    <span className="text-sm text-gray-700">Show Email Address</span>
+                    <span className="text-sm text-gray-700">{t('settingsPage.showEmail')}</span>
                     <input
                       type="checkbox"
                       checked={settings.privacy.showEmail}
@@ -210,7 +212,7 @@ function SettingsPage() {
                 </div>
                 <div className="space-y-4">
                   <label className="flex items-center justify-between">
-                    <span className="text-sm text-gray-700">Show Phone Number</span>
+                    <span className="text-sm text-gray-700">{t('settingsPage.showPhone')}</span>
                     <input
                       type="checkbox"
                       checked={settings.privacy.showPhone}
@@ -219,7 +221,7 @@ function SettingsPage() {
                     />
                   </label>
                   <label className="flex items-center justify-between">
-                    <span className="text-sm text-gray-700">Allow Direct Messages</span>
+                    <span className="text-sm text-gray-700">{t('settingsPage.allowMessages')}</span>
                     <input
                       type="checkbox"
                       checked={settings.privacy.allowMessages}
@@ -243,17 +245,17 @@ function SettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <KeyIcon className="h-5 w-5 mr-2" />
-                Security
+                {t('settingsPage.security')}
               </CardTitle>
               <CardDescription>
-                Manage your account security and authentication
+                {t('settingsPage.securityDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <label className="flex items-center justify-between">
-                    <span className="text-sm text-gray-700">Two-Factor Authentication</span>
+                    <span className="text-sm text-gray-700">{t('settingsPage.twoFactor')}</span>
                     <input
                       type="checkbox"
                       checked={settings.security.twoFactor}
@@ -262,7 +264,7 @@ function SettingsPage() {
                     />
                   </label>
                   <label className="flex items-center justify-between">
-                    <span className="text-sm text-gray-700">Login Alerts</span>
+                    <span className="text-sm text-gray-700">{t('settingsPage.loginAlerts')}</span>
                     <input
                       type="checkbox"
                       checked={settings.security.loginAlerts}
@@ -274,17 +276,17 @@ function SettingsPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Session Timeout (minutes)
+                      {t('settingsPage.sessionTimeout')}
                     </label>
                     <select
                       value={settings.security.sessionTimeout}
                       onChange={(e) => handleSettingChange('security', 'sessionTimeout', parseInt(e.target.value))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     >
-                      <option value={15}>15 minutes</option>
-                      <option value={30}>30 minutes</option>
-                      <option value={60}>1 hour</option>
-                      <option value={120}>2 hours</option>
+                      <option value="15">{t('settingsPage.15min')}</option>
+                    <option value="30">{t('settingsPage.30min')}</option>
+                    <option value="60">{t('settingsPage.1hour')}</option>
+                    <option value="120">{t('settingsPage.2hours')}</option>
                     </select>
                   </div>
                 </div>
@@ -303,10 +305,10 @@ function SettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <GlobeAltIcon className="h-5 w-5 mr-2" />
-                Preferences
+                {t('settingsPage.preferences')}
               </CardTitle>
               <CardDescription>
-                Customize your app experience
+                {t('settingsPage.preferencesDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -314,36 +316,36 @@ function SettingsPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Theme
+                      {t('settingsPage.theme')}
                     </label>
                     <select
                       value={settings.preferences.theme}
                       onChange={(e) => handleSettingChange('preferences', 'theme', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     >
-                      <option value="light">Light</option>
-                      <option value="dark">Dark</option>
-                      <option value="auto">Auto</option>
+                      <option value="light">{t('settingsPage.light')}</option>
+                    <option value="dark">{t('settingsPage.dark')}</option>
+                    <option value="auto">{t('settingsPage.auto')}</option>
                     </select>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Language
+                      {t('settingsPage.language')}
                     </label>
                     <select
                       value={settings.preferences.language}
                       onChange={(e) => handleSettingChange('preferences', 'language', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     >
-                      <option value="en">English</option>
-                      <option value="hi">हिंदी</option>
+                      <option value="en">{t('settingsPage.english')}</option>
+                      <option value="hi">{t('settingsPage.hindi')}</option>
+                      <option value="bn">Bengali</option>
+                      <option value="mr">Marathi</option>
                     </select>
                   </div>
-                </div>
-                <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Timezone
+                      {t('settingsPage.timezone')}
                     </label>
                     <select
                       value={settings.preferences.timezone}
@@ -385,18 +387,18 @@ function SettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center text-red-600">
                 <ExclamationTriangleIcon className="h-5 w-5 mr-2" />
-                Danger Zone
+                {t('settingsPage.dangerZone')}
               </CardTitle>
               <CardDescription>
-                Irreversible and destructive actions
+                {t('settingsPage.dangerZoneDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg">
                 <div>
-                  <h4 className="font-medium text-red-900">Delete Account</h4>
+                  <h4 className="font-medium text-red-900">{t('settingsPage.deleteAccount')}</h4>
                   <p className="text-sm text-red-700">
-                    Permanently delete your account and all associated data
+                    {t('settingsPage.deleteAccountDesc')}
                   </p>
                 </div>
                 <Button
@@ -405,7 +407,7 @@ function SettingsPage() {
                   className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                 >
                   <TrashIcon className="h-4 w-4 mr-2" />
-                  Delete Account
+                    {t('settingsPage.deleteAccount')}
                 </Button>
               </div>
             </CardContent>
@@ -420,7 +422,7 @@ function SettingsPage() {
           className="flex justify-end"
         >
           <Button onClick={handleSave} className="btn-primary">
-            Save Settings
+            {t('settingsPage.saveSettings')}
           </Button>
         </motion.div>
       </div>

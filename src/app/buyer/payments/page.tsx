@@ -4,6 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { withBuyerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
+import { apiClient } from '@/lib/api';
+import showToast from '@/lib/toast';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { apiService } from '@/services/api';
@@ -40,6 +43,7 @@ interface Transaction {
 }
 
 function PaymentsPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);

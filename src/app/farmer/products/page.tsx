@@ -7,6 +7,7 @@ import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import showToast from '@/lib/toast';
 import { 
   PlusIcon,
   PencilIcon,
@@ -43,7 +44,7 @@ interface Product {
 function FarmerProducts() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
 const [loadingProducts, setLoadingProducts] = useState(true);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -68,15 +69,15 @@ const handleUpdateProduct = async () => {
     const response = await apiClient.updateProduct(selectedProduct._id, formData);
 
     if (response?.success) {
-      alert("Product updated successfully!");
+      showToast.success(t('farmer.products.updateSuccess') || "Product updated successfully!");
       setShowEditModal(false);
       await fetchProducts(); 
     } else {
-      alert(response?.message || "Failed to update product");
+      showToast.error(response?.message || "Failed to update product");
     }
   } catch (error: any) {
     console.error("Error updating product:", error);
-    alert(error.message || "Something went wrong");
+    showToast.error(error.message || "Something went wrong");
   }
 };
 
@@ -188,9 +189,10 @@ const fetchProducts = async () => {
           : product
       )
     );
+    showToast.success(t('farmer.products.availabilityUpdated') || 'Availability updated successfully');
   } catch (error) {
     console.error("Error toggling availability:", error);
-    alert("Something went wrong");
+    showToast.error("Something went wrong");
   }
 };
 
@@ -208,13 +210,13 @@ const fetchProducts = async () => {
       if (response?.success) {
       
         setProducts((prev) => prev.filter((product) => product._id !== productId));
-        alert("Product deleted successfully!");
+        showToast.success(t('farmer.products.deleteSuccess') || "Product deleted successfully!");
       } else {
-        alert(response?.message || "Failed to delete product.");
+        showToast.error(response?.message || "Failed to delete product.");
       }
     } catch (error: any) {
       console.error("Error deleting product:", error);
-      alert(error.message || "Something went wrong while deleting.");
+      showToast.error(error.message || "Something went wrong while deleting.");
     }
   }
 };
@@ -239,15 +241,13 @@ if (loadingProducts) {
 }
   return (
     <DashboardLayout
-      title={t('farmer.products.title')}
-      subtitle={t('farmer.products.subtitle')}
+      title={t('products.myProducts')}
+      subtitle={t('products.myProductsSubtitle')}
       actions={
-        <Link href="/farmer/products/new">
-          <Button className="btn-primary">
+          <Button onClick={() => router.push('/farmer/products/new')} className="btn-primary">
             <PlusIcon className="h-5 w-5 mr-2" />
-            {t('farmer.products.addProduct')}
+            {t('products.addNewProduct')}
           </Button>
-        </Link>
       }
     >
       <div className="max-w-7xl mx-auto">

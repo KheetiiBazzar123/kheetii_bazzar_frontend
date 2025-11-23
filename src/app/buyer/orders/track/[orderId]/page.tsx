@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { withBuyerProtection } from '@/components/RouteProtection';
 import { useParams } from 'next/navigation';
+import DashboardLayout from '@/components/DashboardLayout';
+import { apiService } from '@/services/api';
 import { useTranslation } from 'react-i18next';
-import Link from 'next/link';
-import api from '@/services/api';
-import { Order } from '@/types';
 import OrderTimeline from '@/components/OrderTimeline';
 import OrderStatusBadge from '@/components/OrderStatusBadge';
 import { 
@@ -16,8 +17,9 @@ import {
   ArrowLeftIcon
 } from '@heroicons/react/24/outline';
 
-export default function TrackOrderPage() {
+export default function OrderTracking() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const params = useParams();
   const orderId = params.orderId as string;
 

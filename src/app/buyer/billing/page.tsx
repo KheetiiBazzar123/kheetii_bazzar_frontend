@@ -5,9 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withBuyerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
-import { apiClient } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { apiService } from '@/services/api';
+import showToast from '@/lib/toast';
 import {
   DocumentTextIcon,
   ArrowDownTrayIcon,
@@ -73,13 +74,14 @@ function BuyerBillingPage() {
   const fetchBills = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.getBuyerBills();
+      const response = await apiService.getBuyerBills();
       if (response.success && response.data) {
         setBills(response.data);
         calculateStats(response.data);
       }
     } catch (error) {
       console.error('Error fetching bills:', error);
+      showToast.error('Error fetching bills');
     } finally {
       setLoading(false);
     }
@@ -101,22 +103,25 @@ function BuyerBillingPage() {
   const handleDownloadPDF = async (billId: string) => {
     setDownloading(billId);
     try {
-      await apiClient.downloadBuyerBillPDF(billId);
+      await apiService.downloadBuyerBillPDF(billId);
       // The download will be handled by the browser
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error downloading invoice');
+      console.error('Error downloading invoice:', error);
+      showToast.error(error.response?.data?.message || 'Error downloading invoice');
     } finally {
       setDownloading(null);
     }
   };
 
-  const handleExportCSV = async () => {
+  const handleExportBills = async () => {
     setExporting(true);
     try {
-      await apiClient.exportBuyerBillsCSV();
-      // The download will be handled by the browser
+      // Implement export logic
+      await apiService.exportBuyerBillsCSV(); // Assuming this is the correct API call
+      showToast.success('Bills exported successfully');
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error exporting bills');
+      console.error('Error exporting bills:', error);
+      showToast.error(error.response?.data?.message || 'Error exporting bills');
     } finally {
       setExporting(false);
     }
@@ -185,10 +190,10 @@ function BuyerBillingPage() {
 
   return (
     <DashboardLayout
-      title="My Invoices"
-      subtitle="View your purchase invoices and payment history"
+      title={t('buyer.billing.myInvoices')}
+      subtitle={t('buyer.billing.subtitle')}
       actions={
-        <Button onClick={handleExportCSV} disabled={exporting} variant="outline">
+        <Button onClick={handleExportBills} disabled={exporting} variant="outline">
           <TableCellsIcon className="h-5 w-5 mr-2" />
           {exporting ? 'Exporting...' : 'Export to CSV'}
         </Button>
