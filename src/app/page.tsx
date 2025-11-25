@@ -5,13 +5,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
 import NotificationCenter from '@/components/NotificationCenter';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+
 import Button from '@/components/ui/Button';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
-import { 
-  ShoppingCartIcon, 
-  TruckIcon, 
-  ShieldCheckIcon, 
+import {
+  ShoppingCartIcon,
+  TruckIcon,
+  ShieldCheckIcon,
   GlobeAltIcon,
   SunIcon,
   MoonIcon,
@@ -36,7 +38,7 @@ export default function HomePage() {
 
   useEffect(() => {
     setIsVisible(true);
-    
+
     // Redirect logged-in users to their appropriate dashboard
     if (user && !loading) {
       if (user.role === 'farmer') {
@@ -104,7 +106,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen hero-gradient">
       {/* Navigation */}
-      <motion.nav 
+      <motion.nav
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6 }}
@@ -112,7 +114,7 @@ export default function HomePage() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <motion.div 
+            <motion.div
               className="flex items-center space-x-2"
               whileHover={{ scale: 1.05 }}
             >
@@ -123,11 +125,11 @@ export default function HomePage() {
                 KheetiiBazaar
               </h1>
             </motion.div>
-            
+
             <div className="flex items-center space-x-4">
               {/* Language Switcher */}
               <LanguageSwitcher />
-              
+
               {/* Theme Toggle */}
               <Button
                 variant="ghost"
@@ -144,7 +146,7 @@ export default function HomePage() {
 
               {/* Notifications */}
               {user && <NotificationCenter />}
-              
+
               {/* Auth Buttons */}
               {user ? (
                 <div className="flex items-center space-x-3">
@@ -177,7 +179,7 @@ export default function HomePage() {
       <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-cyan-500/10"></div>
         <div className="relative max-w-7xl mx-auto">
-          <motion.div 
+          <motion.div
             className="text-center"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
@@ -189,11 +191,12 @@ export default function HomePage() {
               <span className="text-gray-900">{t('landing.titleSecond')}</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed">
-              {t('landing.subtitle')}
+              Connect directly with local farmers, enjoy blockchain-verified transactions,
+              and experience the future of sustainable agriculture marketplace.
             </p>
-            
+
             {!user && (
-              <motion.div 
+              <motion.div
                 className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -213,17 +216,17 @@ export default function HomePage() {
                 </Link>
 
                 {/* admin  */}
-                                <Link href="/auth/register?role=admin">
+                <Link href="/auth/register?role=admin">
                   <Button size="lg" variant="outline" className="text-lg px-8 py-4">
-                    {t('landing.imAdmin')}
-    <Cog6ToothIcon className="h-5 w-5 ml-2" />
+                    I'm a Admin
+                    <Cog6ToothIcon className="h-5 w-5 ml-2" />
                   </Button>
                 </Link>
               </motion.div>
             )}
 
             {/* Stats */}
-            <motion.div 
+            <motion.div
               className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -249,7 +252,7 @@ export default function HomePage() {
       {/* Features Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <motion.div 
+          <motion.div
             className="text-center mb-16"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -260,10 +263,11 @@ export default function HomePage() {
               {t('landing.whyChoose')} <span className="gradient-text">{t('landing.kheetiiBazaar')}</span>?
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              {t('landing.whySubtitle')}
+              Experience the next generation of agricultural marketplace with cutting-edge technology
+              and farmer-first approach.
             </p>
           </motion.div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <motion.div
@@ -288,7 +292,7 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <motion.div 
+          <motion.div
             className="glass text-center p-12 rounded-3xl"
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -300,9 +304,10 @@ export default function HomePage() {
               <span className="gradient-text"> {t('landing.agriculturalJourney')}</span>?
             </h2>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              {t('landing.readySubtitle')}
+              Join thousands of farmers and buyers who are already experiencing
+              the future of sustainable agriculture.
             </p>
-            
+
             {!user && (
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/auth/register">
@@ -335,11 +340,11 @@ export default function HomePage() {
                 <h3 className="text-2xl font-bold">KheetiiBazaar</h3>
               </div>
               <p className="text-gray-400 leading-relaxed">
-                Connecting farmers and buyers with blockchain verification for a transparent, 
+                Connecting farmers and buyers with blockchain verification for a transparent,
                 sustainable agricultural marketplace.
               </p>
             </div>
-            
+
             <div>
               <h4 className="text-lg font-semibold mb-6">{t('landing.forFarmers')}</h4>
               <ul className="space-y-3 text-gray-400">
@@ -361,7 +366,7 @@ export default function HomePage() {
                 </li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="text-lg font-semibold mb-6">{t('landing.forBuyers')}</h4>
               <ul className="space-y-3 text-gray-400">
@@ -383,7 +388,7 @@ export default function HomePage() {
                 </li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="text-lg font-semibold mb-6">{t('landing.support')}</h4>
               <ul className="space-y-3 text-gray-400">
@@ -394,7 +399,7 @@ export default function HomePage() {
               </ul>
             </div>
           </div>
-          
+
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
             <p>{t('landing.copyright')}</p>
           </div>
