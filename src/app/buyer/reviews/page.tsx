@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { apiService } from '@/services/api';
-import { 
+import {
   StarIcon,
   UserIcon,
   CalendarIcon,
@@ -98,9 +98,8 @@ function ReviewsPage() {
         key={i}
         type="button"
         onClick={() => interactive && onRatingChange && onRatingChange(i + 1)}
-        className={`h-5 w-5 ${
-          i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
-        } ${interactive ? 'hover:text-yellow-400 cursor-pointer' : ''}`}
+        className={`h-5 w-5 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+          } ${interactive ? 'hover:text-yellow-400 cursor-pointer' : ''}`}
       >
         <StarIcon className="h-5 w-5" />
       </button>
@@ -117,14 +116,14 @@ function ReviewsPage() {
 
   const handleSaveEdit = () => {
     if (editingReview) {
-      setReviews(prev => prev.map(review => 
-        review._id === editingReview._id 
-          ? { 
-              ...review, 
-              rating: editForm.rating, 
-              comment: editForm.comment,
-              updatedAt: new Date().toISOString()
-            }
+      setReviews(prev => prev.map(review =>
+        review._id === editingReview._id
+          ? {
+            ...review,
+            rating: editForm.rating,
+            comment: editForm.comment,
+            updatedAt: new Date().toISOString()
+          }
           : review
       ));
       setEditingReview(null);
@@ -143,12 +142,12 @@ function ReviewsPage() {
     }
   };
 
-  const filteredReviews = reviews.filter(review => 
+  const filteredReviews = reviews.filter(review =>
     filter === 'all' || review.rating.toString() === filter
   );
 
-  const averageRating = reviews.length > 0 
-    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
+  const averageRating = reviews.length > 0
+    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
     : 0;
 
   const ratingDistribution = {
@@ -174,7 +173,7 @@ function ReviewsPage() {
 
   return (
     <DashboardLayout
-      title={t('buyer.reviews.myReviews')}
+      title={t('buyer.reviews.title')}
       subtitle={t('buyer.reviews.subtitle')}
       actions={
         <Button
@@ -326,18 +325,18 @@ function ReviewsPage() {
                             by {review.farmer.farmName}
                           </p>
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Rating
                           </label>
                           <div className="flex items-center space-x-1">
-                            {renderStars(editForm.rating, true, (rating) => 
+                            {renderStars(editForm.rating, true, (rating) =>
                               setEditForm(prev => ({ ...prev, rating }))
                             )}
                           </div>
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Comment
@@ -350,7 +349,7 @@ function ReviewsPage() {
                             placeholder="Write your review..."
                           />
                         </div>
-                        
+
                         <div className="flex justify-end space-x-2">
                           <Button
                             variant="outline"

@@ -190,8 +190,8 @@ function BuyerBillingPage() {
 
   return (
     <DashboardLayout
-      title={t('buyer.billing.myInvoices')}
-      subtitle={t('buyer.billing.subtitle')}
+      title={t('billing.myInvoices')}
+      subtitle={t('billing.subtitle')}
       actions={
         <Button onClick={handleExportBills} disabled={exporting} variant="outline">
           <TableCellsIcon className="h-5 w-5 mr-2" />

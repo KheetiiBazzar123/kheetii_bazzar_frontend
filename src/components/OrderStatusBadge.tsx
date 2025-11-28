@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { CheckCircleIcon, ClockIcon, TruckIcon, XCircleIcon, CubeIcon, PackageIcon } from '@heroicons/react/24/outline';
+// import { CheckCircleIcon, ClockIcon, TruckIcon, XCircleIcon, CubeIcon, PackageIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, ClockIcon, TruckIcon, XCircleIcon, CubeIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 
 type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'shipped' | 'delivered' | 'cancelled';
 
@@ -40,12 +41,19 @@ const statusConfig: Record<OrderStatus, {
     bgColor: 'bg-indigo-100 dark:bg-indigo-900/30',
     label: 'Shipped'
   },
+  // delivered: {
+  //   icon: PackageIcon,
+  //   color: 'text-green-700 dark:text-green-300',
+  //   bgColor: 'bg-green-100 dark:bg-green-900/30',
+  //   label: 'Delivered'
+  // },
   delivered: {
-    icon: PackageIcon,
+    icon: ArchiveBoxIcon,
     color: 'text-green-700 dark:text-green-300',
     bgColor: 'bg-green-100 dark:bg-green-900/30',
     label: 'Delivered'
   },
+
   cancelled: {
     icon: XCircleIcon,
     color: 'text-red-700 dark:text-red-300',
