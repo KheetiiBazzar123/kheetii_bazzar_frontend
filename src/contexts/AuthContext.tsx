@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (storedToken && storedUser) {
       setToken(storedToken);
       setUser(JSON.parse(storedUser));
-      
+
       // Verify token is still valid
       apiClient.getProfile()
         .then((response) => {
@@ -73,33 +73,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (data: LoginRequest) => {
     try {
       const response = await apiClient.login(data);
-      
+
       if (response.success && response.data) {
         const { user: userData, token: userToken } = response.data;
-        
+
         setUser(userData);
         setToken(userToken);
-        
+
         localStorage.setItem('token', userToken);
         localStorage.setItem('user', JSON.stringify(userData));
-        
+
         // Redirect based on role
         if (userData.role === 'farmer') {
           window.location.href = '/farmer/dashboard';
-        } 
+        }
 
         else if (userData.role === 'buyer') {
-  if (userData.email === 'amit98300@gmail.com') { 
-    const fakeAdmin = {
-      ...userData,
-      role: 'admin',
-    };
-    localStorage.setItem('user', JSON.stringify(fakeAdmin));
-    window.location.href = '/admin/dashboard';
-  } else {
-    window.location.href = '/buyer/marketplace';
-  }
-}
+          if (userData.email === 'amit98300@gmail.com') {
+            const fakeAdmin = {
+              ...userData,
+              role: 'admin',
+            };
+            localStorage.setItem('user', JSON.stringify(fakeAdmin));
+            window.location.href = '/admin/dashboard';
+          } else {
+            window.location.href = '/buyer/marketplace';
+          }
+        }
 
 
 
@@ -116,33 +116,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (data: RegisterRequest) => {
     try {
+      console.log('AuthContext: Calling register API...');
       const response = await apiClient.register(data);
-      
+
+      console.log('AuthContext: Register API response received:', response);
+
       if (response.success && response.data) {
         const { user: userData, token: userToken } = response.data;
-        
+
+        console.log('AuthContext: Setting user and token for role:', userData.role);
+
         setUser(userData);
         setToken(userToken);
-        
+
         localStorage.setItem('token', userToken);
         localStorage.setItem('user', JSON.stringify(userData));
-        
+
         // Redirect based on role
+        console.log('AuthContext: Redirecting user to dashboard...');
         if (userData.role === 'farmer') {
           window.location.href = '/farmer/dashboard';
         } else if (userData.role === 'buyer') {
           window.location.href = '/buyer/marketplace';
-        } 
-        else if(userData.role === 'admin'){
+        }
+        else if (userData.role === 'admin') {
           window.location.href = '/admin/dashboard';
         }
         else {
           window.location.href = '/dashboard';
         }
       } else {
+        console.error('AuthContext: Registration failed - invalid response:', response);
         throw new Error(response.message || 'Registration failed');
       }
     } catch (error) {
+      console.error('AuthContext: Registration error caught:', error);
       throw error;
     }
   };
@@ -151,11 +159,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Clear state
     setUser(null);
     setToken(null);
-    
+
     // Clear localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    
+
     // Optional: Call logout API endpoint to invalidate token on server
     // This would be useful for security purposes
     try {

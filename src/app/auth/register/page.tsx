@@ -7,9 +7,9 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import Button from '@/components/ui/Button';
-import { 
-  EyeIcon, 
-  EyeSlashIcon, 
+import {
+  EyeIcon,
+  EyeSlashIcon,
   ArrowLeftIcon,
   SparklesIcon,
   CheckCircleIcon,
@@ -24,7 +24,7 @@ function RegisterForm() {
   const searchParams = useSearchParams();
   const { register } = useAuth();
   const { t } = useTranslation();
-  
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -58,6 +58,7 @@ function RegisterForm() {
     }
 
     try {
+      console.log('Starting registration process...');
       await register({
         ...formData,
         role: formData.role as 'farmer' | 'buyer',
@@ -66,10 +67,37 @@ function RegisterForm() {
           zipCode: formData.address.zip
         }
       });
-      // Redirect will be handled by the AuthContext after registration
+
+      console.log('Registration successful, waiting for redirect...');
+
+      // Backup redirect mechanism in case AuthContext doesn't redirect
+      // Give AuthContext 1 second to handle the redirect, then do it manually
+      setTimeout(() => {
+        const role = formData.role;
+        console.log('Executing backup redirect for role:', role);
+
+        if (role === 'farmer') {
+          router.push('/farmer/dashboard');
+        } else if (role === 'buyer') {
+          router.push('/buyer/marketplace');
+        } else if (role === 'admin') {
+          router.push('/admin/dashboard');
+        } else {
+          router.push('/dashboard');
+        }
+      }, 1000);
+
     } catch (err: any) {
-      setError(err.message || t('register.registrationFailed'));
-    } finally {
+      console.error('Registration error:', err);
+
+      // Extract error message from various possible error structures
+      const errorMessage =
+        err?.response?.data?.message ||
+        err?.message ||
+        (typeof err === 'string' ? err : null) ||
+        t('register.registrationFailed');
+
+      setError(errorMessage);
       setLoading(false);
     }
   };
@@ -111,7 +139,7 @@ function RegisterForm() {
       icon: ShoppingCartIcon,
       color: 'from-blue-500 to-cyan-600'
     },
-        {
+    {
       value: 'admin',
       label: 'Admin',
       description: 'Purchase fresh produce from local farmers',
@@ -154,11 +182,10 @@ function RegisterForm() {
                   key={option.value}
                   type="button"
                   onClick={() => setFormData({ ...formData, role: option.value })}
-                  className={`p-6 rounded-2xl border-2 transition-all duration-200 ${
-                    formData.role === option.value
-                      ? 'border-emerald-500 bg-emerald-50'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  }`}
+                  className={`p-6 rounded-2xl border-2 transition-all duration-200 ${formData.role === option.value
+                    ? 'border-emerald-500 bg-emerald-50'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -388,10 +415,10 @@ function RegisterForm() {
             </div>
 
             <div className="flex items-start">
-              <input 
-                type="checkbox" 
-                id="terms" 
-                className="mt-1 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500" 
+              <input
+                type="checkbox"
+                id="terms"
+                className="mt-1 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
                 required
               />
               <label htmlFor="terms" className="ml-2 text-sm text-gray-600 dark:text-white">

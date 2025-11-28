@@ -28,7 +28,7 @@ class ApiService {
     options: RequestInit = {}
   ): Promise<T> {
     const token = localStorage.getItem('token');
-    
+
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
@@ -39,7 +39,7 @@ class ApiService {
     };
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new ApiError(
@@ -137,7 +137,7 @@ class ApiService {
       body: productData,
     });
   }
- 
+
 
   async deleteProduct(productId: string): Promise<ApiResponse<null>> {
     return this.request(`/farmer/products/${productId}`, { method: 'DELETE' });
@@ -201,31 +201,31 @@ class ApiService {
   //   }
   //   return this.request(`/farmer/earnings?${queryParams.toString()}`);
   // }
-async getFarmerEarnings(): Promise<ApiResponse<{
-  products: {
-    total: number;
-    active: number;
-  };
-  orders: {
-    totalOrders: number;
-    totalRevenue: number;
-    pendingOrders: number;
-    confirmedOrders: number;
-    deliveredOrders: number;
-    cancelledOrders: number;
-  };
-  monthlyEarnings: Array<{
-    _id: {
-      year: number;
-      month: number;
+  async getFarmerEarnings(): Promise<ApiResponse<{
+    products: {
+      total: number;
+      active: number;
     };
-    earnings: number;
-  }>;
-}>> {
-  return this.request(`/farmer/stats`, {
-    method: 'GET',
-  });
-}
+    orders: {
+      totalOrders: number;
+      totalRevenue: number;
+      pendingOrders: number;
+      confirmedOrders: number;
+      deliveredOrders: number;
+      cancelledOrders: number;
+    };
+    monthlyEarnings: Array<{
+      _id: {
+        year: number;
+        month: number;
+      };
+      earnings: number;
+    }>;
+  }>> {
+    return this.request(`/farmer/stats`, {
+      method: 'GET',
+    });
+  }
 
 
   // Buyer APIs
@@ -326,15 +326,16 @@ async getFarmerEarnings(): Promise<ApiResponse<{
       method: 'PATCH',
       body: JSON.stringify({ reason })
     });
+
+
   }
 
   async rateProduct(productId: string, rating: number, comment?: string): Promise<ApiResponse<{ review: Review }>> {
-    return this.request('/buyer/reviews', {
+    return this.request('/reviews', {
       method: 'POST',
       body: JSON.stringify({ product: productId, rating, comment }),
     });
   }
-
   async getBuyerReviews(params?: {
     page?: number;
     limit?: number;
@@ -345,16 +346,45 @@ async getFarmerEarnings(): Promise<ApiResponse<{
     page: number;
     pages: number;
   }>> {
-    const queryParams = new URLSearchParams();
+
+    const query = new URLSearchParams();
+
     if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
-          queryParams.append(key, value.toString());
-        }
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined) query.append(k, v.toString());
       });
     }
-    return this.request(`/buyer/reviews?${queryParams.toString()}`);
+
+    return this.request(`/buyer/reviews?${query.toString()}`);
   }
+
+
+  // async getBuyerReviews(params?: {
+  //   page?: number;
+  //   limit?: number;
+  //   rating?: number;
+  // }): Promise<ApiResponse<{
+  //   reviews: Review[];
+  //   total: number;
+  //   page: number;
+  //   pages: number;
+  // }>> {
+  //   const queryParams = new URLSearchParams();
+  //   if (params) {
+  //     Object.entries(params).forEach(([key, value]) => {
+  //       if (value !== undefined) {
+  //         queryParams.append(key, value.toString());
+  //       }
+  //     });
+  //   }
+  //   // return this.request(`/buyer/reviews?${queryParams.toString()}`);
+  //   // return this.request(`/reviews?${queryParams.toString()}`);
+  //   return this.request(`/v1/buyer/reviews?${queryParams.toString()}`);
+
+
+
+
+  // }
 
   // Notification APIs
   async getNotifications(params?: {
@@ -440,7 +470,7 @@ async getFarmerEarnings(): Promise<ApiResponse<{
   async uploadImage(file: File): Promise<ApiResponse<{ url: string }>> {
     const formData = new FormData();
     formData.append('image', file);
-    
+
     return this.request('/upload/image', {
       method: 'POST',
       headers: {}, // Let browser set Content-Type for FormData
@@ -532,43 +562,82 @@ async getFarmerEarnings(): Promise<ApiResponse<{
     });
   }
 
+  // Wishlist
+  async getWishlist(): Promise<ApiResponse<any>> {
+    return this.request('/wishlist');
+  }
+
+  async addToWishlist(productId: string): Promise<ApiResponse<any>> {
+    return this.request('/wishlist/add/' + productId, {
+      method: 'POST',
+    });
+  }
+
+  async removeFromWishlist(productId: string): Promise<ApiResponse<any>> {
+    return this.request(`/wishlist/remove/${productId}`, { method: 'DELETE' });
+  }
+
+  async clearWishlist(): Promise<ApiResponse<any>> {
+    return this.request('/wishlist/clear', { method: 'DELETE' });
+  }
+
+  async shareWishlist(): Promise<ApiResponse<any>> {
+    return this.request('/wishlist/share', { method: 'POST' });
+  }
+
+  async getSharedWishlist(token: string): Promise<ApiResponse<any>> {
+    return this.request(`/wishlist/shared/${token}`);
+  }
+
+
   // Coupons
   async getAvailableCoupons(): Promise<ApiResponse<any>> {
     return this.request('/buyer/coupons/available');
   }
 
+
   // Wishlist
-  async getWishlist(): Promise<ApiResponse<any>> {
-    return this.request('/buyer/wishlist');
-  }
+  // async getWishlist(): Promise<ApiResponse<any>> {
+  //   return this.request('/buyer/wishlist');
+  // }
 
-  async addToWishlist(productId: string): Promise<ApiResponse<any>> {
-    return this.request('/buyer/wishlist', {
-      method: 'POST',
-      body: JSON.stringify({ productId })
-    });
-  }
+  // async addToWishlist(productId: string): Promise<ApiResponse<any>> {
+  //   return this.request('/buyer/wishlist', {
+  //     method: 'POST',
+  //     body: JSON.stringify({ productId })
+  //   });
+  // }
 
+  // async getBuyerPayments(params?: any): Promise<PaginatedResponse<any>> {
+  //   const queryParams = new URLSearchParams(params);
+  //   // return this.request(`/buyer/payments?${queryParams.toString()}`);
+  //     return this.request(`/payment/history?${queryParams.toString()}`);
+
+  // }
   async getBuyerPayments(params?: any): Promise<PaginatedResponse<any>> {
     const queryParams = new URLSearchParams(params);
-    return this.request(`/buyer/payments?${queryParams.toString()}`);
+    return this.request(`/payment/history?${queryParams.toString()}`);
   }
 
-  async removeFromWishlist(productId: string): Promise<ApiResponse<any>> {
-    return this.request(`/buyer/wishlist/${productId}`, { method: 'DELETE' });
-  }
 
-  async clearWishlist(): Promise<ApiResponse<any>> {
-    return this.request('/buyer/wishlist/clear', { method: 'DELETE' });
-  }
+  // async removeFromWishlist(productId: string): Promise<ApiResponse<any>> {
+  //   return this.request(`/buyer/wishlist/${productId}`, { method: 'DELETE' });
+  // }
 
-  async shareWishlist(): Promise<ApiResponse<any>> {
-    return this.request('/buyer/wishlist/share', { method: 'POST' });
-  }
+  // async clearWishlist(): Promise<ApiResponse<any>> {
 
-  async getSharedWishlist(token: string): Promise<ApiResponse<any>> {
-    return this.request(`/buyer/wishlist/shared/${token}`);
-  }
+
+
+  //   return this.request('/buyer/wishlist/clear', { method: 'DELETE' });
+  // }
+
+  // async shareWishlist(): Promise<ApiResponse<any>> {
+  //   return this.request('/buyer/wishlist/share', { method: 'POST' });
+  // }
+
+  // async getSharedWishlist(token: string): Promise<ApiResponse<any>> {
+  //   return this.request(`/buyer/wishlist/shared/${token}`);
+  // }
 
   // Loyalty Points
   async getLoyaltyAccount(): Promise<ApiResponse<any>> {
@@ -589,8 +658,49 @@ async getFarmerEarnings(): Promise<ApiResponse<{
     return this.request('/buyer/returns');
   }
 
+
+  // Buyer Billing
+  async getBuyerBills(): Promise<ApiResponse<any>> {
+    return this.request('/billing/buyer/my-bills');
+  }
+
+  async downloadBuyerBillPDF(billId: string) {
+    return this.request(`/billing/buyer/${billId}/pdf`);
+  }
+
+  async exportBuyerBillsCSV() {
+    // return this.downloadCSV(`/buyer/export/csv`);
+    return this.downloadCSV(`/billing/buyer/export/csv`);
+
+  }
+
+  async downloadCSV(endpoint: string) {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'GET',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` })
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to download CSV");
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "bills.csv";
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+
   // ========== PHASE 1: ADMIN API METHODS ==========
-  
+
   async getAdminDashboardStats(): Promise<ApiResponse<any>> {
     return this.request('/admin/dashboard/stats');
   }
@@ -644,7 +754,7 @@ async getFarmerEarnings(): Promise<ApiResponse<{
   }
 
   // ========== PHASE 2: ANALYTICS API METHODS ==========
-  
+
   async getRevenueAnalytics(params?: any): Promise<ApiResponse<any>> {
     const queryParams = new URLSearchParams(params);
     return this.request(`/admin/analytics/revenue?${queryParams.toString()}`);
@@ -669,7 +779,7 @@ async getFarmerEarnings(): Promise<ApiResponse<{
   }
 
   // ========== PHASE 3: SYSTEM MANAGEMENT API METHODS ==========
-  
+
   // Settings Management
   async getPlatformSettings(): Promise<ApiResponse<any>> {
     return this.request('/admin/settings');
@@ -735,6 +845,7 @@ async getFarmerEarnings(): Promise<ApiResponse<{
     });
   }
 
+
   // ========== PHASE 4: FINANCIAL MANAGEMENT API METHODS ==========
 
   // Billing & Finance
@@ -782,6 +893,8 @@ async getFarmerEarnings(): Promise<ApiResponse<{
   }
 
 }
+
+
 
 export const apiService = new ApiService();
 export { ApiError };

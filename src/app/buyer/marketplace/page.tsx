@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { 
+import {
   MagnifyingGlassIcon,
   FunnelIcon,
   HeartIcon,
@@ -111,7 +111,7 @@ function BuyerMarketplace() {
     search: ''
   });
   const [showFilters, setShowFilters] = useState(false);
-  const [cart, setCart] = useState<{[key: string]: number}>({});
+  const [cart, setCart] = useState<{ [key: string]: number }>({});
 
   const categories = [
     'vegetables', 'fruits', 'grains', 'spices', 'herbs', 'dairy', 'poultry', 'seafood', 'other'
@@ -127,109 +127,109 @@ function BuyerMarketplace() {
     fetchProducts();
   }, [filters]);
   const fetchProducts = async () => {
-  try {
-    const params = {
-      page: 1,
-      limit: 50,
-      ...Object.fromEntries(
-        Object.entries(filters).filter(([key, value]) => 
-          value !== '' && value !== null && value !== undefined
-        )
-      ),
-      minPrice: filters.minPrice ? parseInt(filters.minPrice) : undefined,
-      maxPrice: filters.maxPrice ? parseInt(filters.maxPrice) : undefined,
-      rating: filters.rating ? parseInt(filters.rating) : undefined,
-    };
+    try {
+      const params = {
+        page: 1,
+        limit: 50,
+        ...Object.fromEntries(
+          Object.entries(filters).filter(([key, value]) =>
+            value !== '' && value !== null && value !== undefined
+          )
+        ),
+        minPrice: filters.minPrice ? parseInt(filters.minPrice) : undefined,
+        maxPrice: filters.maxPrice ? parseInt(filters.maxPrice) : undefined,
+        rating: filters.rating ? parseInt(filters.rating) : undefined,
+      };
 
-    const response = await apiService.getMarketplaceProducts(params);
-    
-    console.log("API Raw Response:", response);
+      const response = await apiService.getMarketplaceProducts(params);
 
-    if (response.success && Array.isArray(response.data)) {
-      setProducts(response.data); 
-    } else {
-      console.warn("No product data found in response");
-      setProducts([]);
+      console.log("API Raw Response:", response);
+
+      if (response.success && Array.isArray(response.data)) {
+        setProducts(response.data);
+      } else {
+        console.warn("No product data found in response");
+        setProducts([]);
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error(' Error fetching products:', error);
+      setLoading(false);
     }
-
-    setLoading(false);
-  } catch (error) {
-    console.error(' Error fetching products:', error);
-    setLoading(false);
-  }
-};
+  };
 
 
-//   const fetchProducts = async () => {
-  
+  //   const fetchProducts = async () => {
 
-//     try {
-//       const params = {
-//         page: 1,
-//         limit: 50,
-//         ...Object.fromEntries(
-//           Object.entries(filters).filter(([key, value]) => 
-//             value !== '' && value !== null && value !== undefined
-//           )
-//         ),
-//         minPrice: filters.minPrice ? parseInt(filters.minPrice) : undefined,
-//         maxPrice: filters.maxPrice ? parseInt(filters.maxPrice) : undefined,
-//         rating: filters.rating ? parseInt(filters.rating) : undefined,
-//       };
 
-//       const response = await apiService.getMarketplaceProducts(params);
-//         console.log("API Raw Response:", response);
-// console.log("Response Data:", response.data);
-      
-//       if (response.success && response.data) {
-//         setProducts(response.data.products);
-//       }
-      
-//       setLoading(false);
-//     } catch (error) {
-//       console.error('Error fetching products:', error);
-//       setLoading(false);
-//     }
-//   };
+  //     try {
+  //       const params = {
+  //         page: 1,
+  //         limit: 50,
+  //         ...Object.fromEntries(
+  //           Object.entries(filters).filter(([key, value]) => 
+  //             value !== '' && value !== null && value !== undefined
+  //           )
+  //         ),
+  //         minPrice: filters.minPrice ? parseInt(filters.minPrice) : undefined,
+  //         maxPrice: filters.maxPrice ? parseInt(filters.maxPrice) : undefined,
+  //         rating: filters.rating ? parseInt(filters.rating) : undefined,
+  //       };
 
-const handlePlaceOrder = async (product: Product) => {
-  try {
-   
-    const orderData = {
-      products: [
-        {
-          product: product._id, 
-          quantity: cart[product._id] || 1, 
+  //       const response = await apiService.getMarketplaceProducts(params);
+  //         console.log("API Raw Response:", response);
+  // console.log("Response Data:", response.data);
+
+  //       if (response.success && response.data) {
+  //         setProducts(response.data.products);
+  //       }
+
+  //       setLoading(false);
+  //     } catch (error) {
+  //       console.error('Error fetching products:', error);
+  //       setLoading(false);
+  //     }
+  //   };
+
+  const handlePlaceOrder = async (product: Product) => {
+    try {
+
+      const orderData = {
+        products: [
+          {
+            product: product._id,
+            quantity: cart[product._id] || 1,
+          },
+        ],
+        shippingAddress: {
+          street: '123 Main Street',
+          city: 'Mumbai',
+          state: 'Maharashtra',
+          zipCode: '400001',
+          country: 'India',
         },
-      ],
-      shippingAddress: {
-        street: '123 Main Street',
-        city: 'Mumbai',
-        state: 'Maharashtra',
-        zipCode: '400001',
-        country: 'India',
-      },
-      paymentMethod: 'cod' as 'cod' | 'card' | 'upi' | 'wallet', 
-      notes: `Order for product: ${product.name}`,
-    };
+        paymentMethod: 'cod' as 'cod' | 'card' | 'upi' | 'wallet',
+        notes: `Order for product: ${product.name}`,
+      };
 
-    // API call
-    const response = await apiService.createOrder(orderData);
+      // API call
+      const response = await apiService.createOrder(orderData);
 
-    if (response.success) {
-      showToast.success('Order placed successfully!');
-      window.location.href = "/buyer/orders"; 
+      if (response.success) {
+        showToast.success('Order placed successfully!');
+        window.location.href = "/buyer/orders";
 
-      console.log('Order Response:', response.data ?? response);
-      
-    } else {
-      showToast.error(response.message || 'Failed to place order!');
+        console.log('Order Response:', response.data ?? response);
+
+      } else {
+        showToast.error(response.message || 'Failed to place order!');
+      }
+    } catch (error) {
+      console.error(' Error placing order:', error);
+      showToast.error('Something went wrong while placing your order.');
     }
-  } catch (error) {
-    console.error(' Error placing order:', error);
-    showToast.error('Something went wrong while placing your order.');
-  }
-};
+  };
 
 
 
@@ -272,7 +272,7 @@ const handlePlaceOrder = async (product: Product) => {
       case 'fresh': return 'text-green-600 bg-green-100';
       case 'good': return 'text-yellow-600 bg-yellow-100';
       case 'average': return 'text-orange-600 bg-orange-100';
-      primary: return 'text-gray-600 bg-gray-100';
+        primary: return 'text-gray-600 bg-gray-100';
     }
   };
 
@@ -283,7 +283,7 @@ const handlePlaceOrder = async (product: Product) => {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
-  
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center hero-gradient">
@@ -300,7 +300,8 @@ const handlePlaceOrder = async (product: Product) => {
         <Link href="/buyer/orders">
           <Button variant="outline">
             <ShoppingCartIcon className="h-5 w-5 mr-2" />
-            My Orders
+            {/* My Orders */}
+            {t('dashboard.buyer.myOrders')}
           </Button>
         </Link>
       }
@@ -412,17 +413,17 @@ const handlePlaceOrder = async (product: Product) => {
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {(products??[]).map((product, index) => (
+          {(products ?? []).map((product, index) => (
             <motion.div
               key={product._id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
             >
-              
-              
-              
-              
+
+
+
+
               <Card className="h-full hover:shadow-lg transition-shadow duration-200">
                 <CardContent className="p-0">
                   {/* Product Image */}
@@ -449,7 +450,7 @@ const handlePlaceOrder = async (product: Product) => {
                     <div className="mb-3">
                       <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 line-clamp-1">{product.name}</h3>
                       <p className="text-sm text-gray-600 line-clamp-2 mb-2">{product.description}</p>
-                      
+
                       {/* Rating */}
                       <div className="flex items-center space-x-1 mb-2">
                         <div className="flex items-center">
@@ -470,14 +471,14 @@ const handlePlaceOrder = async (product: Product) => {
                       </div>
 
 
-      {/* Location */}
-      <div className="flex items-center space-x-1 text-sm text-gray-600 mb-2">
-        <MapPinIcon className="h-4 w-4" />
-<span>
-<span>{product.location?.city}, {product.location?.state}</span>
-</span>
-      </div>
-      
+                      {/* Location */}
+                      <div className="flex items-center space-x-1 text-sm text-gray-600 mb-2">
+                        <MapPinIcon className="h-4 w-4" />
+                        <span>
+                          <span>{product.location?.city}, {product.location?.state}</span>
+                        </span>
+                      </div>
+
 
                       {/* Harvest Info */}
                       <div className="flex items-center space-x-1 text-sm text-gray-600 mb-3">
@@ -492,7 +493,7 @@ const handlePlaceOrder = async (product: Product) => {
                         <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">₹{product.price}</p>
                         <p className="text-sm text-gray-600">per {product.unit}</p>
                       </div>
-                      
+
                       <div className="flex items-center space-x-2">
                         {cart[product._id] ? (
                           <div className="flex items-center space-x-2">
@@ -535,11 +536,11 @@ const handlePlaceOrder = async (product: Product) => {
 
 
                     {/* order place  */}
-                                        <div className="mt-3">
+                    <div className="mt-3">
                       <Button variant="outline" className="w-full"
                         onClick={() => handlePlaceOrder(product)} // 👈 Function call here
->
-                       <ShoppingCartIcon className="h-4 w-4 mr-1" />
+                      >
+                        <ShoppingCartIcon className="h-4 w-4 mr-1" />
                         Order Place
                       </Button>
                     </div>

@@ -11,7 +11,7 @@ import { apiService } from '@/services/api';
 import showToast from '@/lib/toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { 
+import {
   PlusIcon,
   ChartBarIcon,
   ShoppingCartIcon,
@@ -88,13 +88,13 @@ function FarmerDashboard() {
   const fetchDashboardData = async () => {
     try {
       const response = await apiClient.getFarmerDashboard();
-      
+
       if (response.success && response.data) {
         setStats(response.data.stats);
         setRecentOrders(response.data.recentOrders);
         setTopProducts(response.data.topProducts);
       }
-      
+
       setLoading(false);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -104,13 +104,13 @@ function FarmerDashboard() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'text-yellow-600 bg-yellow-100';
-      case 'confirmed': return 'text-blue-600 bg-blue-100';
-      case 'preparing': return 'text-purple-600 bg-purple-100';
-      case 'shipped': return 'text-indigo-600 bg-indigo-100';
-      case 'delivered': return 'text-green-600 bg-green-100';
-      case 'cancelled': return 'text-red-600 bg-red-100';
-      primary: return 'text-gray-600 bg-gray-100';
+      case 'pending': return 'text-yellow-700 bg-yellow-100 dark:text-yellow-300 dark:bg-yellow-900/30';
+      case 'confirmed': return 'text-blue-700 bg-blue-100 dark:text-blue-300 dark:bg-blue-900/30';
+      case 'preparing': return 'text-purple-700 bg-purple-100 dark:text-purple-300 dark:bg-purple-900/30';
+      case 'shipped': return 'text-indigo-700 bg-indigo-100 dark:text-indigo-300 dark:bg-indigo-900/30';
+      case 'delivered': return 'text-green-700 bg-green-100 dark:text-green-300 dark:bg-green-900/30';
+      case 'cancelled': return 'text-red-700 bg-red-100 dark:text-red-300 dark:bg-red-900/30';
+      default: return 'text-gray-700 bg-gray-100 dark:text-gray-300 dark:bg-gray-800';
     }
   };
 
@@ -122,7 +122,7 @@ function FarmerDashboard() {
       case 'shipped': return <TruckIcon className="h-4 w-4" />;
       case 'delivered': return <CheckCircleIcon className="h-4 w-4" />;
       case 'cancelled': return <XCircleIcon className="h-4 w-4" />;
-      primary: return <ClockIcon className="h-4 w-4" />;
+      default: return <ClockIcon className="h-4 w-4" />;
     }
   };
 
@@ -143,8 +143,8 @@ function FarmerDashboard() {
 
   return (
     <DashboardLayout
-      title={t('dashboard.farmer.title')}
-      subtitle={t('dashboard.farmer.subtitle')}
+      title={t('farmer.dashboard.title')}
+      subtitle={t('farmer.dashboard.welcomeBack')}
       actions={
         <div className="flex items-center space-x-4">
           <Button onClick={toggleTheme} variant="outline">
@@ -160,11 +160,6 @@ function FarmerDashboard() {
       }
     >
       <div className="max-w-7xl mx-auto">
-        {/* Dark Mode Test */}
-        <div className="mb-8">
-          <DarkModeTest />
-        </div>
-        
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <motion.div
@@ -179,8 +174,8 @@ function FarmerDashboard() {
                     <ChartBarIcon className="h-6 w-6 text-blue-600" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('farmer.dashboard.totalProducts')}</p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.totalProducts}</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{t('farmer.dashboard.totalProducts')}</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalProducts}</p>
                   </div>
                 </div>
               </CardContent>
@@ -199,8 +194,8 @@ function FarmerDashboard() {
                     <CheckCircleIcon className="h-6 w-6 text-green-600" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('farmer.dashboard.activeProducts')}</p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.activeProducts}</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{t('farmer.dashboard.activeProducts')}</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.activeProducts}</p>
                   </div>
                 </div>
               </CardContent>
@@ -219,8 +214,8 @@ function FarmerDashboard() {
                     <ShoppingCartIcon className="h-6 w-6 text-purple-600" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('farmer.dashboard.totalOrders')}</p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.totalOrders}</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{t('farmer.dashboard.totalOrders')}</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalOrders}</p>
                   </div>
                 </div>
               </CardContent>
@@ -239,8 +234,8 @@ function FarmerDashboard() {
                     <ClockIcon className="h-6 w-6 text-yellow-600" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('farmer.dashboard.pendingOrders')}</p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.pendingOrders}</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{t('farmer.dashboard.pendingOrders')}</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.pendingOrders}</p>
                   </div>
                 </div>
               </CardContent>
@@ -321,7 +316,7 @@ function FarmerDashboard() {
                 </div>
                 <div className="mt-4">
                   <Link href="/farmer/orders">
-                  <Button variant="outline" className="w-full">{t('farmer.dashboard.viewAllOrders')}</Button>
+                    <Button variant="outline" className="w-full">{t('farmer.dashboard.viewAllOrders')}</Button>
                   </Link>
                 </div>
               </CardContent>
@@ -384,7 +379,7 @@ function FarmerDashboard() {
                 </div>
                 <div className="mt-4">
                   <Link href="/farmer/products">
-                  <Button variant="outline" className="w-full">{t('farmer.dashboard.manageProducts')}</Button>
+                    <Button variant="outline" className="w-full">{t('farmer.dashboard.manageProducts')}</Button>
                   </Link>
                 </div>
               </CardContent>
