@@ -1,0 +1,84 @@
+/* Mobile-First Global Fixes */
+
+/* Prevent horizontal scroll */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Ensure all images are responsive */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Base font size for mobile (prevents iOS zoom) */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+/* Mobile-friendly inputs */
+@media (max-width: 768px) {
+  input, select, textarea {
+    min-height: 48px;
+    padding: 12px 16px;
+  }
+
+  /* Larger touch targets for buttons */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 16px;
+  }
+
+  /* Fix modal on mobile */
+  .modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  /* Ensure dropdowns are scrollable */
+  select {
+    max-height: 300px;
+  }
+
+  /* Fix table overflow */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* Better spacing on mobile */
+  .container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* Touch-friendly link spacing */
+a {
+  padding: 8px;
+  margin: -8px;
+  display: inline-block;
+}
+
+/* Fix long text */
+.truncate-mobile {
+  @apply truncate max-w-full;
+}
+
+@media (max-width: 640px) {
+  /* Smaller text on very small screens */
+  h1 {
+    font-size: 1.5rem !important;
+  }
+  
+  h2 {
+    font-size: 1.25rem !important;
+  }
+
+  h3 {
+    font-size: 1.125rem !important;
+  }
+}

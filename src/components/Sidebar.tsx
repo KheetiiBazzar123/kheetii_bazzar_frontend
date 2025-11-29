@@ -253,6 +253,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       icon: HomeIcon
     },
     {
+      name: t('sidebar.users'),
+      href: '/admin/users',
+      icon: UserGroupIcon
+    },
+    {
       name: t('sidebar.products'),
       href: '/admin/products',
       icon: BuildingStorefrontIcon,
@@ -273,16 +278,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       ]
     },
     {
-      name: t('sidebar.settings'),
-      href: '/admin/settings',
-      icon: Cog6ToothIcon
-    },
-    {
-      name: t('sidebar.moderation'),
-      href: '/admin/moderation',
-      icon: ShieldCheckIcon
-    },
-    {
       name: t('sidebar.analytics'),
       href: '/admin/analytics',
       icon: ChartBarIcon
@@ -296,6 +291,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       name: t('sidebar.coupons'),
       href: '/admin/coupons',
       icon: TicketIcon
+    },
+    {
+      name: t('sidebar.moderation'),
+      href: '/admin/moderation',
+      icon: ShieldCheckIcon
+    },
+    {
+      name: t('sidebar.settings'),
+      href: '/admin/settings',
+      icon: Cog6ToothIcon
     },
     // {
     //   name: 'Reviews',

@@ -1,0 +1,74 @@
+/* Mobile Optimization Utility Classes */
+
+/* Touch targets - Minimum 44x44px (Apple Guidelines) */
+.touch-target {
+  @apply min-w-[44px] min-h-[44px];
+}
+
+.touch-target-sm {
+  @apply min-w-[48px] min-h-[48px];
+}
+
+.touch-target-lg {
+  @apply min-w-[56px] min-h-[56px];
+}
+
+/* Mobile-friendly buttons */
+.btn-mobile {
+  @apply touch-target px-4 py-3;
+}
+
+/* Mobile-friendly inputs */
+.input-mobile {
+  @apply h-12 text-base; /* 16px prevents zoom on iOS */
+}
+
+/* Mobile spacing */
+.mobile-spacing {
+  @apply p-4 sm:p-6 lg:p-8;
+}
+
+.mobile-gap {
+  @apply gap-3 sm:gap-4 lg:gap-6;
+}
+
+/* Mobile typography */
+.text-mobile-title {
+  @apply text-xl sm:text-2xl lg:text-3xl;
+}
+
+.text-mobile-body {
+  @apply text-sm sm:text-base;
+}
+
+/* Prevent horizontal scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Touch-friendly dropdowns */
+.dropdown-mobile {
+  @apply h-12 px-4 text-base;
+}
+
+/* Mobile-safe z-index layers */
+.z-mobile-header {
+  @apply z-30;
+}
+
+.z-mobile-drawer {
+  @apply z-40;
+}
+
+.z-mobile-overlay {
+  @apply z-40;
+}
+
+.z-mobile-modal {
+  @apply z-50;
+}
