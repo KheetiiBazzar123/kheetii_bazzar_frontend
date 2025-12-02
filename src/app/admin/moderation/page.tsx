@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import Button from '@/components/ui/Button';
 import showToast from '@/lib/toast';
 import { useTranslation } from 'react-i18next';
+
 import {
   ShieldCheckIcon, // Keep ShieldCheckIcon as it's used in JSX
   ExclamationTriangleIcon,
@@ -17,6 +18,7 @@ import {
   EyeIcon
 } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
+
 
 interface ModerationItem {
   _id: string;
@@ -34,6 +36,8 @@ function AdminModerationPage() {
   const [activeTab, setActiveTab] = useState<'queue' | 'reports'>('queue');
   const [moderationQueue, setModerationQueue] = useState<ModerationItem[]>([]);
   const [reports, setReports] = useState<any[]>([]);
+  const { t } = useTranslation();
+
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -163,22 +167,20 @@ function AdminModerationPage() {
           <nav className="-mb-px flex space-x-8">
             <button
               onClick={() => { setActiveTab('queue'); setPage(1); }}
-              className={`${
-                activeTab === 'queue'
-                  ? 'border-emerald-500 text-emerald-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center`}
+              className={`${activeTab === 'queue'
+                ? 'border-emerald-500 text-emerald-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center`}
             >
               <ShieldCheckIcon className="h-5 w-5 mr-2" />
               {t('admin.moderation.moderationQueue')} ({moderationQueue.length})
             </button>
             <button
               onClick={() => { setActiveTab('reports'); setPage(1); }}
-              className={`${
-                activeTab === 'reports'
-                  ? 'border-emerald-500 text-emerald-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center`}
+              className={`${activeTab === 'reports'
+                ? 'border-emerald-500 text-emerald-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center`}
             >
               <ExclamationTriangleIcon className="h-5 w-5 mr2" />
               {t('admin.moderation.reports')} ({reports.length})

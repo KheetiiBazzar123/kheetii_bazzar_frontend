@@ -6,9 +6,6 @@ import { withAdminProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { apiClient } from '@/lib/api';
-import showToast from '@/lib/toast';
-import { useTranslation } from 'react-i18next';
 import {
   PlusIcon,
   PencilIcon,
@@ -20,7 +17,8 @@ import {
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-
+import { apiClient } from '@/lib/api';
+import { apiService } from '@/services/api';
 
 interface Product {
   _id: string;
@@ -41,19 +39,13 @@ interface Product {
 }
 
 function AdminProducts() {
-  const { t } = useTranslation();
   const { user } = useAuth();
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(12);
-  const [totalPages, setTotalPages] = useState(1);
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
 
   const categories = [
     'vegetables', 'fruits', 'grains', 'spices', 'herbs', 'dairy', 'meat', 'other'
@@ -63,25 +55,21 @@ function AdminProducts() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      // Admin should get all products, not just farmer's products
-      const response = await apiClient.getProducts({
-        page: currentPage,
-        limit: itemsPerPage,
-        category: selectedCategory !== 'all' ? selectedCategory : undefined,
-        search: searchQuery || undefined
-      });
-      
-      if (response.success && response.data) {
-        setProducts(response.data);
-        setTotalPages(response.pagination?.pages || 1);
+      const response: any = await apiService.getAdminProducts({ limit: 200 });
+
+      if (response?.success && Array.isArray(response.data?.data)) {
+        setProducts(response.data.data);
+      } else {
+        setProducts([]);
       }
-    } catch (error: any) {
-      console.error('Error fetching products:', error);
-      showToast.error(error.message || 'Failed to load products');
+    } catch (error) {
+      console.error('Error fetching admin products:', error);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchProducts();
@@ -164,13 +152,13 @@ function AdminProducts() {
 
   return (
     <DashboardLayout
-      title={t('products.adminTitle')}
-      subtitle={t('products.adminSubtitle')}
+      title="Admin Product Management"
+      subtitle="View, Edit, and Manage all marketplace products"
       actions={
         <Link href="/admin/products/new">
-          <Button onClick={() => router.push('/admin/products/new')} className="btn-primary">
+          <Button className="btn-primary">
             <PlusIcon className="h-5 w-5 mr-2" />
-            {t('products.addProduct')}
+            Add Product
           </Button>
         </Link>
       }
@@ -182,9 +170,9 @@ function AdminProducts() {
             <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-                  placeholder={t('products.searchPlaceholder')}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
             />
           </div>
@@ -193,7 +181,7 @@ function AdminProducts() {
             onChange={(e) => setFilterCategory(e.target.value)}
             className="md:w-60 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
           >
-            <option value="all">{t('products.allCategories')}</option>
+            <option value="">All Categories</option>
             {categories.map((c) => (
               <option key={c} value={c} className="capitalize">
                 {c}
@@ -224,11 +212,10 @@ function AdminProducts() {
                       <span className="text-4xl">📦</span>
                     )}
                     <div
-                      className={`absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-medium ${
-                        product.isAvailable
-                          ? 'bg-green-100 text-green-600'
-                          : 'bg-red-100 text-red-600'
-                      }`}
+                      className={`absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-medium ${product.isAvailable
+                        ? 'bg-green-100 text-green-600'
+                        : 'bg-red-100 text-red-600'
+                        }`}
                     >
                       {product.isAvailable ? 'Available' : 'Unavailable'}
                     </div>

@@ -7,7 +7,6 @@ import { withAdminProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import DarkModeTest from '@/components/DarkModeTest';
 import { apiService } from '@/services/api';
-import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import {
@@ -66,7 +65,6 @@ interface TopProduct {
 }
 
 function AdminDashboard() {
-  const { t } = useTranslation();
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
@@ -80,47 +78,82 @@ function AdminDashboard() {
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
   const [loading, setLoading] = useState(true);
-useEffect(() => {
-  // Temporary: use hard-coded mock data only (no API calls)
-  const t = setTimeout(() => {
-    setStats({
-      totalProducts: 128,
-      activeProducts: 102,
-      totalOrders: 542,
-      pendingOrders: 12,
-      totalEarnings: 254320
-    });
+  // useEffect(() => {
+  //   // Temporary: use hard-coded mock data only (no API calls)
+  //   const t = setTimeout(() => {
+  //     setStats({
+  //       totalProducts: 128,
+  //       activeProducts: 102,
+  //       totalOrders: 542,
+  //       pendingOrders: 12,
+  //       totalEarnings: 254320
+  //     });
 
-    setRecentOrders([
-      {
-        _id: 'ord_1',
-        buyer: { firstName: 'Ravi', lastName: 'Kumar', email: 'ravi@example.com' },
-        products: [{ product: { name: 'Fresh Mangoes', price: 200, images: [] }, quantity: 5, totalPrice: 1000 }],
-        totalAmount: 1000,
-        status: 'delivered',
-        createdAt: new Date().toISOString()
-      },
-      {
-        _id: 'ord_2',
-        buyer: { firstName: 'Anita', lastName: 'Sharma', email: 'anita@example.com' },
-        products: [{ product: { name: 'Organic Wheat', price: 150, images: [] }, quantity: 3, totalPrice: 450 }],
-        totalAmount: 450,
-        status: 'pending',
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString()
+  //     setRecentOrders([
+  //       {
+  //         _id: 'ord_1',
+  //         buyer: { firstName: 'Ravi', lastName: 'Kumar', email: 'ravi@example.com' },
+  //         products: [{ product: { name: 'Fresh Mangoes', price: 200, images: [] }, quantity: 5, totalPrice: 1000 }],
+  //         totalAmount: 1000,
+  //         status: 'delivered',
+  //         createdAt: new Date().toISOString()
+  //       },
+  //       {
+  //         _id: 'ord_2',
+  //         buyer: { firstName: 'Anita', lastName: 'Sharma', email: 'anita@example.com' },
+  //         products: [{ product: { name: 'Organic Wheat', price: 150, images: [] }, quantity: 3, totalPrice: 450 }],
+  //         totalAmount: 450,
+  //         status: 'pending',
+  //         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString()
+  //       }
+  //     ]);
+
+  //     setTopProducts([
+  //       { _id: 'p1', name: 'Fresh Mangoes', rating: 4.8, reviewCount: 128, price: 200, images: [] },
+  //       { _id: 'p2', name: 'Organic Wheat', rating: 4.6, reviewCount: 89, price: 150, images: [] },
+  //       { _id: 'p3', name: 'Honey (500g)', rating: 4.5, reviewCount: 74, price: 300, images: [] }
+  //     ]);
+
+  //     setLoading(false);
+  //   }, 500);
+
+  //   return () => clearTimeout(t);
+  // }, []);
+  useEffect(() => {
+    async function fetchDashboard() {
+      try {
+        setLoading(true);
+
+        // 1. Stats
+        const statsRes: any = await apiService.getAdminDashboardStats();
+        setStats({
+          totalProducts: statsRes.data.products.total,
+          activeProducts: statsRes.data.products.available,
+          totalOrders: statsRes.data.orders.total,
+          pendingOrders: statsRes.data.orders.pending,
+          totalEarnings: statsRes.data.revenue.total,
+        });
+
+        // 2. Orders
+        const orderRes: any = await apiService.getAdminOrders({ limit: 5 });
+        setRecentOrders(orderRes.data?.data || []);
+
+        // 3. Top Products
+        const topRes: any = await apiService.getTopSellingProducts({ limit: 5 });
+        setTopProducts(topRes.data?.data || topRes.data || []);
+
+        setLoading(false);
+
+      } catch (error) {
+        console.error("Dashboard Fetch Error:", error);
+        setLoading(false);
       }
-    ]);
+    }
 
-    setTopProducts([
-      { _id: 'p1', name: 'Fresh Mangoes', rating: 4.8, reviewCount: 128, price: 200, images: [] },
-      { _id: 'p2', name: 'Organic Wheat', rating: 4.6, reviewCount: 89, price: 150, images: [] },
-      { _id: 'p3', name: 'Honey (500g)', rating: 4.5, reviewCount: 74, price: 300, images: [] }
-    ]);
+    fetchDashboard();
+  }, []);
 
-    setLoading(false);
-  }, 500);
 
-  return () => clearTimeout(t);
-}, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -159,20 +192,20 @@ useEffect(() => {
 
   return (
     <DashboardLayout
-      title={t('dashboard.admin.title')}
-      subtitle={t('dashboard.admin.subtitle', { name: user?.firstName || '' })}
+      title="Admin Dashboard"
+      subtitle={`Welcome back, Admin ${user?.firstName || ''}!`}
       actions={
         <div className="flex items-center space-x-4">
           <Button onClick={toggleTheme} variant="outline">
             Toggle Theme: {theme}
-          </Button>
+          </Button >
           <Link href="/admin/products/new">
             <Button className="btn-primary">
               <PlusIcon className="h-5 w-5 mr-2" />
               Add Product
             </Button>
           </Link>
-        </div>
+        </div >
       }
     >
       <div className="max-w-7xl mx-auto">
@@ -348,7 +381,7 @@ useEffect(() => {
           </motion.div>
         </div>
       </div>
-    </DashboardLayout>
+    </DashboardLayout >
   );
 }
 

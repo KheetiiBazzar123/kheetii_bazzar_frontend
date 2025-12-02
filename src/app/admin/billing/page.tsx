@@ -35,49 +35,25 @@ function AdminBillingPage() {
         apiService.getPayouts({ page, limit: 10 })
       ]);
 
+      // --------- STATS FROM API ----------
       if (statsRes.status === 'fulfilled' && statsRes.value.success) {
         setStats(statsRes.value.data);
       } else {
-        // Mock stats
         setStats({
-          totalRevenue: 1250000,
-          pendingPayouts: 45000,
-          commissionEarned: 125000,
-          processedPayouts: 850000
+          totalRevenue: 0,
+          pendingPayouts: 0,
+          commissionEarned: 0,
+          processedPayouts: 0
         });
       }
 
+      // --------- PAYOUTS FROM API ----------
       if (payoutsRes.status === 'fulfilled' && payoutsRes.value.success) {
-        setPayouts(payoutsRes.value.data);
-        setTotalPages(payoutsRes.value.pages);
+        setPayouts(payoutsRes.value.data || []);
+        setTotalPages(payoutsRes.value.pages || 1);
       } else {
-        // Mock payouts
-        setPayouts([
-          {
-            _id: 'p1',
-            farmerName: 'Ramesh Kumar',
-            amount: 15000,
-            status: 'pending',
-            date: new Date().toISOString(),
-            bankDetails: 'HDFC **** 1234'
-          },
-          {
-            _id: 'p2',
-            farmerName: 'Suresh Patel',
-            amount: 8500,
-            status: 'processed',
-            date: new Date(Date.now() - 86400000).toISOString(),
-            bankDetails: 'SBI **** 5678'
-          },
-          {
-            _id: 'p3',
-            farmerName: 'Anita Singh',
-            amount: 22000,
-            status: 'rejected',
-            date: new Date(Date.now() - 172800000).toISOString(),
-            bankDetails: 'ICICI **** 9012'
-          }
-        ]);
+        setPayouts([]);
+        setTotalPages(1);
       }
     } catch (error) {
       console.error('Error fetching billing data:', error);
@@ -89,13 +65,14 @@ function AdminBillingPage() {
 
   const handlePayoutAction = async (payoutId: string, action: 'approve' | 'reject') => {
     const notes = action === 'reject' ? prompt('Enter rejection reason:') : undefined;
+
     if (action === 'reject' && !notes) {
       showToast.info('Payout rejection cancelled.');
       return;
     }
 
     try {
-      await apiService.processPayout(payoutId, action, notes || undefined);
+      await apiService.processPayout(payoutId, action, notes);
       showToast.success(`Payout ${action}ed successfully!`);
       fetchData();
     } catch (error) {
@@ -137,8 +114,10 @@ function AdminBillingPage() {
       subtitle="Manage platform revenue and payouts"
     >
       <div className="max-w-7xl mx-auto space-y-6">
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+
           <Card>
             <CardContent className="p-6 flex items-center space-x-4">
               <div className="p-3 bg-emerald-100 rounded-full text-emerald-600">
@@ -194,6 +173,7 @@ function AdminBillingPage() {
               </div>
             </CardContent>
           </Card>
+
         </div>
 
         {/* Payouts Table */}
@@ -202,8 +182,10 @@ function AdminBillingPage() {
             <CardTitle>Payout Requests</CardTitle>
           </CardHeader>
           <CardContent>
+
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+
                 <thead className="bg-gray-50 dark:bg-gray-800">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farmer</th>
@@ -213,6 +195,7 @@ function AdminBillingPage() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
+
                 <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                   {payouts.map((payout) => (
                     <tr key={payout._id}>
@@ -220,31 +203,34 @@ function AdminBillingPage() {
                         <div className="text-sm font-medium text-gray-900 dark:text-white">{payout.farmerName}</div>
                         <div className="text-sm text-gray-500">{payout.bankDetails}</div>
                       </td>
+
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {formatCurrency(payout.amount)}
                       </td>
+
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {new Date(payout.date).toLocaleDateString()}
                       </td>
+
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(payout.status)}`}>
                           {payout.status.toUpperCase()}
                         </span>
                       </td>
+
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         {payout.status === 'pending' && (
                           <div className="flex space-x-2">
                             <button
                               onClick={() => handlePayoutAction(payout._id, 'approve')}
                               className="text-green-600 hover:text-green-900"
-                              title="Approve"
                             >
                               <CheckCircleIcon className="h-5 w-5" />
                             </button>
+
                             <button
                               onClick={() => handlePayoutAction(payout._id, 'reject')}
                               className="text-red-600 hover:text-red-900"
-                              title="Reject"
                             >
                               <XCircleIcon className="h-5 w-5" />
                             </button>
@@ -254,9 +240,10 @@ function AdminBillingPage() {
                     </tr>
                   ))}
                 </tbody>
+
               </table>
             </div>
-            
+
             {/* Pagination */}
             <div className="mt-4 flex justify-between items-center">
               <Button
@@ -266,9 +253,11 @@ function AdminBillingPage() {
               >
                 Previous
               </Button>
+
               <span className="text-sm text-gray-500">
                 Page {page} of {totalPages}
               </span>
+
               <Button
                 variant="outline"
                 disabled={page === totalPages}
@@ -277,8 +266,10 @@ function AdminBillingPage() {
                 Next
               </Button>
             </div>
+
           </CardContent>
         </Card>
+
       </div>
     </DashboardLayout>
   );
