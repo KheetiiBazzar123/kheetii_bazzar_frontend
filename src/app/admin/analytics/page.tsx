@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { withAdminProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { apiService } from '@/services/api';
+import { useTranslation } from 'react-i18next';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import {
   LineChart,
@@ -18,7 +20,7 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area
-} from 'recharts';
+} from "recharts";
 
 function AdminAnalyticsPage() {
   const [loading, setLoading] = useState(true);
@@ -105,7 +107,7 @@ function AdminAnalyticsPage() {
       subtitle="Detailed insights and performance metrics"
     >
       <div className="max-w-7xl mx-auto space-y-6">
-        
+
         {/* Controls */}
         <div className="flex justify-end">
           <select
@@ -129,8 +131,8 @@ function AdminAnalyticsPage() {
               <AreaChart data={revenueData}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" />

@@ -79,11 +79,11 @@ function AdminOrders() {
 
   const fetchOrders = async () => {
     try {
-      const response = await apiClient.getFarmerOrders(
-        1,
-        50,
-        filter === 'all' ? undefined : filter
-      );
+      const response = await apiService.getAdminOrders({
+        page: 1,
+        limit: 50,
+        status: filter === "all" ? undefined : filter
+      });
 
       if (response && response.data) {
         setOrders(response.data);
@@ -179,11 +179,10 @@ function AdminOrders() {
               <button
                 key={option.value}
                 onClick={() => setFilter(option.value)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  filter === option.value
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === option.value
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  }`}
               >
                 {option.label}
               </button>

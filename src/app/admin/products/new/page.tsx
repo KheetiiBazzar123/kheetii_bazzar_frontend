@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { withAdminProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -16,7 +15,7 @@ import {
   ScaleIcon,
 } from '@heroicons/react/24/outline';
 import { apiClient } from '@/lib/api';
-import { useTranslation } from 'react-i18next';
+import { apiService } from '@/services/api';
 
 interface ProductFormData {
   name: string;
@@ -29,9 +28,7 @@ interface ProductFormData {
   images: File[];
 }
 
-function AdminNewProduct() {
-  const { t } = useTranslation();
-  const router = useRouter();
+function AdminAddProductPage() {
   const { user } = useAuth();
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
@@ -118,7 +115,7 @@ function AdminNewProduct() {
       formData.images.forEach((img) => formDataToSend.append('images', img));
 
       // ✅ Using Farmer API (same endpoint)
-      const res = await apiClient.createProduct(formDataToSend);
+      const res = await apiClient.createAdminProduct(formDataToSend);
 
       if (res?.success) {
         alert('✅ Product added successfully!');
@@ -146,8 +143,8 @@ function AdminNewProduct() {
 
   return (
     <DashboardLayout
-      title={t('products.addNewProduct')}
-      subtitle={t('products.createProductSubtitle')}
+      title="Add New Product (Admin)"
+      subtitle="Create a new product in the marketplace"
       actions={
         <Button onClick={() => window.history.back()} variant="outline">
           Back to Products
@@ -391,4 +388,4 @@ function AdminNewProduct() {
   );
 }
 
-export default withAdminProtection(AdminNewProduct);
+export default withAdminProtection(AdminAddProductPage);

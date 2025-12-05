@@ -7,7 +7,6 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { apiClient } from '@/lib/api';
-import { useTranslation } from 'react-i18next';
 import {
   TagIcon,
   PlusIcon,
@@ -26,10 +25,9 @@ interface Category {
   createdAt: string;
 }
 
-function AdminCategories() {
-  const { t } = useTranslation();
+function AdminCategoriesPage() {
   const { user } = useAuth();
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [showAddForm, setShowAddForm] = useState(false);
@@ -102,42 +100,36 @@ function AdminCategories() {
     setLoading(true);
     try {
       const response = await apiClient.getCategories();
-      if (response.success && response.data) {
-        const apiCategories: Category[] = response.data.categories.map((catName, index) => {
-          const countObj = response.data?.categoryCounts.find(c => c.category === catName);
-          return {
-            id: index.toString(),
-            name: catName,
-            description: '',
-            productCount: countObj ? countObj.count : 0,
-            isActive: true,
-            createdAt: new Date().toISOString().split('T')[0]
-          };
-        });
-        setCategories(apiCategories);
-      } else {
-        // Fallback to default categories if API fails
-        console.log('Using fallback categories');
-        setCategories([
-          { id: '1', name: 'Vegetables', description: 'Fresh vegetables', productCount: 0, isActive: true, createdAt: new Date().toISOString().split('T')[0] },
-          { id: '2', name: 'Fruits', description: 'Fresh fruits', productCount: 0, isActive: true, createdAt: new Date().toISOString().split('T')[0] },
-          { id: '3', name: 'Grains', description: 'Whole grains', productCount: 0, isActive: true, createdAt: new Date().toISOString().split('T')[0] },
-          { id: '4', name: 'Spices', description: 'Spices and herbs', productCount: 0, isActive: true, createdAt: new Date().toISOString().split('T')[0] },
-        ]);
-      }
+
+      console.log("CATEGORY RESPONSE:", response);
+
+      // SAFE CHECK — map tabhi chalega jab ARRAY ho
+      const categoriesArray = Array.isArray(response?.data)
+        ? response.data
+        : Array.isArray(response?.data?.categories)
+          ? response.data.categories
+          : [];
+
+      const apiCategories: Category[] = categoriesArray.map((cat: any, index: number) => {
+        return {
+          id: index.toString(),
+          name: cat?.name || cat?.category || cat || "Unknown",
+          description: cat?.description || "",
+          productCount: cat?.productCount || 0,
+          isActive: true,
+          createdAt: new Date().toISOString().split("T")[0]
+        };
+      });
+
+      setCategories(apiCategories);
     } catch (error) {
-      console.error('Error fetching categories:', error);
-      // Fallback to default categories on error
-      setCategories([
-        { id: '1', name: 'Vegetables', description: 'Fresh vegetables', productCount: 0, isActive: true, createdAt: new Date().toISOString().split('T')[0] },
-        { id: '2', name: 'Fruits', description: 'Fresh fruits', productCount: 0, isActive: true, createdAt: new Date().toISOString().split('T')[0] },
-        { id: '3', name: 'Grains', description: 'Whole grains', productCount: 0, isActive: true, createdAt: new Date().toISOString().split('T')[0] },
-        { id: '4', name: 'Spices', description: 'Spices and herbs', productCount: 0, isActive: true, createdAt: new Date().toISOString().split('T')[0] },
-      ]);
+      console.error("Error fetching categories:", error);
+      setCategories([]);
     } finally {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchCategories();
@@ -158,8 +150,8 @@ function AdminCategories() {
 
   return (
     <DashboardLayout
-      title={t('products.productCategories')}
-      subtitle={t('products.manageCategoriesSubtitle')}
+      title="Admin Product Categories"
+      subtitle="Manage all categories across the platform"
       actions={
         <div className="flex space-x-3">
           <Button
@@ -295,11 +287,10 @@ function AdminCategories() {
                     <div className="flex items-center space-x-3">
                       <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
                       <span
-                        className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          category.isActive
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
+                        className={`px-2 py-1 text-xs font-medium rounded-full ${category.isActive
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
+                          }`}
                       >
                         {category.isActive ? 'Active' : 'Inactive'}
                       </span>
@@ -336,4 +327,4 @@ function AdminCategories() {
   );
 }
 
-export default withAdminProtection(AdminCategories);
+export default withAdminProtection(AdminCategoriesPage);
