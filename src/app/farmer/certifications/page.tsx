@@ -7,7 +7,10 @@ import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { apiService } from '@/services/api';
+// import { apiClient } from '@/services/api';
+import apiClient from '@/lib/api';
+
+// import { apiService } from '@/services/api';
 import showToast from '@/lib/toast';
 import {
   PlusIcon,
@@ -68,13 +71,25 @@ function CertificationsPage() {
   const fetchCertifications = async () => {
     setLoading(true);
     try {
-      const response = await apiService.getMyCertifications();
+      const response = await apiClient.getMyCertifications();
       if (response.success && response.data) {
         setCertifications(response.data);
         calculateStats(response.data);
+      } else {
+        setCertifications([]);
+        calculateStats([]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching certifications:', error);
+      setCertifications([]);
+      calculateStats([]);
+
+      // Show user-friendly error message
+      const errorMessage = error.response?.data?.message ||
+        error.response?.status === 500
+        ? 'Server error. The certifications feature may not be available yet.'
+        : 'Unable to load certifications. Please try again later.';
+      showToast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -92,11 +107,11 @@ function CertificationsPage() {
   const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setUploading(true);
-    
+
     const formData = new FormData(e.currentTarget);
-    
+
     try {
-      await apiService.uploadCertification(formData);
+      await apiClient.uploadCertification(formData);
       setShowUploadModal(false);
       fetchCertifications();
       showToast.success('Certification uploaded successfully! It will be reviewed by our team.');
@@ -274,11 +289,10 @@ function CertificationsPage() {
                         <td className="p-3">
                           {cert.expiryDate ? (
                             <div className="flex items-center">
-                              <span className={`text-sm ${
-                                isExpired(cert.expiryDate) ? 'text-red-600' :
+                              <span className={`text-sm ${isExpired(cert.expiryDate) ? 'text-red-600' :
                                 isExpiringSoon(cert.expiryDate) ? 'text-yellow-600' :
-                                'text-gray-600'
-                              }`}>
+                                  'text-gray-600'
+                                }`}>
                                 {new Date(cert.expiryDate).toLocaleDateString()}
                               </span>
                               {isExpiringSoon(cert.expiryDate) && !isExpired(cert.expiryDate) && (

@@ -8,7 +8,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import showToast from '@/lib/toast';
-import { 
+import {
   PlusIcon,
   PencilIcon,
   TrashIcon,
@@ -19,6 +19,7 @@ import {
   FunnelIcon
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { apiService } from '@/services/api';
 import apiClient from '@/lib/api';
@@ -44,65 +45,66 @@ interface Product {
 function FarmerProducts() {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const router = useRouter();
   const [products, setProducts] = useState<any[]>([]);
-const [loadingProducts, setLoadingProducts] = useState(true);
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-const [showEditModal, setShowEditModal] = useState(false);
-useEffect(() => {
-  fetchProducts();
-}, []);
-const handleUpdateProduct = async () => {
-  if (!selectedProduct) return;
+  const [showEditModal, setShowEditModal] = useState(false);
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+  const handleUpdateProduct = async () => {
+    if (!selectedProduct) return;
 
-  try {
-    const formData = new FormData();
-    formData.append("name", selectedProduct.name);
-    formData.append("price", selectedProduct.price.toString());
-    formData.append("category", selectedProduct.category);
-    formData.append("description", selectedProduct.description);
+    try {
+      const formData = new FormData();
+      formData.append("name", selectedProduct.name);
+      formData.append("price", selectedProduct.price.toString());
+      formData.append("category", selectedProduct.category);
+      formData.append("description", selectedProduct.description);
 
-   
 
-    const response = await apiClient.updateProduct(selectedProduct._id, formData);
 
-    if (response?.success) {
-      showToast.success(t('farmer.products.updateSuccess') || "Product updated successfully!");
-      setShowEditModal(false);
-      await fetchProducts(); 
-    } else {
-      showToast.error(response?.message || "Failed to update product");
+      const response = await apiClient.updateProduct(selectedProduct._id, formData);
+
+      if (response?.success) {
+        showToast.success(t('farmer.products.updateSuccess') || "Product updated successfully!");
+        setShowEditModal(false);
+        await fetchProducts();
+      } else {
+        showToast.error(response?.message || "Failed to update product");
+      }
+    } catch (error: any) {
+      console.error("Error updating product:", error);
+      showToast.error(error.message || "Something went wrong");
     }
-  } catch (error: any) {
-    console.error("Error updating product:", error);
-    showToast.error(error.message || "Something went wrong");
-  }
-};
+  };
 
-const handleEditClick = (product: Product) => {
-  setSelectedProduct(product);
-  setShowEditModal(true);
-};
+  const handleEditClick = (product: Product) => {
+    setSelectedProduct(product);
+    setShowEditModal(true);
+  };
 
-const fetchProducts = async () => {
-  setLoadingProducts(true);
-  try {
-    const response = await apiClient.getFarmerProducts(); // GET /api/v1/farmer/products
+  const fetchProducts = async () => {
+    setLoadingProducts(true);
+    try {
+      const response = await apiClient.getFarmerProducts(); // GET /api/v1/farmer/products
 
-    if (response?.success && Array.isArray(response.data)) {
-      setProducts(response.data);  
-    } else {
+      if (response?.success && Array.isArray(response.data)) {
+        setProducts(response.data);
+      } else {
+        setProducts([]);
+      }
+    } catch (error) {
+      console.error("Error fetching farmer products:", error);
       setProducts([]);
+    } finally {
+      setLoadingProducts(false);
     }
-  } catch (error) {
-    console.error("Error fetching farmer products:", error);
-    setProducts([]);
-  } finally {
-    setLoadingProducts(false);
-  }
-};
+  };
 
 
   // const fetchProducts = async () => {
@@ -178,23 +180,23 @@ const fetchProducts = async () => {
   //   ));
   // };
   const toggleAvailability = async (productId: string) => {
-  try {
-    await apiClient.toggleProductAvailability(productId);
+    try {
+      await apiClient.toggleProductAvailability(productId);
 
-   
-    setProducts(prev =>
-      prev.map(product =>
-        product._id === productId
-          ? { ...product, isAvailable: !product.isAvailable }
-          : product
-      )
-    );
-    showToast.success(t('farmer.products.availabilityUpdated') || 'Availability updated successfully');
-  } catch (error) {
-    console.error("Error toggling availability:", error);
-    showToast.error("Something went wrong");
-  }
-};
+
+      setProducts(prev =>
+        prev.map(product =>
+          product._id === productId
+            ? { ...product, isAvailable: !product.isAvailable }
+            : product
+        )
+      );
+      showToast.success(t('farmer.products.availabilityUpdated') || 'Availability updated successfully');
+    } catch (error) {
+      console.error("Error toggling availability:", error);
+      showToast.error("Something went wrong");
+    }
+  };
 
   // const deleteProduct = async (productId: string) => {
   //   if (confirm('Are you sure you want to delete this product?')) {
@@ -203,27 +205,27 @@ const fetchProducts = async () => {
   // };
 
   const deleteProduct = async (productId: string) => {
-  if (confirm("Are you sure you want to delete this product?")) {
-    try {
-      const response = await apiClient.deleteProduct(productId);
+    if (confirm("Are you sure you want to delete this product?")) {
+      try {
+        const response = await apiClient.deleteProduct(productId);
 
-      if (response?.success) {
-      
-        setProducts((prev) => prev.filter((product) => product._id !== productId));
-        showToast.success(t('farmer.products.deleteSuccess') || "Product deleted successfully!");
-      } else {
-        showToast.error(response?.message || "Failed to delete product.");
+        if (response?.success) {
+
+          setProducts((prev) => prev.filter((product) => product._id !== productId));
+          showToast.success(t('farmer.products.deleteSuccess') || "Product deleted successfully!");
+        } else {
+          showToast.error(response?.message || "Failed to delete product.");
+        }
+      } catch (error: any) {
+        console.error("Error deleting product:", error);
+        showToast.error(error.message || "Something went wrong while deleting.");
       }
-    } catch (error: any) {
-      console.error("Error deleting product:", error);
-      showToast.error(error.message || "Something went wrong while deleting.");
     }
-  }
-};
+  };
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchTerm.toLowerCase());
+      product.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !filterCategory || product.category === filterCategory;
     return matchesSearch && matchesCategory;
   });
@@ -232,22 +234,22 @@ const fetchProducts = async () => {
     'vegetables', 'fruits', 'grains', 'spices', 'herbs', 'dairy', 'poultry', 'seafood', 'other'
   ];
 
-if (loadingProducts) {
-  return (
-    <div className="min-h-screen flex items-center justify-center hero-gradient">
-      <div className="spinner h-16 w-16"></div>
-    </div>
-  );
-}
+  if (loadingProducts) {
+    return (
+      <div className="min-h-screen flex items-center justify-center hero-gradient">
+        <div className="spinner h-16 w-16"></div>
+      </div>
+    );
+  }
   return (
     <DashboardLayout
       title={t('products.myProducts')}
       subtitle={t('products.myProductsSubtitle')}
       actions={
-          <Button onClick={() => router.push('/farmer/products/new')} className="btn-primary">
-            <PlusIcon className="h-5 w-5 mr-2" />
-            {t('products.addNewProduct')}
-          </Button>
+        <Button onClick={() => router.push('/farmer/products/new')} className="btn-primary">
+          <PlusIcon className="h-5 w-5 mr-2" />
+          {t('products.addNewProduct')}
+        </Button>
       }
     >
       <div className="max-w-7xl mx-auto">
@@ -305,11 +307,10 @@ if (loadingProducts) {
                     ) : (
                       <div className="text-4xl text-gray-400">🌱</div>
                     )}
-                    <div className={`absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-medium ${
-                      product.isAvailable 
-                        ? 'bg-green-100 text-green-600' 
-                        : 'bg-red-100 text-red-600'
-                    }`}>
+                    <div className={`absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-medium ${product.isAvailable
+                      ? 'bg-green-100 text-green-600'
+                      : 'bg-red-100 text-red-600'
+                      }`}>
                       {product.isAvailable ? t('farmer.products.available') : t('farmer.products.unavailable')}
                     </div>
                   </div>
@@ -319,7 +320,7 @@ if (loadingProducts) {
                     <div className="mb-3">
                       <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">{product.name}</h3>
                       <p className="text-sm text-gray-600 line-clamp-2 mb-2">{product.description}</p>
-                      
+
                       {/* Rating */}
                       <div className="flex items-center space-x-1 mb-2">
                         <div className="flex items-center">
@@ -342,11 +343,10 @@ if (loadingProducts) {
                         <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full capitalize">
                           {product.category}
                         </span>
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          product.freshness === 'fresh' ? 'bg-green-100 text-green-600' :
+                        <span className={`px-2 py-1 text-xs rounded-full ${product.freshness === 'fresh' ? 'bg-green-100 text-green-600' :
                           product.freshness === 'good' ? 'bg-yellow-100 text-yellow-600' :
-                          'bg-orange-100 text-orange-600'
-                        }`}>
+                            'bg-orange-100 text-orange-600'
+                          }`}>
                           {product.freshness}
                         </span>
                       </div>
@@ -378,7 +378,7 @@ if (loadingProducts) {
                         variant="outline"
                         size="sm"
                         className="flex-1"
-                          onClick={() => handleEditClick(product)}
+                        onClick={() => handleEditClick(product)}
 
                       >
                         <PencilIcon className="h-4 w-4 mr-1" />
@@ -418,7 +418,7 @@ if (loadingProducts) {
             <div className="text-6xl mb-4">🌱</div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('farmer.products.noProducts')}</h3>
             <p className="text-gray-600 mb-4">
-              {searchTerm || filterCategory 
+              {searchTerm || filterCategory
                 ? t('common.adjustFilters')
                 : t('farmer.products.noProductsDescription')
               }
@@ -432,96 +432,96 @@ if (loadingProducts) {
           </div>
         )}
       </div>
-{showEditModal && selectedProduct && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn">
-    <div className="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-lg transform transition-all duration-300 scale-100 hover:scale-[1.01]">
-      
-      {/* Header */}
-      <div className="flex justify-between items-center mb-5 border-b border-gray-200 pb-3">
-        <h2 className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
-           {t('farmer.products.editProduct')}
-        </h2>
-        <button
-          onClick={() => setShowEditModal(false)}
-          className="text-gray-500 hover:text-red-500 text-xl transition-colors"
-          title="Close"
-        >
-          ✕
-        </button>
-      </div>
+      {showEditModal && selectedProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-lg transform transition-all duration-300 scale-100 hover:scale-[1.01]">
 
-      {/* Form */}
-      <div className="space-y-4">
-        {/* Product Name */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">{t('farmer.products.productName')}</label>
-          <input
-            type="text"
-            className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
-            placeholder="Enter product name"
-            value={selectedProduct.name}
-            onChange={(e) =>
-              setSelectedProduct({ ...selectedProduct, name: e.target.value })
-            }
-          />
+            {/* Header */}
+            <div className="flex justify-between items-center mb-5 border-b border-gray-200 pb-3">
+              <h2 className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
+                {t('farmer.products.editProduct')}
+              </h2>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="text-gray-500 hover:text-red-500 text-xl transition-colors"
+                title="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Form */}
+            <div className="space-y-4">
+              {/* Product Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('farmer.products.productName')}</label>
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
+                  placeholder="Enter product name"
+                  value={selectedProduct.name}
+                  onChange={(e) =>
+                    setSelectedProduct({ ...selectedProduct, name: e.target.value })
+                  }
+                />
+              </div>
+
+
+
+
+
+              {/* Price */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('farmer.products.price')} (₹)</label>
+                <input
+                  type="number"
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500 focus:outline-none"
+                  placeholder="Enter product price"
+                  value={selectedProduct.price}
+                  onChange={(e) =>
+                    setSelectedProduct({ ...selectedProduct, price: Number(e.target.value) })
+                  }
+                />
+              </div>
+
+
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('farmer.products.description')}</label>
+                <textarea
+                  rows={3}
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500 focus:outline-none resize-none"
+                  placeholder="Enter product description"
+                  value={selectedProduct.description}
+                  onChange={(e) =>
+                    setSelectedProduct({ ...selectedProduct, description: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="bg-gray-100 text-gray-700 px-5 py-2 rounded-lg hover:bg-gray-200 active:scale-95 transition-all"
+              >
+                {t('farmer.products.cancel')}
+              </button>
+
+              <button
+                onClick={async () => await handleUpdateProduct()}
+                className="bg-green-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-green-700 active:scale-95 transition-all"
+              >
+                {t('farmer.products.updateProduct')}
+              </button>
+            </div>
+          </div>
         </div>
-
-       
-       
-       
-
-        {/* Price */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">{t('farmer.products.price')} (₹)</label>
-          <input
-            type="number"
-            className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500 focus:outline-none"
-            placeholder="Enter product price"
-            value={selectedProduct.price}
-            onChange={(e) =>
-              setSelectedProduct({ ...selectedProduct, price: Number(e.target.value) })
-            }
-          />
-        </div>
-
-       
-
-        {/* Description */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">{t('farmer.products.description')}</label>
-          <textarea
-            rows={3}
-            className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500 focus:outline-none resize-none"
-            placeholder="Enter product description"
-            value={selectedProduct.description}
-            onChange={(e) =>
-              setSelectedProduct({ ...selectedProduct, description: e.target.value })
-            }
-          />
-        </div>
-      </div>
-
-      {/* Buttons */}
-      <div className="flex justify-end gap-3 mt-6">
-        <button
-          onClick={() => setShowEditModal(false)}
-          className="bg-gray-100 text-gray-700 px-5 py-2 rounded-lg hover:bg-gray-200 active:scale-95 transition-all"
-        >
-          {t('farmer.products.cancel')}
-        </button>
-
-        <button
-          onClick={async () => await handleUpdateProduct()}
-          className="bg-green-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-green-700 active:scale-95 transition-all"
-        >
-          {t('farmer.products.updateProduct')}
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      )}
     </DashboardLayout>
-    
+
   );
 }
 

@@ -415,7 +415,7 @@ class ApiClient {
 
   // Certifications APIs
   async getMyCertifications(): Promise<ApiResponse<any[]>> {
-    const response = await this.client.get('/api/v1/certifications/farmer/my');
+    const response = await this.client.get('/api/v1/farmer/certifications');
     return response.data;
   }
 
@@ -477,7 +477,7 @@ class ApiClient {
 
   // Social/Profile APIs
   async getMyFarmerProfile(): Promise<ApiResponse<any>> {
-    const response = await this.client.get('/api/v1/social/farmer/me');
+    const response = await this.client.get('/api/v1/farmer/profile');
     return response.data;
   }
 

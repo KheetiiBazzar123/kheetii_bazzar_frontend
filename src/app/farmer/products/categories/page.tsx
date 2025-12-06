@@ -9,7 +9,7 @@ import Button from '@/components/ui/Button';
 import { apiClient } from '@/lib/api';
 import showToast from '@/lib/toast';
 import { useTranslation } from 'react-i18next';
-import { 
+import {
   TagIcon,
   PlusIcon,
   PencilIcon,
@@ -95,8 +95,8 @@ function FarmerCategories() {
   const handleSaveCategory = () => {
     if (editingCategory) {
       // Update existing category
-      setCategories(prev => prev.map(cat => 
-        cat.id === editingCategory.id 
+      setCategories(prev => prev.map(cat =>
+        cat.id === editingCategory.id
           ? { ...cat, name: formData.name, description: formData.description }
           : cat
       ));
@@ -112,7 +112,7 @@ function FarmerCategories() {
       };
       setCategories(prev => [...prev, newCategory]);
     }
-    
+
     setShowAddForm(false);
     setEditingCategory(null);
     setFormData({ name: '', description: '' });
@@ -125,64 +125,68 @@ function FarmerCategories() {
   };
 
   const toggleCategoryStatus = (categoryId: string) => {
-    setCategories(prev => prev.map(cat => 
-      cat.id === categoryId 
+    setCategories(prev => prev.map(cat =>
+      cat.id === categoryId
         ? { ...cat, isActive: !cat.isActive }
         : cat
     ));
   };
 
   const fetchCategories = async () => {
-  setLoading(true);
-  try {
-    const response = await apiClient.getCategories();
-    if (response.success && response.data) {
-const apiCategories: Category[] = response.data.categories.map((catName, index) => {
-  const countObj = response.data?.categoryCounts.find(c => c.category === catName);
-  return {
-    id: index.toString(),
-    name: catName,
-    description: '', // agar API description nahi deti
-    productCount: countObj ? countObj.count : 0,
-    isActive: true,
-    createdAt: new Date().toISOString().split('T')[0]
-  };
-});
+    setLoading(true);
+    try {
+      const response = await apiClient.getCategories();
+      if (response.success && response.data) {
+        // Check if categories array exists, otherwise use empty array
+        const categoriesArray = response.data.categories || [];
+        const countsArray = response.data.categoryCounts || [];
 
-      setCategories(apiCategories);
-    } else {
+        const apiCategories: Category[] = categoriesArray.map((catName: string, index: number) => {
+          const countObj = countsArray.find((c: any) => c.category === catName);
+          return {
+            id: index.toString(),
+            name: catName,
+            description: '', // agar API description nahi deti
+            productCount: countObj ? countObj.count : 0,
+            isActive: true,
+            createdAt: new Date().toISOString().split('T')[0]
+          };
+        });
+
+        setCategories(apiCategories);
+      } else {
+        setCategories([]);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
       setCategories([]);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    setCategories([]);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
-useEffect(() => {
-  fetchCategories();
-}, []);
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
 
   const totalProducts = categories.reduce((sum, cat) => sum + cat.productCount, 0);
   const activeCategories = categories.filter(cat => cat.isActive).length;
 
-  
-  
-if (loading) {
-  return (
-    <DashboardLayout title="Categories" subtitle="Loading categories...">
-      <div className="flex items-center justify-center min-h-96">
-        <div className="spinner h-16 w-16"></div>
-      </div>
-    </DashboardLayout>
-  );
-}
+
+
+  if (loading) {
+    return (
+      <DashboardLayout title="Categories" subtitle="Loading categories...">
+        <div className="flex items-center justify-center min-h-96">
+          <div className="spinner h-16 w-16"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
-    
+
     <DashboardLayout
       title={t('products.productCategories')}
       subtitle={t('products.manageCategoriesSubtitle')}
@@ -328,11 +332,10 @@ if (loading) {
                         {category.name}
                       </h3>
                       <span
-                        className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          category.isActive
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
+                        className={`px-2 py-1 text-xs font-medium rounded-full ${category.isActive
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
+                          }`}
                       >
                         {category.isActive ? 'Active' : 'Inactive'}
                       </span>
@@ -379,4 +382,4 @@ if (loading) {
   );
 }
 
-export default withFarmerProtection(CategoriesPage);
+export default withFarmerProtection(FarmerCategories);

@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import Button from '@/components/ui/Button';
 import { apiService } from '@/services/api';
 import showToast from '@/lib/toast';
-import { 
+import {
   ClockIcon,
   CheckCircleIcon,
   XCircleIcon,
@@ -67,10 +67,10 @@ function FarmerOrderHistory() {
   const fetchOrderHistory = async () => {
     setLoading(true);
     try {
-      const response = await apiService.getFarmerOrders({ 
+      const response = await apiService.getFarmerOrders({
         status: filter === 'all' ? undefined : filter,
       });
-      
+
       if (response.success) {
         // Assuming the API returns orders in a format compatible with OrderHistory
         // or we need to map it. The Order interface in api.ts might differ slightly from OrderHistory here.
@@ -120,7 +120,7 @@ function FarmerOrderHistory() {
       case 'dispatched': return <TruckIcon className="h-4 w-4" />;
       case 'delivered': return <CheckCircleIcon className="h-4 w-4" />;
       case 'cancelled': return <XCircleIcon className="h-4 w-4" />;
-      primary: return <ClockIcon className="h-4 w-4" />;
+        primary: return <ClockIcon className="h-4 w-4" />;
     }
   };
 
@@ -131,7 +131,7 @@ function FarmerOrderHistory() {
       case 'dispatched': return 'bg-purple-100 text-purple-800';
       case 'delivered': return 'bg-green-100 text-green-800';
       case 'cancelled': return 'bg-red-100 text-red-800';
-      primary: return 'bg-gray-100 text-gray-800';
+        primary: return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -140,7 +140,7 @@ function FarmerOrderHistory() {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
       case 'paid': return 'bg-green-100 text-green-800';
       case 'refunded': return 'bg-red-100 text-red-800';
-      primary: return 'bg-gray-100 text-gray-800';
+        primary: return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -385,4 +385,4 @@ function FarmerOrderHistory() {
   );
 }
 
-export default withFarmerProtection(OrderHistoryPage);
+export default withFarmerProtection(FarmerOrderHistory);

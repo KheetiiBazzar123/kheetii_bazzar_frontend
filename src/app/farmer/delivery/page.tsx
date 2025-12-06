@@ -7,7 +7,7 @@ import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { apiService } from '@/services/api';
+import apiClient from '@/lib/api';
 import showToast from '@/lib/toast';
 import {
   PlusIcon,
@@ -70,7 +70,7 @@ function DeliveryPage() {
   const fetchSchedules = async () => {
     setLoading(true);
     try {
-      const response = await apiService.getMyDeliverySchedules();
+      const response = await apiClient.getMyDeliverySchedules();
       if (response.success && response.data) {
         setSchedules(response.data);
         calculateStats(response.data);
@@ -98,7 +98,7 @@ function DeliveryPage() {
     setCreating(true);
 
     const formData = new FormData(e.currentTarget);
-    
+
     const data = {
       deliveryDate: formData.get('deliveryDate') as string,
       timeSlot: formData.get('timeSlot') as string,
@@ -113,7 +113,7 @@ function DeliveryPage() {
     };
 
     try {
-      await apiService.createDeliverySchedule(data);
+      await apiClient.createDeliverySchedule(data);
       setShowCreateModal(false);
       fetchSchedules();
       showToast.success('Delivery schedule created successfully!');
@@ -132,7 +132,7 @@ function DeliveryPage() {
     if (!reason) return;
 
     try {
-      await apiService.cancelDeliverySchedule(scheduleId, reason);
+      await apiClient.cancelDeliverySchedule(scheduleId, reason);
       fetchSchedules();
       showToast.success('Delivery schedule cancelled');
     } catch (error: any) {
@@ -145,7 +145,7 @@ function DeliveryPage() {
     if (!confirm('Mark this delivery as completed?')) return;
 
     try {
-      await apiService.completeDelivery(scheduleId);
+      await apiClient.completeDelivery(scheduleId);
       fetchSchedules();
       showToast.success('Delivery marked as completed!');
     } catch (error: any) {

@@ -71,7 +71,7 @@ function InventoryPage() {
   const fetchInventory = async () => {
     setLoading(true);
     try {
-      const response = await apiService.getFarmerInventory();
+      const response = await apiClient.getFarmerInventory();
       if (response.success && response.data) {
         setInventory(response.data);
         calculateStats(response.data);
@@ -87,10 +87,10 @@ function InventoryPage() {
   const calculateStats = (items: InventoryItem[]) => {
     const stats = {
       total: items.length,
-      lowStock: items.filter(item => 
+      lowStock: items.filter(item =>
         item.alerts.some(a => a.type === 'LOW_STOCK' && !a.acknowledged)
       ).length,
-      expiringSoon: items.filter(item => 
+      expiringSoon: items.filter(item =>
         item.alerts.some(a => a.type === 'EXPIRING_SOON' && !a.acknowledged)
       ).length,
       wasted: items.reduce((sum, item) => sum + (item.wasteQuantity || 0), 0),
@@ -100,7 +100,7 @@ function InventoryPage() {
 
   const getStatusBadge = (item: InventoryItem) => {
     const activeAlerts = item.alerts.filter(a => !a.acknowledged);
-    
+
     if (activeAlerts.some(a => a.type === 'EXPIRED')) {
       return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-700">Expired</span>;
     }
@@ -272,9 +272,8 @@ function InventoryPage() {
                           </div>
                         </td>
                         <td className="p-3">
-                          <span className={`font-semibold ${
-                            item.currentStock < item.reorderLevel ? 'text-red-600' : 'text-green-600'
-                          }`}>
+                          <span className={`font-semibold ${item.currentStock < item.reorderLevel ? 'text-red-600' : 'text-green-600'
+                            }`}>
                             {item.currentStock} {item.product.unit}
                           </span>
                         </td>
@@ -317,7 +316,7 @@ function InventoryPage() {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
               try {
-                await apiService.createInventoryItem({
+                await apiClient.createInventoryItem({
                   product: formData.get('product') as string,
                   currentStock: Number(formData.get('currentStock')),
                   reorderLevel: Number(formData.get('reorderLevel')),
@@ -339,7 +338,7 @@ function InventoryPage() {
                     type="text"
                     name="product"
                     required
-                   placeholder={t('farmer.inventory.productId')}
+                    placeholder={t('farmer.inventory.productId')}
                     className="w-full px-3 py-2 border rounded-lg"
                   />
                 </div>
@@ -405,9 +404,9 @@ function InventoryPage() {
               const action = formData.get('action') as string;
               const quantity = Number(formData.get('quantity'));
               const reason = formData.get('reason') as string;
-              
+
               const finalQuantity = action === 'add' ? quantity : -quantity;
-              
+
               try {
                 await apiClient.updateInventoryStock(selectedItem._id, finalQuantity, reason);
                 setShowUpdateModal(false);

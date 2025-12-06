@@ -7,7 +7,7 @@ import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { apiService } from '@/services/api';
+import apiClient from '@/lib/api';
 import showToast from '@/lib/toast';
 import {
   DocumentTextIcon,
@@ -68,7 +68,7 @@ function BillingPage() {
   const fetchBills = async () => {
     setLoading(true);
     try {
-      const response = await apiService.getFarmerBills();
+      const response = await apiClient.getFarmerBills();
       if (response.success && response.data) {
         setBills(response.data);
         calculateStats(response.data);
@@ -96,7 +96,7 @@ function BillingPage() {
   const handleDownloadPDF = async (billId: string) => {
     setDownloading(billId);
     try {
-      await apiService.downloadFarmerBillPDF(billId);
+      await apiClient.downloadFarmerBillPDF(billId);
       // The download will be handled by the browser
       showToast.success('Invoice download initiated.');
     } catch (error: any) {
@@ -110,7 +110,7 @@ function BillingPage() {
   const handleExportBills = async () => {
     setExporting(true);
     try {
-      await apiService.exportFarmerBillsCSV();
+      await apiClient.exportFarmerBillsCSV();
       // The download will be handled by the browser
       showToast.success('Bills exported successfully.');
     } catch (error: any) {

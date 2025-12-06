@@ -9,7 +9,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import showToast from '@/lib/toast';
-import { 
+import {
   PlusIcon,
   PhotoIcon,
   XMarkIcon,
@@ -28,6 +28,9 @@ interface ProductFormData {
   category: string;
   quantity: number;
   unit: string;
+  freshness: string;
+  harvestDate: string;
+  expiryDate: string;
   tags: string[];
   images: File[];
 }
@@ -43,6 +46,9 @@ function FarmerNewProduct() {
     category: '',
     quantity: 0,
     unit: 'kg',
+    freshness: 'fresh',
+    harvestDate: new Date().toISOString().split('T')[0],
+    expiryDate: '',
     tags: [],
     images: []
   });
@@ -96,87 +102,95 @@ function FarmerNewProduct() {
   };
 
   const uploadImages = async (files: File[]) => {
-  if (!files.length) return [];
+    if (!files.length) return [];
 
-  if (files.length === 1) {
-    const url = await apiClient.uploadImage(files[0]);
-    return [url]; // single image URL
-  } else {
-    // Multiple files (max 5)
-    const urls: string[] = [];
-    for (const file of files.slice(0, 5)) {
-      const url = await apiClient.uploadImage(file);
-      urls.push(url);
-    }
-    return urls;
-  }
-};
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
-
-  try {
-  
-    const uploadedImageUrls: string[] = [];
-    for (const file of formData.images) {
-      const url = await apiClient.uploadImage(file);
-      uploadedImageUrls.push(url);
-    }
-
-   
-    const data = new FormData();
-    data.append('name', formData.name);
-    data.append('description', formData.description);
-    data.append('price', formData.price.toString());
-    data.append('category', formData.category.toLowerCase());
-    data.append('quantity', formData.quantity.toString());
-    data.append('unit', formData.unit);
-
-    // Add tags
-    formData.tags.forEach(tag => data.append('tags[]', tag));
-
-  
-    uploadedImageUrls.forEach(url => data.append('images', url));
-
-    // Use user's location from profile if available
-    if (user?.address) {
-      data.append('location[street]', user.address.street || '');
-      data.append('location[city]', user.address.city || '');
-      data.append('location[state]', user.address.state || '');
-      data.append('location[zipCode]', user.address.zipCode || '');
-      if (user.address.coordinates?.latitude) {
-        data.append('location[latitude]', user.address.coordinates.latitude.toString());
+    if (files.length === 1) {
+      const url = await apiClient.uploadImage(files[0]);
+      return [url]; // single image URL
+    } else {
+      // Multiple files (max 5)
+      const urls: string[] = [];
+      for (const file of files.slice(0, 5)) {
+        const url = await apiClient.uploadImage(file);
+        urls.push(url);
       }
-      if (user.address.coordinates?.longitude) {
-        data.append('location[longitude]', user.address.coordinates.longitude.toString());
-      }
+      return urls;
     }
+  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-    
-    const response = await apiClient.createProduct(data);
+    try {
+      // Upload images first
+      const uploadedImageUrls: string[] = [];
+      for (const file of formData.images) {
+        const url = await apiClient.uploadImage(file);
+        uploadedImageUrls.push(url);
+      }
 
-    console.log('Product created:', response);
+      // Prepare form data
+      const data = new FormData();
+      data.append('name', formData.name);
+      data.append('description', formData.description);
+      data.append('price', formData.price.toString());
+      data.append('category', formData.category.toLowerCase());
+      data.append('quantity', formData.quantity.toString());
+      data.append('unit', formData.unit);
+      data.append('freshness', formData.freshness);
+      data.append('harvestDate', formData.harvestDate);
+      if (formData.expiryDate) {
+        data.append('expiryDate', formData.expiryDate);
+      }
 
-    showToast.success(t('farmer.products.createSuccess') || 'Product created successfully!');
-    setFormData({
-      name: '',
-      description: '',
-      price: 0,
-      category: '',
-      quantity: 0,
-      unit: 'kg',
-      tags: [],
-      images: []
-    });
-    window.location.href = '/farmer/products';
+      // Add tags
+      formData.tags.forEach(tag => data.append('tags[]', tag));
 
-  } catch (error: any) {
-    console.error('Error:', error);
-    showToast.error(error?.message || 'Error creating product');
-  } finally {
-    setLoading(false);
-  }
-};
+      // Add uploaded image URLs
+      uploadedImageUrls.forEach(url => data.append('images', url));
+
+      // Use user's location from profile if available
+      if (user?.address) {
+        data.append('location[street]', user.address.street || '');
+        data.append('location[city]', user.address.city || '');
+        data.append('location[state]', user.address.state || '');
+        data.append('location[zipCode]', user.address.zipCode || '');
+        if (user.address.coordinates?.latitude) {
+          data.append('location[latitude]', user.address.coordinates.latitude.toString());
+        }
+        if (user.address.coordinates?.longitude) {
+          data.append('location[longitude]', user.address.coordinates.longitude.toString());
+        }
+      }
+
+      // Create product
+      const response = await apiClient.createProduct(data);
+
+      console.log('Product created:', response);
+
+      showToast.success(t('farmer.products.createSuccess') || 'Product created successfully!');
+      setFormData({
+        name: '',
+        description: '',
+        price: 0,
+        category: '',
+        quantity: 0,
+        unit: 'kg',
+        freshness: 'fresh',
+        harvestDate: new Date().toISOString().split('T')[0],
+        expiryDate: '',
+        tags: [],
+        images: []
+      });
+      window.location.href = '/farmer/products';
+
+    } catch (error: any) {
+      console.error('Error:', error);
+      showToast.error(error?.message || 'Error creating product');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <DashboardLayout
@@ -203,6 +217,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <form onSubmit={handleSubmit}>
               {/* Basic Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -314,6 +329,55 @@ const handleSubmit = async (e: React.FormEvent) => {
                 </div>
               </div>
 
+              {/* Freshness and Dates */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Freshness *
+                  </label>
+                  <select
+                    name="freshness"
+                    value={formData.freshness}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  >
+                    <option value="fresh">Fresh</option>
+                    <option value="good">Good</option>
+                    <option value="average">Average</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Harvest Date *
+                  </label>
+                  <input
+                    type="date"
+                    name="harvestDate"
+                    value={formData.harvestDate}
+                    onChange={handleInputChange}
+                    required
+                    max={new Date().toISOString().split('T')[0]}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Expiry Date
+                  </label>
+                  <input
+                    type="date"
+                    name="expiryDate"
+                    value={formData.expiryDate}
+                    onChange={handleInputChange}
+                    min={formData.harvestDate || new Date().toISOString().split('T')[0]}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+
               {/* Tags */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -376,7 +440,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                     </p>
                   </div>
                 </div>
-                
+
                 {formData.images.length > 0 && (
                   <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-4">
                     {formData.images.map((file, index) => (
@@ -424,4 +488,4 @@ const handleSubmit = async (e: React.FormEvent) => {
   );
 }
 
-export default withFarmerProtection(AddProductPage);
+export default withFarmerProtection(FarmerNewProduct);

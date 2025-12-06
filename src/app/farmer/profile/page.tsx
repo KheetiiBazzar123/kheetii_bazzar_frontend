@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { withFarmerProtection } from '@/components/RouteProtection';
 import DashboardLayout from '@/components/DashboardLayout';
-import { apiService } from '@/services/api';
+import apiClient from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import showToast from '@/lib/toast';
@@ -65,10 +65,16 @@ function ProfilePage() {
   const fetchProfile = async () => {
     setLoading(true);
     try {
-      const response = await apiService.getMyFarmerProfile();
-      if (response.success && response.data) {
-        setProfile(response.data);
-      }
+      // TEMPORARY FIX: Backend route /api/v1/farmer/profile not found
+      // TODO: Backend needs to implement this route
+      // Uncomment when backend is ready:
+      // const response = await apiClient.getMyFarmerProfile();
+      // if (response.success && response.data) {
+      //   setProfile(response.data);
+      // }
+
+      // Using empty profile for now
+      setProfile(null);
     } catch (error) {
       console.error('Error fetching profile:', error);
     } finally {
@@ -78,10 +84,16 @@ function ProfilePage() {
 
   const fetchTestimonials = async () => {
     try {
-      const response = await apiService.getMyTestimonials();
-      if (response.success && response.data) {
-        setTestimonials(response.data.filter(t => t.isApproved));
-      }
+      // TEMPORARY FIX: Backend testimonials endpoint has routing issues
+      // TODO: Backend needs to fix testimonials endpoint
+      // Uncomment when backend is ready:
+      // const response = await apiClient.getMyTestimonials();
+      // if (response.success && response.data) {
+      //   setTestimonials(response.data.filter(t => t.isApproved));
+      // }
+
+      // Using empty testimonials for now
+      setTestimonials([]);
     } catch (error) {
       console.error('Error fetching testimonials:', error);
     }
@@ -92,20 +104,20 @@ function ProfilePage() {
     setSaving(true);
 
     const formData = new FormData(e.currentTarget);
-    
+
     const data = {
       bio: formData.get('bio') as string,
       farmName: formData.get('farmName') as string,
       location: {
         city: formData.get('city') as string,
         state: formData.get('state') as string,
-        country: formData.get('country') as string ||'India',
+        country: formData.get('country') as string || 'India',
       },
       specialties: (formData.get('specialties') as string)?.split(',').map(s => s.trim()).filter(Boolean) || [],
     };
 
     try {
-      await apiService.updateFarmerProfile(data);
+      await apiClient.updateFarmerProfile(data);
       setShowEditModal(false);
       fetchProfile();
       showToast.success('Profile updated successfully!');
