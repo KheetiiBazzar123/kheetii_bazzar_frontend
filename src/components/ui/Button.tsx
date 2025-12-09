@@ -10,14 +10,14 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', loading = false, disabled, children, ...props }, ref) => {
-    const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
+    const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
     
     const variants = {
-      primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
-      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-      outline: 'border border-input hover:bg-accent hover:text-accent-foreground',
-      ghost: 'hover:bg-accent hover:text-accent-foreground',
-      destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+      primary: 'bg-[var(--brand)] text-white hover:bg-[var(--brand-strong)]',
+      secondary: 'bg-[var(--bg-card)] text-[var(--text)] border border-[var(--border)] hover:bg-[var(--bg-strong)]/40',
+      outline: 'border border-[var(--brand)] text-[var(--brand)] hover:bg-[var(--brand)] hover:text-white',
+      ghost: 'hover:bg-[var(--bg-strong)]/40 text-[var(--text)]',
+      destructive: 'bg-red-500 text-white hover:bg-red-600',
     };
 
     const sizes = {

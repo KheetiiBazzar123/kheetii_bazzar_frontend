@@ -375,13 +375,13 @@ if (user?.role === 'farmer') {
         <div
           className={`flex items-center justify-between p-3 rounded-lg transition-colors cursor-pointer ${
             isItemActive
-              ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              ? 'bg-[#e8ffd4] text-[var(--text)] dark:bg-emerald-900/30 dark:text-emerald-200'
+              : 'text-[var(--text)] hover:bg-[var(--bg-strong)]/30'
           } ${level > 0 ? 'ml-4' : ''}`}
           onClick={(e) => handleItemClick(item, e)}
         >
           <div className="flex items-center space-x-3">
-            <item.icon className={`h-5 w-5 ${isItemActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-500 dark:text-gray-400'}`} />
+            <item.icon className={`h-5 w-5 ${isItemActive ? 'text-[#1bb85d] dark:text-emerald-300' : 'text-[var(--muted)]'}`} />
             <span className="font-medium">{item.name}</span>
             {item.badge && (
               <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
@@ -443,41 +443,43 @@ if (user?.role === 'farmer') {
         initial={{ x: -300 }}
         animate={{ x: isOpen ? 0 : -300 }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className={`fixed left-0 top-0 h-full w-80 bg-white dark:bg-gray-800 shadow-xl z-50 lg:relative lg:translate-x-0 lg:shadow-none lg:border-r lg:border-gray-200 dark:border-gray-700 transition-colors duration-200 ${
-          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        }`}
+        className={`fixed left-0 top-0 h-full w-80 z-50 lg:relative lg:translate-x-0 lg:shadow-none transition-colors duration-200 ${
+          theme === 'dark'
+            ? 'bg-[var(--bg-card)] text-white shadow-[0_20px_60px_rgba(0,0,0,0.35)] border-r border-[var(--border)]'
+            : 'bg-[var(--bg-card)] text-[var(--text)] shadow-xl border-r border-[var(--border)]'
+        } ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-lime-500 rounded-xl flex items-center justify-center">
                 <SparklesIcon className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">KheetiiBazaar</h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400 capitalize">{user?.role} Portal</p>
+                <h2 className="text-xl font-bold">KheetiiBazaar</h2>
+                <p className="text-sm text-[var(--muted)] capitalize">{user?.role} Portal</p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+              className="lg:hidden p-2 rounded-lg hover:bg-[var(--bg-strong)]/30 transition-colors duration-200"
             >
-              <XMarkIcon className="h-6 w-6 text-gray-500 dark:text-gray-400" />
+              <XMarkIcon className="h-6 w-6" />
             </button>
           </div>
 
           {/* User Info */}
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-6 border-b border-[var(--border)]">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                 <UserIcon className="h-6 w-6 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                <p className="text-sm font-medium truncate">
                   {user?.firstName} {user?.lastName}
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
+                <p className="text-sm text-[var(--muted)] truncate">{user?.email}</p>
               </div>
             </div>
           </div>
@@ -488,7 +490,7 @@ if (user?.role === 'farmer') {
               {menuItems.map((item) => renderMenuItem(item))}
               
               {/* Divider */}
-              <div className="my-6 border-t border-gray-200 dark:border-gray-700" />
+              <div className="my-6 border-t border-[var(--border)]" />
               
               {/* Common Items */}
               {commonMenuItems.map((item) => renderMenuItem(item))}
@@ -496,10 +498,10 @@ if (user?.role === 'farmer') {
           </div>
 
           {/* Settings & Actions */}
-          <div className="p-6 border-t border-gray-200 dark:border-gray-700 space-y-4">
+          <div className="p-6 border-t border-[var(--border)] space-y-4">
             {/* Theme Toggle */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Theme</span>
+              <span className="text-sm font-medium">Theme</span>
               <Button
                 variant="ghost"
                 size="sm"
@@ -516,7 +518,7 @@ if (user?.role === 'farmer') {
 
             {/* Language Switcher */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Language</span>
+              <span className="text-sm font-medium">Language</span>
               <LanguageSwitcher />
             </div>
 

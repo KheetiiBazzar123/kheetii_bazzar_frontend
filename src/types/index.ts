@@ -3,7 +3,7 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'farmer' | 'buyer';
+  role: 'farmer' | 'buyer' | 'admin';
   phone?: string;
   address?: Address;
   isEmailVerified: boolean;
@@ -132,6 +132,7 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
 export interface LoginRequest {
   email: string;
   password: string;
+  role: 'farmer' | 'buyer' | 'admin';
 }
 
 export interface RegisterRequest {
@@ -139,7 +140,7 @@ export interface RegisterRequest {
   password: string;
   firstName: string;
   lastName: string;
-  role: 'farmer' | 'buyer';
+  role: 'farmer' | 'buyer' | 'admin';
   phone?: string;
   address?: Address;
 }

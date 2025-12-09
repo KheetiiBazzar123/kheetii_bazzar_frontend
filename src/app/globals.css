@@ -3,12 +3,40 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg: #dfffc3;
+    --bg-strong: #c4f59b;
+    --bg-card: rgba(255, 255, 255, 0.8);
+    --text: #0f1a0f;
+    --muted: #355235;
+    --brand: #1bb85d;
+    --brand-strong: #17a353;
+    --border: rgba(255, 255, 255, 0.7);
+    --shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+    --radius: 18px;
+  }
+
+  .dark {
+    --bg: #0b1020;
+    --bg-strong: #11182d;
+    --bg-card: rgba(17, 24, 45, 0.8);
+    --text: #f5f7ff;
+    --muted: #c7d2fe;
+    --brand: #9ef18b;
+    --brand-strong: #6de564;
+    --border: rgba(148, 163, 184, 0.3);
+    --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    --radius: 18px;
+  }
+
   * {
     @apply border-gray-200 dark:border-gray-700;
   }
   
   body {
-    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-gray-900 dark:text-gray-100 antialiased transition-colors duration-200;
+    background: var(--bg);
+    color: var(--text);
+    @apply antialiased transition-colors duration-200;
   }
   
   html {
@@ -19,15 +47,24 @@
 @layer components {
   /* Modern Button Styles */
   .btn-primary {
-    @apply bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 active:scale-95;
+    @apply text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 active:scale-95;
+    background: var(--brand);
+  }
+  .btn-primary:hover {
+    background: var(--brand-strong);
   }
   
   .btn-secondary {
-    @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 active:scale-95;
+    @apply font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 active:scale-95;
+    background: var(--bg-card);
+    color: var(--text);
+    border: 1px solid var(--border);
   }
   
   .btn-outline {
-    @apply border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-500 hover:text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95;
+    @apply font-semibold px-6 py-3 rounded-xl transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95;
+    border: 2px solid var(--brand);
+    color: var(--brand);
   }
   
   .btn-ghost {
@@ -40,7 +77,9 @@
   
   /* Modern Card Styles */
   .card {
-    @apply bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border border-white/20 dark:border-gray-700/20 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 p-6;
+    @apply backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 p-6;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
   }
   
   .card-hover {
@@ -58,7 +97,13 @@
   
   /* Modern Input Styles */
   .input {
-    @apply w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-500;
+    @apply w-full px-4 py-3 backdrop-blur-sm rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .input::placeholder {
+    color: var(--muted);
   }
   
   .input-error {
@@ -67,7 +112,8 @@
   
   /* Label Styles */
   .label {
-    @apply text-sm font-semibold text-gray-700 mb-2 block;
+    @apply text-sm font-semibold mb-2 block;
+    color: var(--text);
   }
   
   /* Badge Styles */
