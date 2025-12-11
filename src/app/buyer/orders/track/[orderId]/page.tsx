@@ -4,20 +4,24 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { withBuyerProtection } from '@/components/RouteProtection';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import DashboardLayout from '@/components/DashboardLayout';
 import { apiService } from '@/services/api';
+import { apiClient } from '@/lib/api';
+import { Order } from '@/types';
 import { useTranslation } from 'react-i18next';
 import OrderTimeline from '@/components/OrderTimeline';
 import OrderStatusBadge from '@/components/OrderStatusBadge';
-import { 
-  MapPinIcon, 
-  PhoneIcon, 
+import {
+  MapPinIcon,
+  PhoneIcon,
   EnvelopeIcon,
   ClipboardDocumentListIcon,
   ArrowLeftIcon
 } from '@heroicons/react/24/outline';
 
-export default function OrderTracking() {
+
+function OrderTracking() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const params = useParams();
@@ -35,7 +39,7 @@ export default function OrderTracking() {
 
   const loadOrder = async () => {
     try {
-      const response = await api.getOrder(orderId);
+      const response = await apiClient.getOrder(orderId);
       if (response.success && response.data) {
         setOrder(response.data);
       } else {
@@ -239,7 +243,7 @@ export default function OrderTracking() {
                 <p className="font-medium text-gray-900 dark:text-white">
                   {order.farmer.firstName} {order.farmer.lastName}
                 </p>
-               </div>
+              </div>
               <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                 <EnvelopeIcon className="h-4 w-4" />
                 <span>{order.farmer.email}</span>
@@ -265,11 +269,10 @@ export default function OrderTracking() {
               <span className="text-sm text-gray-500 dark:text-gray-400">
                 {t('orders.paymentStatus')}:
               </span>
-              <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
-                order.paymentStatus === 'paid'
-                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                  : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
-              }`}>
+              <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${order.paymentStatus === 'paid'
+                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
+                }`}>
                 {t(`orders.paymentStatus.${order.paymentStatus}`)}
               </span>
             </div>
@@ -310,3 +313,5 @@ export default function OrderTracking() {
     </div>
   );
 }
+
+export default withBuyerProtection(OrderTracking);

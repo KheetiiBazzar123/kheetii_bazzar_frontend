@@ -55,6 +55,8 @@ function DeliveryPage() {
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [availableOrders, setAvailableOrders] = useState<any[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
   const [stats, setStats] = useState({
     total: 0,
     scheduled: 0,
@@ -66,6 +68,31 @@ function DeliveryPage() {
   useEffect(() => {
     fetchSchedules();
   }, []);
+
+  useEffect(() => {
+    if (showCreateModal) {
+      fetchAvailableOrders();
+    }
+  }, [showCreateModal]);
+
+  const fetchAvailableOrders = async () => {
+    setLoadingOrders(true);
+    try {
+      // Fetch confirmed and preparing orders
+      const response = await apiClient.getFarmerOrders(1, 50);
+      if (response.success && response.data) {
+        // Filter orders that are confirmed or preparing (ready for delivery scheduling)
+        const ordersForDelivery = response.data.filter(
+          (order: any) => order.status === 'confirmed' || order.status === 'preparing'
+        );
+        setAvailableOrders(ordersForDelivery);
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
 
   const fetchSchedules = async () => {
     setLoading(true);
@@ -98,8 +125,9 @@ function DeliveryPage() {
     setCreating(true);
 
     const formData = new FormData(e.currentTarget);
+    const orderValue = formData.get('order') as string;
 
-    const data = {
+    const data: any = {
       deliveryDate: formData.get('deliveryDate') as string,
       timeSlot: formData.get('timeSlot') as string,
       address: {
@@ -111,6 +139,11 @@ function DeliveryPage() {
       },
       specialInstructions: formData.get('specialInstructions') as string,
     };
+
+    // Only include order if one is selected
+    if (orderValue && orderValue !== '') {
+      data.order = orderValue;
+    }
 
     try {
       await apiClient.createDeliverySchedule(data);
@@ -416,6 +449,28 @@ function DeliveryPage() {
           <div className="bg-white rounded-lg p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold mb-4">Create Delivery Schedule</h3>
             <form onSubmit={handleCreateSchedule} className="space-y-4">
+              {/* Order Selection */}
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Related Order (Optional)
+                </label>
+                <select
+                  name="order"
+                  className="w-full px-3 py-2 border rounded-lg"
+                  disabled={loadingOrders}
+                >
+                  <option value="">No specific order (general delivery)</option>
+                  {availableOrders.map((order) => (
+                    <option key={order._id} value={order._id}>
+                      Order #{order._id.slice(-8)} - ₹{order.totalAmount} - {order.buyer.firstName} {order.buyer.lastName}
+                    </option>
+                  ))}
+                </select>
+                {loadingOrders && (
+                  <p className="text-sm text-gray-500 mt-1">Loading orders...</p>
+                )}
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Delivery Date *</label>
