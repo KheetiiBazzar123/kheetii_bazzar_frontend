@@ -7,11 +7,11 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { apiService } from '@/services/api';
 import showToast from '@/lib/toast';
 import { useTranslation } from 'react-i18next';
-import {apiClient} from '@/lib/api'
+import { apiClient } from '@/lib/api'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import OrderStatusBadge from '@/components/OrderStatusBadge';
-import { 
+import {
   EyeIcon,
   CheckCircleIcon,
   ClockIcon,
@@ -67,44 +67,44 @@ function FarmerOrders() {
   const { user } = useAuth();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-const searchParams = useSearchParams();
-const [filter, setFilter] = useState<string>('all');useEffect(() => {
-  const statusParam = searchParams.get('status');
-  setFilter(statusParam || 'all');
-}, [searchParams]);
+  const searchParams = useSearchParams();
+  const [filter, setFilter] = useState<string>('all'); useEffect(() => {
+    const statusParam = searchParams.get('status');
+    setFilter(statusParam || 'all');
+  }, [searchParams]);
 
-useEffect(() => {
-  fetchOrders();
-}, [filter]);
- const fetchOrders = async () => {
-  try {
-    const response = await apiClient.getFarmerOrders(
-      1,
-      50,
-      filter === 'all' ? undefined : filter
-    );
+  useEffect(() => {
+    fetchOrders();
+  }, [filter]);
+  const fetchOrders = async () => {
+    try {
+      const response = await apiClient.getFarmerOrders(
+        1,
+        50,
+        filter === 'all' ? undefined : filter
+      );
 
-   
-    if (response && response.data) {
-      setOrders(response.data); 
+
+      if (response && response.data) {
+        setOrders(response.data);
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      setLoading(false);
     }
-
-    setLoading(false);
-  } catch (error) {
-    console.error('Error fetching orders:', error);
-    setLoading(false);
-  }
-};
+  };
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
       const response = await apiService.updateOrderStatus(orderId, newStatus);
-      
+
       if (response.success) {
         // Update the local state
-        setOrders(prevOrders => 
-          prevOrders.map(order => 
-            order._id === orderId 
+        setOrders(prevOrders =>
+          prevOrders.map(order =>
+            order._id === orderId
               ? { ...order, status: newStatus as any, updatedAt: new Date().toISOString() }
               : order
           )
@@ -123,7 +123,7 @@ useEffect(() => {
       case 'shipped': return 'text-indigo-600 bg-indigo-100';
       case 'delivered': return 'text-green-600 bg-green-100';
       case 'cancelled': return 'text-red-600 bg-red-100';
-      primary: return 'text-gray-600 bg-gray-100';
+        primary: return 'text-gray-600 bg-gray-100';
     }
   };
 
@@ -135,7 +135,7 @@ useEffect(() => {
       case 'shipped': return <TruckIcon className="h-4 w-4" />;
       case 'delivered': return <CheckCircleIcon className="h-4 w-4" />;
       case 'cancelled': return <ClockIcon className="h-4 w-4" />;
-      primary: return <ClockIcon className="h-4 w-4" />;
+        primary: return <ClockIcon className="h-4 w-4" />;
     }
   };
 
@@ -180,11 +180,10 @@ useEffect(() => {
               <button
                 key={option.value}
                 onClick={() => setFilter(option.value)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  filter === option.value
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === option.value
                     ? 'bg-emerald-600 text-white'
                     : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                }`}
+                  }`}
               >
                 {option.label}
               </button>
@@ -194,7 +193,7 @@ useEffect(() => {
 
         {/* Orders List */}
         <div className="space-y-6">
-          {(orders??[]).map((order, index) => (
+          {(orders ?? []).map((order, index) => (
             <motion.div
               key={order._id}
               initial={{ opacity: 0, y: 20 }}
@@ -325,12 +324,12 @@ useEffect(() => {
         </div>
 
         {/* Empty State */}
-        {orders &&orders.length === 0 && (
+        {orders && orders.length === 0 && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">📦</div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('farmer.orders.noOrders')}</h3>
             <p className="text-gray-600 mb-4">
-              {filter === 'all' 
+              {filter === 'all'
                 ? t('farmer.orders.noOrdersDescription')
                 : `${t('common.no')} ${filter} ${t('farmer.orders.title').toLowerCase()}`
               }

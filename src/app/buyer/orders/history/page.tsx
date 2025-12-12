@@ -73,7 +73,10 @@ function BuyerOrderHistory() {
                 // Transform API response to match OrderHistory interface if needed
                 // Assuming API returns compatible structure or we map it here
                 // Assuming API returns array of orders in data.orders
-                setOrders((response.data?.orders || []) as any);
+                // setOrders((response.data?.orders || []) as any);
+                const ordersArray = Array.isArray(response.data) ? response.data : [];
+                setOrders(ordersArray);
+
             } else {
                 setOrders([]);
             }
@@ -89,7 +92,9 @@ function BuyerOrderHistory() {
         switch (status) {
             case 'pending': return <ClockIcon className="h-4 w-4" />;
             case 'confirmed': return <CheckCircleIcon className="h-4 w-4" />;
-            case 'dispatched': return <TruckIcon className="h-4 w-4" />;
+            // case 'dispatched': return <TruckIcon className="h-4 w-4" />;
+            case 'shipped': return <TruckIcon className="h-4 w-4" />;
+
             case 'delivered': return <CheckCircleIcon className="h-4 w-4" />;
             case 'cancelled': return <XCircleIcon className="h-4 w-4" />;
                 primary: return <ClockIcon className="h-4 w-4" />;
@@ -100,7 +105,9 @@ function BuyerOrderHistory() {
         switch (status) {
             case 'pending': return 'bg-yellow-100 text-yellow-800';
             case 'confirmed': return 'bg-blue-100 text-blue-800';
-            case 'dispatched': return 'bg-purple-100 text-purple-800';
+            // case 'dispatched': return 'bg-purple-100 text-purple-800';
+            case 'shipped': return 'bg-purple-100 text-purple-800';
+
             case 'delivered': return 'bg-green-100 text-green-800';
             case 'cancelled': return 'bg-red-100 text-red-800';
                 primary: return 'bg-gray-100 text-gray-800';
@@ -255,7 +262,8 @@ function BuyerOrderHistory() {
                                     <option value="all">All Orders</option>
                                     <option value="pending">Pending</option>
                                     <option value="confirmed">Confirmed</option>
-                                    <option value="dispatched">Dispatched</option>
+                                    {/* <option value="dispatched">Dispatched</option> */}
+                                    <option value="shipped">Shipped</option>
                                     <option value="delivered">Delivered</option>
                                     <option value="cancelled">Cancelled</option>
                                 </select>

@@ -314,18 +314,27 @@ class ApiService {
         }
       });
     }
-    return this.request(`/buyer/orders?${queryParams.toString()}`);
+    // return this.request(`/buyer/orders?${queryParams.toString()}`);
+    return this.request(`/orders/buyer/my-orders?${queryParams.toString()}`);
+
   }
 
   async getOrder(orderId: string): Promise<ApiResponse<{ order: Order }>> {
-    return this.request(`/buyer/orders/${orderId}`);
+    // return this.request(`/buyer/orders/${orderId}`);
+    return this.request(`/orders/buyer/${orderId}`);
+
   }
 
   async cancelOrder(orderId: string, reason?: string): Promise<ApiResponse<{ order: Order }>> {
-    return this.request(`/buyer/orders/${orderId}/cancel`, {
+    // return this.request(`/buyer/orders/${orderId}/cancel`, {
+    //   method: 'PATCH',
+    //   body: JSON.stringify({ reason })
+    // });
+    return this.request(`/orders/buyer/${orderId}/cancel`, {
       method: 'PATCH',
       body: JSON.stringify({ reason })
     });
+
 
 
   }

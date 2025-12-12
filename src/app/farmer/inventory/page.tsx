@@ -63,10 +63,27 @@ function InventoryPage() {
     expiringSoon: 0,
     wasted: 0,
   });
+  const [farmerProducts, setFarmerProducts] = useState<any[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
 
   useEffect(() => {
     fetchInventory();
   }, []);
+
+  const fetchFarmerProducts = async () => {
+    setLoadingProducts(true);
+    try {
+      const response = await apiClient.getFarmerProducts(1, 100);
+      if (response.success && response.data) {
+        setFarmerProducts(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching farmer products:', error);
+      showToast.error('Error fetching products');
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
 
   const fetchInventory = async () => {
     setLoading(true);
@@ -133,7 +150,10 @@ function InventoryPage() {
       title={t('farmer.inventory.title')}
       subtitle={t('farmer.inventory.subtitle')}
       actions={
-        <Button onClick={() => setShowAddModal(true)}>
+        <Button onClick={() => {
+          fetchFarmerProducts();
+          setShowAddModal(true);
+        }}>
           <PlusIcon className="h-5 w-5 mr-2" />
           {t('farmer.inventory.addInventory')}
         </Button>
@@ -239,7 +259,10 @@ function InventoryPage() {
               <div className="text-center py-12">
                 <ArchiveBoxIcon className="mx-auto h-12 w-12 text-gray-400" />
                 <p className="mt-2 text-gray-600">{t('farmer.inventory.noInventory')}</p>
-                <Button className="mt-4" onClick={() => setShowAddModal(true)}>
+                <Button className="mt-4" onClick={() => {
+                  fetchFarmerProducts();
+                  setShowAddModal(true);
+                }}>
                   {t('farmer.inventory.addFirstItem')}
                 </Button>
               </div>
@@ -333,14 +356,29 @@ function InventoryPage() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">{t('farmer.inventory.product')}</label>
-                  <p className="text-xs text-gray-500 mb-2">{t('farmer.inventory.note')}</p>
-                  <input
-                    type="text"
-                    name="product"
-                    required
-                    placeholder={t('farmer.inventory.productId')}
-                    className="w-full px-3 py-2 border rounded-lg"
-                  />
+                  <p className="text-xs text-gray-500 mb-2">Select a product from your products list</p>
+                  {loadingProducts ? (
+                    <div className="w-full px-3 py-2 border rounded-lg bg-gray-50 text-gray-500">
+                      Loading products...
+                    </div>
+                  ) : farmerProducts.length === 0 ? (
+                    <div className="w-full px-3 py-2 border rounded-lg bg-yellow-50 text-yellow-700">
+                      No products found. Please create a product first.
+                    </div>
+                  ) : (
+                    <select
+                      name="product"
+                      required
+                      className="w-full px-3 py-2 border rounded-lg"
+                    >
+                      <option value="">Select a product</option>
+                      {farmerProducts.map((product) => (
+                        <option key={product._id} value={product._id}>
+                          {product.name} - {product.category}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">{t('farmer.inventory.currentStock')}</label>
