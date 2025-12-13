@@ -7,7 +7,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { 
+import {
   UserIcon,
   EnvelopeIcon,
   PhoneIcon,
@@ -35,6 +35,7 @@ interface ProfileData {
   };
   isEmailVerified: boolean;
   createdAt: string;
+  imageUrl?: string;
 }
 
 function ProfilePage() {
@@ -54,7 +55,10 @@ function ProfilePage() {
       country: 'India'
     },
     isEmailVerified: false,
-    createdAt: ''
+    createdAt: '',
+    imageUrl: '',
+
+
   });
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -85,7 +89,7 @@ function ProfilePage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    
+
     if (name.startsWith('address.')) {
       const field = name.split('.')[1];
       setProfileData(prev => ({
@@ -110,13 +114,13 @@ function ProfilePage() {
     try {
       // In a real app, you would call the API to update the profile
       // await apiClient.updateProfile(profileData);
-      
+
       // For now, we'll just update the local state
       updateUser({
         ...user!,
         ...profileData
       });
-      
+
       setIsEditing(false);
     } catch (err: any) {
       setError(err.message || 'Failed to update profile');
@@ -124,6 +128,24 @@ function ProfilePage() {
       setSaving(false);
     }
   };
+
+
+  const handleImageUpload = (e: any) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setProfileData(prev => ({
+        ...prev,
+        imageUrl: reader.result as string
+      }));
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+
 
   const handleCancel = () => {
     if (user) {
@@ -152,7 +174,7 @@ function ProfilePage() {
     switch (role) {
       case 'farmer': return 'text-green-600 bg-green-100';
       case 'buyer': return 'text-blue-600 bg-blue-100';
-      primary: return 'text-gray-600 bg-gray-100';
+        primary: return 'text-gray-600 bg-gray-100';
     }
   };
 
@@ -189,9 +211,47 @@ function ProfilePage() {
             <Card>
               <CardContent className="p-6">
                 <div className="text-center">
-                  <div className="w-24 h-24 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  {/* <div className="w-24 h-24 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <UserIcon className="h-12 w-12 text-white" />
+                  </div> */}
+                  <div className="relative w-24 h-24 mx-auto mb-4">
+                    {/* Profile Image Placeholder */}
+                    <div className="w-full h-full bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center overflow-hidden">
+                      {profileData.imageUrl ? (
+                        <img
+                          src={profileData.imageUrl}
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <UserIcon className="h-12 w-12 text-white" />
+                      )}
+                    </div>
+
+                    {/* EDIT BUTTON — SMALL CIRCLE ON IMAGE */}
+                    <button
+                      onClick={() => document.getElementById("profileImageInput")?.click()}
+                      className="
+      absolute bottom-0 right-0 
+      bg-white shadow-md rounded-full 
+      p-2 hover:bg-gray-100 transition
+      border border-gray-300
+    "
+                    >
+                      <PencilIcon className="h-4 w-4 text-gray-700" />
+                    </button>
+
+                    {/* Hidden Input */}
+                    <input
+                      id="profileImageInput"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                    />
                   </div>
+
+
                   <h2 className="text-xl font-bold text-gray-900 mb-2">
                     {profileData.firstName} {profileData.lastName}
                   </h2>
@@ -446,7 +506,7 @@ function ProfilePage() {
                           {profileData.role.charAt(0).toUpperCase() + profileData.role.slice(1)}
                         </div>
                         <p className="text-sm text-gray-600 mt-1">
-                          {profileData.role === 'farmer' 
+                          {profileData.role === 'farmer'
                             ? t('profilePage.farmerDesc')
                             : t('profilePage.buyerDesc')
                           }
