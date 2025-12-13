@@ -1,5 +1,5 @@
 'use client';
-
+import Swal from "sweetalert2";
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { withBuyerProtection } from '@/components/RouteProtection';
@@ -194,44 +194,394 @@ function BuyerMarketplace() {
   //     }
   //   };
 
+  // const handlePlaceOrder = async (product: Product) => {
+  //   try {
+
+  //     const orderData = {
+  //       products: [
+  //         {
+  //           product: product._id,
+  //           quantity: cart[product._id] || 1,
+  //         },
+  //       ],
+  //       shippingAddress: {
+  //         street: '123 Main Street',
+  //         city: 'Mumbai',
+  //         state: 'Maharashtra',
+  //         zipCode: '400001',
+  //         country: 'India',
+  //       },
+  //       paymentMethod: 'cod' as 'cod' | 'card' | 'upi' | 'wallet',
+  //       notes: `Order for product: ${product.name}`,
+  //     };
+
+  //     // API call
+  //     const response = await apiService.createOrder(orderData);
+
+  //     if (response.success) {
+  //       showToast.success('Order placed successfully!');
+  //       window.location.href = "/buyer/orders";
+
+  //       console.log('Order Response:', response.data ?? response);
+
+  //     } else {
+  //       showToast.error(response.message || 'Failed to place order!');
+  //     }
+  //   } catch (error) {
+  //     console.error(' Error placing order:', error);
+  //     showToast.error('Something went wrong while placing your order.');
+  //   }
+  // };
+
+
   const handlePlaceOrder = async (product: Product) => {
+    const { value: formData } = await Swal.fire({
+      title: "Place Your Order",
+      width: "min(600px, 95vw)",
+      padding: "30px",
+      showCancelButton: true,
+      confirmButtonText: "✓ Confirm & Place Order",
+      cancelButtonText: "← Cancel",
+      confirmButtonColor: "#10b981",
+      cancelButtonColor: "#6b7280",
+      buttonsStyling: true,
+      customClass: {
+        popup: "order-modal-popup",
+        title: "order-modal-title",
+        htmlContainer: "order-modal-content",
+        confirmButton: "order-modal-confirm",
+        cancelButton: "order-modal-cancel"
+      },
+
+      html: `
+        <style>
+          @media (max-width: 640px) {
+            .swal2-popup.order-modal-popup { padding: 20px !important; }
+            .order-modal-title { font-size: 18px !important; }
+          }
+          
+          .order-modal-title { padding: 0 !important; margin: 0 !important; }
+          .order-modal-content { padding: 0 !important; margin: 0 !important; }
+          
+          .order-modal-confirm {
+            padding: 12px 28px !important;
+            font-size: 15px !important;
+            font-weight: 600 !important;
+            border-radius: 10px !important;
+            transition: all 0.2s ease !important;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+          }
+          .order-modal-confirm:hover {
+            background: #059669 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4) !important;
+          }
+          
+          .order-modal-cancel {
+            padding: 12px 28px !important;
+            font-size: 15px !important;
+            font-weight: 600 !important;
+            border-radius: 10px !important;
+            transition: all 0.2s ease !important;
+          }
+          .order-modal-cancel:hover {
+            background: #4b5563 !important;
+          }
+          
+          .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            margin-top: 16px;
+          }
+          
+          .form-input, .form-select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #1f2937;
+            background: white;
+            transition: all 0.2s ease;
+            outline: none;
+          }
+          
+          .form-input:hover, .form-select:hover {
+            border-color: #9ca3af;
+          }
+          
+          .form-input:focus, .form-select:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+          }
+          
+          .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+          }
+          
+          @media (max-width: 640px) {
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+          }
+        </style>
+        
+        <div style="text-align: left;">
+          <!-- Product Summary Card -->
+          <div style="
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #0ea5e9;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
+          ">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+
+              <div style="flex: 1;">
+                <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #0c4a6e;">${product.name}</h3>
+                <p style="margin: 4px 0 0 0; font-size: 13px; color: #475569;">Fresh from the farm</p>
+              </div>
+            </div>
+            <div style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              background: white;
+              padding: 10px 14px;
+              border-radius: 8px;
+            ">
+              <span style="font-size: 14px; color: #64748b;">Unit Price</span>
+              <span style="font-size: 18px; font-weight: 700; color: #0c4a6e;">₹${product.price}/<small>${product.unit}</small></span>
+            </div>
+          </div>
+
+          <!-- Quantity -->
+          <label class="form-label" style="margin-top: 0;">
+            <span style="color: #dc2626;">*</span> Quantity
+          </label>
+          <input id="qty" type="number" min="1" max="1000" value="1" class="form-input" />
+
+          <!-- Address Section Header -->
+          <div style="
+            margin-top: 24px;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+          ">
+            <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: #1f2937;"> Delivery Address</h4>
+          </div>
+
+          <!-- Street Address -->
+          <label class="form-label" style="margin-top: 0;">
+            <span style="color: #dc2626;">*</span> Street Address
+          </label>
+          <input id="street" class="form-input" placeholder="Street / House No / Apartment" />
+
+          <!-- City & State Row -->
+          <div class="form-row">
+            <div>
+              <label class="form-label">
+                <span style="color: #dc2626;">*</span> City
+              </label>
+              <input id="city" class="form-input" placeholder="Enter City" />
+            </div>
+            <div>
+              <label class="form-label">
+                <span style="color: #dc2626;">*</span> State
+              </label>
+              <input id="state" class="form-input" placeholder="Enter State" />
+            </div>
+          </div>
+
+          <!-- Zip & Country Row -->
+          <div class="form-row">
+            <div>
+              <label class="form-label">
+                <span style="color: #dc2626;">*</span> PIN Code
+              </label>
+              <input id="zip" type="text" maxlength="6" class="form-input" placeholder="6-digit PIN" />
+            </div>
+            <div>
+              <label class="form-label">
+                <span style="color: #dc2626;">*</span> Country
+              </label>
+              <input id="country" class="form-input" value="India" readonly style="background: #f9fafb;" />
+            </div>
+          </div>
+
+          <!-- Payment Section Header -->
+          <div style="
+            margin-top: 24px;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+          ">
+            <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: #1f2937;"> Payment Method</h4>
+          </div>
+
+          <label class="form-label" style="margin-top: 0;">
+            <span style="color: #dc2626;">*</span> Select Payment
+          </label>
+          <select id="payment" class="form-select">
+            <option value="cod"> Cash on Delivery (COD)</option>
+          </select>
+
+          <!-- Total Price Card -->
+          <div id="totalBox" style="
+            margin-top: 24px;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 2px solid #10b981;
+            padding: 18px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+          ">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 16px; font-weight: 600; color: #065f46;">Order Total</span>
+              <span style="
+                font-size: 24px;
+                font-weight: 700;
+                color: #047857;
+                letter-spacing: -0.5px;
+              ">₹${product.price}</span>
+            </div>
+            <p style="margin: 8px 0 0 0; font-size: 12px; color: #059669;">
+              ✓ Includes all taxes • Fast delivery
+            </p>
+          </div>
+        </div>
+      `,
+
+      didOpen: () => {
+        const qtyInput = document.getElementById("qty") as HTMLInputElement;
+        const totalBox = document.getElementById("totalBox");
+
+        qtyInput.addEventListener("input", () => {
+          const qty = Number(qtyInput.value) || 1;
+          const total = qty * product.price;
+          totalBox.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 16px; font-weight: 600; color: #065f46;">Order Total</span>
+              <span style="
+                font-size: 24px;
+                font-weight: 700;
+                color: #047857;
+                letter-spacing: -0.5px;
+              ">₹${total}</span>
+            </div>
+            <p style="margin: 8px 0 0 0; font-size: 12px; color: #059669;">
+              ✓ Includes all taxes • Fast delivery
+            </p>
+          `;
+        });
+      },
+
+      preConfirm: () => {
+        const qty = Number((document.getElementById("qty") as HTMLInputElement).value);
+        const street = (document.getElementById("street") as HTMLInputElement).value.trim();
+        const city = (document.getElementById("city") as HTMLInputElement).value.trim();
+        const state = (document.getElementById("state") as HTMLInputElement).value.trim();
+        const zip = (document.getElementById("zip") as HTMLInputElement).value.trim();
+        const country = (document.getElementById("country") as HTMLInputElement).value.trim();
+        const payment = (document.getElementById("payment") as HTMLSelectElement).value;
+
+        // VALIDATIONS
+        if (!qty || qty < 1) {
+          Swal.showValidationMessage(" Please enter a valid quantity (minimum 1)");
+          return false;
+        }
+
+        if (!street) {
+          Swal.showValidationMessage(" Street address is required");
+          return false;
+        }
+
+        if (!city) {
+          Swal.showValidationMessage(" City is required");
+          return false;
+        }
+
+        if (!state) {
+          Swal.showValidationMessage(" State is required");
+          return false;
+        }
+
+        if (!zip) {
+          Swal.showValidationMessage(" PIN code is required");
+          return false;
+        }
+
+        if (zip.length !== 6 || !/^\d{6}$/.test(zip)) {
+          Swal.showValidationMessage(" PIN code must be exactly 6 digits");
+          return false;
+        }
+
+        return { qty, street, city, state, zip, country, payment };
+      },
+    });
+
+    if (!formData) return;
+
+    // API PAYLOAD
+    const payload = {
+      products: [{ product: product._id, quantity: formData.qty }],
+      shippingAddress: {
+        street: formData.street,
+        city: formData.city,
+        state: formData.state,
+        zipCode: formData.zip,
+        country: formData.country
+      },
+      paymentMethod: formData.payment,
+      notes: `Order for ${product.name}`,
+    };
+
     try {
-
-      const orderData = {
-        products: [
-          {
-            product: product._id,
-            quantity: cart[product._id] || 1,
-          },
-        ],
-        shippingAddress: {
-          street: '123 Main Street',
-          city: 'Mumbai',
-          state: 'Maharashtra',
-          zipCode: '400001',
-          country: 'India',
-        },
-        paymentMethod: 'cod' as 'cod' | 'card' | 'upi' | 'wallet',
-        notes: `Order for product: ${product.name}`,
-      };
-
-      // API call
-      const response = await apiService.createOrder(orderData);
+      const response = await apiService.createOrder(payload);
 
       if (response.success) {
-        showToast.success('Order placed successfully!');
+        Swal.fire({
+          icon: "success",
+          title: " Order Placed Successfully!",
+          html: `
+            <div style="text-align: center; padding: 10px;">
+              <p style="font-size: 15px; color: #374151; margin: 10px 0;">
+                Your order has been confirmed!
+              </p>
+              <p style="font-size: 13px; color: #6b7280; margin: 5px 0;">
+                The farmer will prepare your order soon.
+              </p>
+            </div>
+          `,
+          confirmButtonText: "View My Orders",
+          confirmButtonColor: "#10b981",
+          timer: 3000,
+          timerProgressBar: true,
+        });
+
         window.location.href = "/buyer/orders";
-
-        console.log('Order Response:', response.data ?? response);
-
       } else {
-        showToast.error(response.message || 'Failed to place order!');
+        Swal.fire({
+          icon: "error",
+          title: " Order Failed",
+          text: response.message || "Failed to place order",
+          confirmButtonColor: "#dc2626"
+        });
       }
-    } catch (error) {
-      console.error(' Error placing order:', error);
-      showToast.error('Something went wrong while placing your order.');
+    } catch (e) {
+      Swal.fire({
+        icon: "error",
+        title: " Error",
+        text: "Something went wrong. Please try again.",
+        confirmButtonColor: "#dc2626"
+      });
     }
   };
+
+
 
 
 
